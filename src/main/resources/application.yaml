@@ -1,0 +1,9 @@
+spring:
+  application:
+    name: store
+  datasource:
+    url: jdbc:mysql://localhost:3306/email_sender?createDatabaseIfNotExist=true
+    username: root
+    password: mare2003
+  jpa:
+    show-sql: true
