@@ -1,9 +1,50 @@
 spring:
   application:
     name: store
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - email
+              - profile
+        provider:
+          google:
+            authorization-uri: https://accounts.google.com/o/oauth2/v2/auth
+            token-uri: https://oauth2.googleapis.com/token
+            user-info-uri: https://www.googleapis.com/oauth2/v3/userinfo
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: markocevrljakovic87@gmail.com
+    password: ${EMAIL_SECRET_APP_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
   datasource:
     url: jdbc:mysql://localhost:3306/email_sender?createDatabaseIfNotExist=true
     username: root
     password: mare2003
   jpa:
     show-sql: true
+  jwt:
+    secret: ${JWT_SECRET_KEY}
+    accessTokenExpiration: 7200 # 2 hours
+    refreshTokenExpiration: 604800 # 7 days
+
+google:
+  oauth2:
+    client-id: ${GMAIL_CLIENT_ID}
+    client-secret: ${GMAIL_CLIENT_SECRET}
+    redirect-uri: http://localhost:8080/oauth2callback
+    scope: https://mail.google.com/
+
+app:
+  url: http://localhost:8080

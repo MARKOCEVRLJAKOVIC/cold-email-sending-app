@@ -1,14 +1,13 @@
 package dev.marko.EmailSender.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -30,9 +29,23 @@ public class User {
     @Column(name = "email")
     private String email;
 
+    @Column(name = "role")
+    @Enumerated(EnumType.STRING)
+    private Role role;
+
+    @Column(name = "enabled")
+    private Boolean enabled;
+
     @OneToMany(mappedBy = "user")
     private List<EmailMessage> emailMessages = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")
-    private List<Smtp> credentials = new ArrayList<>();
+    private List<SmtpCredentials> credentials = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<EmailTemplate> templates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<Campaign> campaigns = new ArrayList<>();
+
 }

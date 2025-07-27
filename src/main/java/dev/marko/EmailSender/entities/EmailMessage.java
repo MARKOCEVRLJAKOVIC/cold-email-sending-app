@@ -2,6 +2,10 @@ package dev.marko.EmailSender.entities;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.time.LocalDateTime;
 
 @Builder
 @Entity
@@ -17,27 +21,53 @@ public class EmailMessage {
     @Column(name = "id")
     private Long id;
 
-    @Column(name = "recipient_name")
-    private String recipientName;
-
     @Column(name = "recipient_email")
     private String recipientEmail;
 
-    @Column(name = "subject")
-    private String subject;
+    @Column(name = "recipient_name")
+    private String recipientName;
+
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "sent_at")
+    private LocalDateTime sentAt;
+
+    @PrePersist
+    @PreUpdate
+    private void prePersistOrUpdate() {
+        if (this.status == Status.SENT && this.sentAt == null) {
+            this.sentAt = LocalDateTime.now();
+        }
+    }
 
     @Lob
-    @Column(name = "message")
-    private String message;
+    @Column(name = "sent_message")
+    private String sentMessage;
 
-    @Lob
-    @Column(name = "chosen_template")
-    private String chosenTemplate;
-
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
-    private String status;  // npr. PENDING, SENT, FAILED
+    private Status status = Status.PENDING;
+
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+    @Column(name = "scheduled_at")
+    LocalDateTime scheduledAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "template_id")
+    private EmailTemplate emailTemplate;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "campaign_id")
+    private Campaign campaign;
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "smtp_id")
+    private SmtpCredentials smtpCredentials;
+
 }

@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.services;
 
-import dev.marko.EmailSender.exception.UserNotFoundException;
 import dev.marko.EmailSender.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.User;
@@ -29,4 +28,6 @@ public class UserService implements UserDetailsService {
                 Collections.emptyList()
         );
     }
+
+
 }

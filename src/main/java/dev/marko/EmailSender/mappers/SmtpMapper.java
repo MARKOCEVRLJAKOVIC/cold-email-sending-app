@@ -1,9 +1,8 @@
 package dev.marko.EmailSender.mappers;
 
-import dev.marko.EmailSender.controllers.SmtpController;
 import dev.marko.EmailSender.dtos.RegisterEmailRequest;
 import dev.marko.EmailSender.dtos.SmtpDto;
-import dev.marko.EmailSender.entities.Smtp;
+import dev.marko.EmailSender.entities.SmtpCredentials;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
@@ -12,8 +11,8 @@ import org.mapstruct.MappingTarget;
 public interface SmtpMapper {
 
     @Mapping(target = "userId", source = "user.id")
-    SmtpDto toDto(Smtp smtp);
-    Smtp toEntity(RegisterEmailRequest request);
+    SmtpDto toDto(SmtpCredentials smtpCredentials);
+    SmtpCredentials toEntity(RegisterEmailRequest request);
 
-    void update(RegisterEmailRequest request, @MappingTarget Smtp smtp);
+    void update(RegisterEmailRequest request, @MappingTarget SmtpCredentials smtpCredentials);
 }

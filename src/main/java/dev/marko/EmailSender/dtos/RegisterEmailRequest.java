@@ -23,15 +23,12 @@ public class RegisterEmailRequest {
     @NotNull(message = "Port must not be null")
     private Integer smtpPort;
 
-    @Size(min = 4, message = "Username must be over 4 and under 15 characters", max = 15)
+    @Size(min = 4, message = "Username must be over 4 characters")
     @NotBlank(message = "Username must not be blank")
     private String smtpUsername;
 
     @Size(min = 4, message = "Password must be over 4 and under 50 characters", max = 50)
     @NotBlank(message = "Password must not be blank")
     private String smtpPassword;
-
-    @NotNull(message = "User id must not be null")
-    private Long userId;
 
 }
