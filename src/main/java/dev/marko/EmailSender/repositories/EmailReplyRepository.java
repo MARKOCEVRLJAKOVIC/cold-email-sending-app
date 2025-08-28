@@ -10,6 +10,5 @@ public interface EmailReplyRepository extends JpaRepository<EmailReply, Long> {
 
     Optional<EmailReply> findByIdAndUserId(Long id, Long userId);
     List<EmailReply> findAllByUserId(Long userId);
-    List<EmailReply> findAllByInReplyTo(String inReplyTo);
 
 }
