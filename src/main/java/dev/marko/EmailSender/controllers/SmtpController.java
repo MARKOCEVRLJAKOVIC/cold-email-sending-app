@@ -22,11 +22,10 @@ public class SmtpController {
     
     private final SmtpService smtpService;
 
-
     @GetMapping
     public ResponseEntity<List<SmtpDto>> getAllEmails(){
 
-        var smtpDtoList = smtpService.getAllEmail();
+        var smtpDtoList = smtpService.getAllEmails();
 
         return ResponseEntity.ok(smtpDtoList);
 
@@ -73,16 +72,5 @@ public class SmtpController {
         return ResponseEntity.accepted().build();
 
     }
-
-    @ExceptionHandler(EmailNotFoundException.class)
-    public ResponseEntity<?> emailException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("Email not found"));
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?> userException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("User not found"));
-    }
-
 
 }

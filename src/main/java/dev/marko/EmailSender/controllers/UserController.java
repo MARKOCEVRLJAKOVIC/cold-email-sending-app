@@ -1,7 +1,8 @@
 package dev.marko.EmailSender.controllers;
 
 
-import dev.marko.EmailSender.dtos.ErrorDto;
+import dev.marko.EmailSender.auth.AuthService;
+import dev.marko.EmailSender.auth.NotificationEmailService;
 import dev.marko.EmailSender.dtos.RegisterUserRequest;
 import dev.marko.EmailSender.dtos.UserDto;
 import dev.marko.EmailSender.entities.Role;
@@ -10,13 +11,11 @@ import dev.marko.EmailSender.exception.UserNotFoundException;
 import dev.marko.EmailSender.mappers.UserMapper;
 import dev.marko.EmailSender.repositories.UserRepository;
 import dev.marko.EmailSender.repositories.VerificationTokenRepository;
-import dev.marko.EmailSender.auth.AuthService;
-import dev.marko.EmailSender.auth.NotificationEmailService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
 
 @RequiredArgsConstructor
 @RestController
@@ -61,7 +60,7 @@ public class UserController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody RegisterUserRequest request){
+    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody RegisterUserRequest request, UriComponentsBuilder builder){
 
         var user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
@@ -71,7 +70,9 @@ public class UserController {
 
         var userDto = userMapper.toDto(user);
 
-        return ResponseEntity.ok(userDto);
+        var uri = builder.path("users/{id}").buildAndExpand(user.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(userDto);
 
     }
 
@@ -84,16 +85,6 @@ public class UserController {
 
         return ResponseEntity.accepted().build();
 
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<?> userNotFound(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("User not found"));
-    }
-
-    @ExceptionHandler(UserAlreadyExist.class)
-    public ResponseEntity<?> userAlreadyExist(){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto("User already exist"));
     }
 
 }

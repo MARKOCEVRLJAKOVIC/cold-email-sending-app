@@ -2,13 +2,8 @@ package dev.marko.EmailSender.controllers;
 
 import dev.marko.EmailSender.dtos.CreateTemplateRequest;
 import dev.marko.EmailSender.dtos.EmailTemplateDto;
-import dev.marko.EmailSender.dtos.ErrorDto;
-import dev.marko.EmailSender.exception.CampaignNotFoundException;
-import dev.marko.EmailSender.exception.TemplateEmptyListException;
-import dev.marko.EmailSender.exception.TemplateNotFoundException;
 import dev.marko.EmailSender.services.EmailTemplateService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -64,21 +59,6 @@ public class EmailTemplateController {
         emailTemplateService.deleteTemplate(id);
 
         return ResponseEntity.accepted().build();
-    }
-
-    @ExceptionHandler(TemplateNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleTemplateException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("Template not found"));
-    }
-
-    @ExceptionHandler(TemplateEmptyListException.class)
-    public ResponseEntity<ErrorDto> handleTemplateEmptyListException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("There are no templates yet"));
-    }
-
-    @ExceptionHandler(CampaignNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleCampaignException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("Campaign not found"));
     }
 
 }

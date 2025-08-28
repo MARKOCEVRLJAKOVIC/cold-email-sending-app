@@ -1,4 +1,4 @@
-package dev.marko.EmailSender.email;
+package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.dtos.EmailRecipientDto;
 import org.springframework.stereotype.Service;

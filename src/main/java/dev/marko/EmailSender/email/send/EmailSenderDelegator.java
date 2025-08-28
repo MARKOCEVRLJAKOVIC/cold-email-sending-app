@@ -1,7 +1,7 @@
-package dev.marko.EmailSender.email;
+package dev.marko.EmailSender.email.send;
 
-import dev.marko.EmailSender.email.gmailOAuth.GmailSmtpSender;
 import dev.marko.EmailSender.entities.EmailMessage;
+import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -14,9 +14,10 @@ public class EmailSenderDelegator implements EmailSender{
 
     private final GmailSmtpSender gmailSmtpSender;
     private final SmtpEmailSender smtpEmailSender;
+    private final EmailMessageRepository emailMessageRepository;
 
     @Override
-    public void sendEmails(EmailMessage emailMessage) throws MessagingException {
+    public void sendEmails(EmailMessage  emailMessage) throws MessagingException {
 
         if(emailMessage.getSmtpCredentials().isGmailOauth()){
             gmailSmtpSender.sendEmails(emailMessage);
@@ -24,6 +25,7 @@ public class EmailSenderDelegator implements EmailSender{
         else {
             smtpEmailSender.sendEmails(emailMessage);
         }
+        emailMessageRepository.save(emailMessage);
 
     }
 }

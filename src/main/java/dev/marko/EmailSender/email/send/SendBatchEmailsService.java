@@ -1,12 +1,16 @@
-package dev.marko.EmailSender.email;
+package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.auth.AuthService;
+import dev.marko.EmailSender.dtos.EmailMessageDto;
 import dev.marko.EmailSender.dtos.EmailRecipientDto;
 import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
+import dev.marko.EmailSender.email.spintax.EmailPreparationService;
 import dev.marko.EmailSender.entities.Campaign;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.SmtpCredentials;
+import dev.marko.EmailSender.exception.EmailNotFoundException;
 import dev.marko.EmailSender.exception.TemplateNotFoundException;
+import dev.marko.EmailSender.mappers.EmailMessageMapper;
 import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.SmtpRepository;
@@ -19,10 +23,12 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class EmailMessageService {
+public class SendBatchEmailsService {
 
     private final AuthService authService;
     private final TemplateRepository templateRepository;
@@ -32,13 +38,14 @@ public class EmailMessageService {
     private final EmailPreparationService preparationService;
     private final EmailCsvParser csvParser;
     private final EmailSchedulingService emailSchedulingService;
+    private final EmailMessageMapper emailMessageMapper;
 
 
-    public void sendBatchEmails(MultipartFile file,
-                                LocalDateTime scheduledAt,
-                                Long templateId,
-                                List<Long> smtpIds,
-                                Long campaignId) {
+    public List<EmailMessageDto> sendBatchEmails(MultipartFile file,
+                                                 LocalDateTime scheduledAt,
+                                                 Long templateId,
+                                                 List<Long> smtpIds,
+                                                 Long campaignId) {
 
         var user = authService.getCurrentUser();
 
@@ -57,6 +64,14 @@ public class EmailMessageService {
                 .filter(s -> s.getUser().getId().equals(user.getId()))
                 .toList();
 
+        Set< Long> foundIds = smtpList.stream()
+                .map(SmtpCredentials::getId)
+                .collect(Collectors.toSet());
+
+        if (!foundIds.containsAll(smtpIds)) {
+            throw new EmailNotFoundException();
+        }
+
         if (smtpList.isEmpty()) {
             throw new RuntimeException("No valid SMTP credentials selected");
         }
@@ -67,7 +82,7 @@ public class EmailMessageService {
 
         for (int i = 0; i < recipients.size(); i++) {
             EmailRecipientDto recipient = recipients.get(i);
-            SmtpCredentials smtp = smtpList.get(i % smtpList.size()); // ✅ SMTP rotacija
+            SmtpCredentials smtp = smtpList.get(i % smtpList.size()); // smtp inbox rotation
 
             String messageText = preparationService.generateMessageText(template.getMessage(), recipient.getName());
 
@@ -93,19 +108,25 @@ public class EmailMessageService {
         }
 
         scheduleEmails(scheduledAt, allMessages);
+
+        return allMessages.stream().map(emailMessageMapper::toDto)
+                        .toList();
+
     }
 
     private void scheduleEmails(LocalDateTime scheduledAt, List<EmailMessage> allMessages) {
         if (allMessages.isEmpty()) return;
 
+        long defaultDelay = emailSchedulingService.getDelayInSeconds();
+
         if (scheduledAt == null) {
-            emailSchedulingService.scheduleBatch(allMessages, 15);
+            emailSchedulingService.scheduleBatch(allMessages, defaultDelay);
             return;
         }
 
         long baseDelay = Duration.between(LocalDateTime.now(), scheduledAt).getSeconds();
         for (int i = 0; i < allMessages.size(); i++) {
-            long delay = baseDelay + i * 15;
+            long delay = baseDelay + i * defaultDelay;
             emailSchedulingService.scheduleSingle(allMessages.get(i), delay);
         }
     }

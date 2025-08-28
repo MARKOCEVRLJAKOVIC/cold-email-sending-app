@@ -1,28 +1,54 @@
 package dev.marko.EmailSender.email.gmailOAuth;
 
-import dev.marko.EmailSender.dtos.GenericResponse;
+import dev.marko.EmailSender.dtos.ErrorDto;
+import dev.marko.EmailSender.dtos.SmtpDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriComponentsBuilder;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/gmail-smtp")
 @RequiredArgsConstructor
 public class GmailSmtpController {
 
-    private final GmailConnectionService gmailConnectionService;
-    private final OAuthTokenService oAuthTokenService;
+    private final GmailSmtpService gmailSmtpService;
 
-    @PostMapping("/connect")
-    public ResponseEntity<GenericResponse> connectGmail(@RequestBody GmailConnectRequest request) {
+    @GetMapping
+    public ResponseEntity<List<SmtpDto>> getAllEmailsFromUser(){
 
-        OAuthTokens tokens = oAuthTokenService.exchangeCodeForTokens(request.getCode());
-
-        gmailConnectionService.connectGmail(tokens, request.getSenderEmail());
-        return ResponseEntity.ok(new GenericResponse("Gmail account is successfully connected."));
+        var smtpDtoList = gmailSmtpService.getAllEmailsFromUser();
+        return ResponseEntity.ok(smtpDtoList);
 
     }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<SmtpDto> getEmail(@PathVariable Long id){
+
+        var smtpDto = gmailSmtpService.getEmail(id);
+        return ResponseEntity.ok(smtpDto);
+
+    }
+
+    @PostMapping
+    public ResponseEntity<SmtpDto> connectGmail(@RequestBody GmailConnectRequest request,
+                                                UriComponentsBuilder builder) {
+
+        var smtpDto = gmailSmtpService.connectGmail(request);
+        var uri = builder.path("/gmail-smtp/{id}").buildAndExpand(smtpDto.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(smtpDto);
+
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> disconnectGoogleAccount(@PathVariable Long id){
+
+        gmailSmtpService.disconnectGoogleAccount(id);
+        return ResponseEntity.noContent().build();
+
+    }
+
 }

@@ -7,5 +7,6 @@ public record CampaignStatsDto(
     int total,
     int sent,
     int failed,
-    int pending
+    int pending,
+    int replied
 ) {}

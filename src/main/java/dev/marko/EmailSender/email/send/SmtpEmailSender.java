@@ -1,4 +1,4 @@
-package dev.marko.EmailSender.email;
+package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.SmtpCredentials;
@@ -6,7 +6,6 @@ import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.Properties;
@@ -20,7 +19,6 @@ public class SmtpEmailSender implements EmailSender {
         SmtpCredentials smtp = email.getSmtpCredentials();
 
         Properties properties = SmtpUtil.buildSmtpProperties(smtp);
-
 
         Session session = Session.getInstance(properties, new Authenticator() {
             @Override

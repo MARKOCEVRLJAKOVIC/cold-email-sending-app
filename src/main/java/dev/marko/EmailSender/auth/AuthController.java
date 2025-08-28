@@ -14,6 +14,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -61,34 +62,6 @@ public class AuthController {
         var userDto = authService.me();
         return ResponseEntity.ok(userDto);
 
-    }
-
-
-    @ExceptionHandler(BadCredentialsException.class)
-    public ResponseEntity<Void> handleBadCredentialsException(){
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-    }
-
-    @ExceptionHandler(UserNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleUserException(){
-
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("User not found"));
-    }
-
-    @ExceptionHandler(UserNotConfirmedException.class)
-    public ResponseEntity<ErrorDto> handleUserConfirmationException(){
-        return ResponseEntity.badRequest().body(new ErrorDto("User is not confirmed."));
-    }
-
-
-    @ExceptionHandler(UserAlreadyExist.class)
-    public ResponseEntity<ErrorDto> handleUserAlreadyExist(){
-        return ResponseEntity.badRequest().body(new ErrorDto("User already exist."));
-    }
-
-    @ExceptionHandler(TokenNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleTokenNotFoundException(){
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorDto("Token not found"));
     }
 
 

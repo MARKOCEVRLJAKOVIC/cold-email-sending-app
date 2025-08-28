@@ -44,4 +44,7 @@ public class Campaign {
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
     private List<EmailMessage> emailMessages = new ArrayList<>();
 
+    @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
+    private List<FollowUpTemplate> followUpTemplates = new ArrayList<>();
+
 }

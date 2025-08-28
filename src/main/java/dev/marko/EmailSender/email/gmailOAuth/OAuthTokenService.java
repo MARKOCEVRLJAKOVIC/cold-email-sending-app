@@ -1,15 +1,18 @@
 package dev.marko.EmailSender.email.gmailOAuth;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 
-import org.springframework.http.HttpHeaders;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
+
+import com.google.api.services.gmail.Gmail;
+import com.google.api.services.gmail.model.Profile;
+
+import java.io.IOException;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -51,4 +54,10 @@ public class OAuthTokenService {
 
         return response.getBody();
     }
+
+    public String fetchSenderEmail(Gmail service) throws IOException {
+        Profile profile = service.users().getProfile("me").execute();
+        return profile.getEmailAddress();
+    }
+
 }

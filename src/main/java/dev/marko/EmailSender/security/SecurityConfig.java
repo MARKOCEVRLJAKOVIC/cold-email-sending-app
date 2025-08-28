@@ -3,10 +3,8 @@ package dev.marko.EmailSender.security;
 import dev.marko.EmailSender.auth.OAuth2LoginSuccessHandler;
 import dev.marko.EmailSender.entities.Role;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,11 +16,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.HttpStatusEntryPoint;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.List;
+
+import static org.springframework.security.config.Customizer.withDefaults;
+
 
 @AllArgsConstructor
 @EnableWebSecurity
@@ -33,13 +38,6 @@ public class SecurityConfig {
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final OAuth2LoginSuccessHandler successHandler;
     private final PasswordEncoder passwordEncoder;
-
-
-
-//    @Bean
-//    public PasswordEncoder passwordEncoder(){
-//        return new BCryptPasswordEncoder();
-//    }
 
     @Bean
     public AuthenticationProvider authenticationProvider(){
@@ -56,8 +54,22 @@ public class SecurityConfig {
     }
 
     @Bean
+    CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowedOrigins(List.of("http://localhost:5173")); // frontend
+        config.setAllowedMethods(List.of("GET","POST","PUT","DELETE","OPTIONS"));
+        config.setAllowedHeaders(List.of("*"));
+        config.setAllowCredentials(true);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        return source;
+    }
+
+    @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .cors(withDefaults())
                 .sessionManagement(c ->
                         c.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .csrf(AbstractHttpConfigurer::disable)
@@ -68,7 +80,10 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.GET,"/auth/confirm").permitAll()
                         .requestMatchers(HttpMethod.POST,"/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST,"/auth/refresh").permitAll()
+//                        .requestMatchers(HttpMethod.GET,"/oauth-url").permitAll()
+//                        .requestMatchers(HttpMethod.GET,"/callback").permitAll()
                         .requestMatchers(HttpMethod.POST,"/password/**").permitAll()
+                        .requestMatchers("/api/pubsub/gmail").permitAll()
                         .requestMatchers("/", "/login**", "/oauth2/**").permitAll()
                         .anyRequest().authenticated()
 
@@ -86,7 +101,8 @@ public class SecurityConfig {
                                     response.setStatus(HttpStatus.FORBIDDEN.value())
                             ))
                     ;
-                });
+                })
+                ;
 
         return http.build();
     }

@@ -21,7 +21,7 @@ public class SmtpService {
     private final AuthService authService;
     private final PasswordEncoder passwordEncoder;
 
-    public List<SmtpDto> getAllEmail(){
+    public List<SmtpDto> getAllEmails(){
 
         var user = authService.getCurrentUser();
 

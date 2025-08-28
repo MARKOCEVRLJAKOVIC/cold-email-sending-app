@@ -15,7 +15,7 @@ public class EmailMessageDto {
     private String recipientName;
     private LocalDateTime sentAt;
     private String sentMessage;
-    private Status status = Status.PENDING;
+    private Status status;
     private LocalDateTime scheduledAt;
     private Long userId;
 

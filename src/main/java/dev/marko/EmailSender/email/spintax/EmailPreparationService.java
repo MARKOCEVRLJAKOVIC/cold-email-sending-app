@@ -1,4 +1,4 @@
-package dev.marko.EmailSender.email;
+package dev.marko.EmailSender.email.spintax;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 @RequiredArgsConstructor
 public class EmailPreparationService {
 
-    public String generateMessageText(String templateText, String recipientName) {
-        return templateText.replace("{{name}}", recipientName);
-    }
+    private final SpintaxProcessor spinTextProcessor;
 
+    public String generateMessageText(String templateText, String recipientName) {
+        String withName = templateText.replace("{{name}}", recipientName);
+        return spinTextProcessor.process(withName);
+    }
 }

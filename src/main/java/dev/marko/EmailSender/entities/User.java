@@ -48,4 +48,9 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Campaign> campaigns = new ArrayList<>();
 
+    @OneToMany(mappedBy = "user")
+    private List<FollowUpTemplate> followUpTemplates = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user")
+    private List<EmailReply> emailReplies = new ArrayList<>();
 }

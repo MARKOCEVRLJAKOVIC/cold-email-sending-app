@@ -1,7 +1,6 @@
-package dev.marko.EmailSender.email;
+package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.entities.SmtpCredentials;
-import org.springframework.stereotype.Component;
 
 import java.util.Properties;
 

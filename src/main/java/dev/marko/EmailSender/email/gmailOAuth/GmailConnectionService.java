@@ -5,6 +5,7 @@ import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.SmtpType;
 import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.repositories.SmtpRepository;
+import dev.marko.EmailSender.security.TokenEncryptor;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -14,9 +15,10 @@ import java.util.Optional;
 @Service
 public class GmailConnectionService {
 
-    private OAuthTokenService tokenService;
-    private SmtpRepository smtpRepository;
-    private AuthService authService;
+    private final OAuthTokenService tokenService;
+    private final SmtpRepository smtpRepository;
+    private final AuthService authService;
+    private final TokenEncryptor tokenEncryptor;
 
     public void connectGmail(OAuthTokens tokens, String senderEmail){
 
@@ -33,10 +35,11 @@ public class GmailConnectionService {
         smtpCredentials.setSmtpUsername(senderEmail);
         smtpCredentials.setSmtpPassword(null);
 
-        smtpCredentials.setOauthAccessToken(tokens.getAccessToken());
+        smtpCredentials.setOauthAccessToken(tokenEncryptor.encryptIfNeeded(tokens.getAccessToken()));
+
 
         if (tokens.getRefreshToken() != null && !tokens.getRefreshToken().isEmpty()) {
-            smtpCredentials.setOauthRefreshToken(tokens.getRefreshToken());
+            smtpCredentials.setOauthRefreshToken(tokenEncryptor.encryptIfNeeded(tokens.getRefreshToken()));
         } else if (existing.isEmpty()) {
             throw new IllegalStateException("Refresh token is missing on new connection");
         }
@@ -58,22 +61,42 @@ public class GmailConnectionService {
 
         if (creds.getTokenExpiresAt() != null && creds.getTokenExpiresAt() - now < 60_000) {
 
-            if (creds.getOauthRefreshToken() == null || creds.getOauthRefreshToken().isEmpty()) {
+            var refreshToken = tokenEncryptor.decryptIfNeeded(creds.getOauthRefreshToken());
+
+            if (refreshToken == null || refreshToken.isEmpty()) {
                 throw new IllegalStateException("No refresh token available.");
             }
 
-            OAuthTokens refreshed = tokenService.refreshAccessToken(creds.getOauthRefreshToken());
+            try {
+                OAuthTokens refreshed = tokenService.refreshAccessToken(refreshToken);
 
-            creds.setOauthAccessToken(refreshed.getAccessToken());
+                creds.setOauthAccessToken(tokenEncryptor.encryptIfNeeded(refreshed.getAccessToken()));
 
-            long expiresAt = now + refreshed.getExpiresIn() * 1000L;
-            creds.setTokenExpiresAt(expiresAt);
+                creds.setTokenExpiresAt(now + refreshed.getExpiresIn() * 1000L);
 
-            if (refreshed.getRefreshToken() != null && !refreshed.getRefreshToken().isEmpty()) {
-                creds.setOauthRefreshToken(refreshed.getRefreshToken());
+                if (refreshed.getRefreshToken() != null && !refreshed.getRefreshToken().isEmpty()) {
+                    creds.setOauthRefreshToken(tokenEncryptor.encryptIfNeeded(refreshed.getRefreshToken()));
+                    System.out.println("Updated refresh token for " + creds.getEmail());
+                } else {
+                    System.out.println("Keeping existing refresh token for " + creds.getEmail());
+                }
+
+                smtpRepository.save(creds);
+
+            } catch (org.springframework.web.client.HttpClientErrorException e) {
+                String responseBody = e.getResponseBodyAsString();
+                if (e.getStatusCode().is4xxClientError() && responseBody.contains("invalid_grant")) {
+                    creds.setOauthAccessToken(null);
+                    creds.setOauthRefreshToken(null);
+                    creds.setTokenExpiresAt(null);
+                    creds.setEnabled(false);
+                    smtpRepository.save(creds);
+
+                    throw new IllegalStateException("Refresh token is invalid or revoked for " + creds.getEmail());
+                } else {
+                    throw e;
+                }
             }
-
-            smtpRepository.save(creds);
         }
 
         return creds;

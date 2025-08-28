@@ -46,6 +46,12 @@ public class SmtpCredentials {
     @Column(name = "smtp_type")
     private SmtpType smtpType;
 
+    @Column(name = "last_checked_uid")
+    private Long lastCheckedUid;
+
+    @Column(name = "enabled")
+    private boolean enabled;
+
 
     @ManyToOne
     @JoinColumn(name = "user_id")

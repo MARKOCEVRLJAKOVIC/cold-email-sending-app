@@ -1,17 +1,11 @@
 package dev.marko.EmailSender.controllers;
 
-import dev.marko.EmailSender.dtos.CampaignDto;
-import dev.marko.EmailSender.dtos.CampaignStatsDto;
-import dev.marko.EmailSender.dtos.CreateCampaignRequest;
-import dev.marko.EmailSender.dtos.ErrorDto;
-import dev.marko.EmailSender.exception.CampaignNotFoundException;
-import dev.marko.EmailSender.exception.TemplateEmptyListException;
-import dev.marko.EmailSender.mappers.CampaignMapper;
-import dev.marko.EmailSender.repositories.CampaignRepository;
-import dev.marko.EmailSender.auth.AuthService;
+import dev.marko.EmailSender.dtos.*;
+import dev.marko.EmailSender.entities.Status;
+import dev.marko.EmailSender.mappers.EmailMessageMapper;
+import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.services.CampaignService;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,13 +17,16 @@ import java.util.List;
 public class CampaignController {
 
     private final CampaignService campaignService;
+    private final EmailMessageRepository emailMessageRepository;
+    private final EmailMessageMapper emailMessageMapper;
 
     @GetMapping
-    public List<CampaignDto> getAllCampaign(){
+    public List<CampaignDto> getAllCampaignFromUser(){
 
-        return campaignService.getAllCampaign();
+        return campaignService.getAllCampaignFromUser();
 
     }
+
 
     @GetMapping("/{id}")
     public ResponseEntity<CampaignDto> getCampaign(@PathVariable Long id){
@@ -45,6 +42,15 @@ public class CampaignController {
         var stats = campaignService.getCampaignStats(id);
 
         return ResponseEntity.ok(stats);
+
+    }
+
+    @GetMapping("{id}/replied")
+    public List<EmailMessageDto> getRepliedEmails(@PathVariable Long id){
+
+        var emailMessageList = emailMessageRepository.findAllByCampaignIdAndStatus(id, Status.REPLIED);
+
+        return emailMessageList.stream().map(emailMessageMapper::toDto).toList();
 
     }
 
@@ -72,15 +78,4 @@ public class CampaignController {
         return ResponseEntity.accepted().build();
 
     }
-
-    @ExceptionHandler(CampaignNotFoundException.class)
-    public ResponseEntity<ErrorDto> handleCampaignException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("Campaign not found"));
-    }
-
-    @ExceptionHandler(TemplateEmptyListException.class)
-    public ResponseEntity<ErrorDto> handleTemplateEmptyListException(){
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorDto("There are no campaigns yet"));
-    }
-
 }

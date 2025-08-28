@@ -150,6 +150,12 @@ public class AuthService {
         throw new RuntimeException("Invalid authentication principal");
     }
 
+    public User getCurrentUserWithCredentials() {
+        var baseUser = getCurrentUser();
+        return userRepository.findByIdWithCredentials(baseUser.getId())
+                .orElseThrow(UserNotFoundException::new);
+    }
+
     private void sendVerificationEmail(User user, String token){
 
         VerificationToken verificationToken = VerificationToken.builder()

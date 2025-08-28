@@ -24,7 +24,7 @@ public class CampaignService {
     private final EmailMessageRepository emailMessageRepository;
 
 
-    public List<CampaignDto> getAllCampaign(){
+    public List<CampaignDto> getAllCampaignFromUser(){
 
         var user = authService.getCurrentUser();
 
@@ -56,11 +56,14 @@ public class CampaignService {
         var emails = emailMessageRepository.findAllByCampaign(campaign);
 
         int total = emails.size();
-        int sent = (int) emails.stream().filter(e -> e.getStatus() == Status.SENT).count();
+        int sent = (int) emails.stream()
+                .filter(e -> e.getStatus() == Status.SENT || e.getStatus() == Status.REPLIED)
+                .count();
         int failed = (int) emails.stream().filter(e -> e.getStatus() == Status.FAILED).count();
         int pending = (int) emails.stream().filter(e -> e.getStatus() == Status.PENDING).count();
+        int replied = (int) emails.stream().filter(e -> e.getStatus() == Status.REPLIED).count();
 
-        return new CampaignStatsDto(total, sent, failed, pending);
+        return new CampaignStatsDto(total, sent, failed, pending, replied);
 
     }
 

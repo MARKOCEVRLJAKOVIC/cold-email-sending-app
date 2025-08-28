@@ -6,6 +6,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Builder
 @Entity
@@ -54,6 +56,12 @@ public class EmailMessage {
     @Column(name = "scheduled_at")
     LocalDateTime scheduledAt;
 
+    @Column(name = "message_id", unique = true)
+    private String messageId;
+
+    @Column(name = "in_reply_to")
+    private String inReplyTo;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -69,5 +77,12 @@ public class EmailMessage {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "smtp_id")
     private SmtpCredentials smtpCredentials;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "follow_up_template_id")
+    private FollowUpTemplate followUpTemplate;
+
+    @OneToMany(mappedBy = "emailMessage")
+    private List<EmailReply> emailReplies = new ArrayList<>();
 
 }
