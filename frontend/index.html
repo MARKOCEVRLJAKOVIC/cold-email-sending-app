@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>SendBox</title>
+  <link rel="stylesheet" href="./assets/css/base.css">
+  <link rel="stylesheet" href="./assets/css/layout.css">
+  <link rel="stylesheet" href="./assets/css/components.css">
+  <!-- Icons -->
+  <link rel="icon" type="image/png" href="./assets/favicon.png">
+  <!-- Font -->
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <!-- CDN libraries -->
+  <script src="https://cdn.jsdelivr.net/npm/axios@1.7.7/dist/axios.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/page@1.11.6/page.min.js"></script> -->
+  <!-- <script src="https://cdn.jsdelivr.net/npm/@tanstack/query-core@5.56.2/build/umd/index.production.min.js"></script> -->
+  <script src="https://cdn.jsdelivr.net/npm/mitt@3.0.1/dist/mitt.umd.min.js"></script>
+</head>
+<body>
+  <!-- Root Layout mounts here -->
+  <div id="app"></div>
+
+  <!-- Global toaster -->
+  <div id="toaster" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- App -->
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

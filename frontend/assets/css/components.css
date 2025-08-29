@@ -1,0 +1,198 @@
+/* assets\components.css */
+
+
+.modal{position:fixed; inset:0; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:1rem}
+.modal .dialog{background:var(--bg-elev); border:1px solid var(--border); border-radius:16px; width:min(680px,96vw); padding:1rem}
+.pagination{display:flex; gap:.4rem; align-items:center; margin-top:1rem}
+.pagination .page{padding:.45rem .7rem; border:1px solid var(--border); border-radius:10px; cursor:pointer}
+.pagination .page.active{background:var(--primary); color:#111}
+#toaster{position:fixed; right:16px; bottom:16px; display:flex; flex-direction:column; gap:.5rem; z-index:1000}
+.toast{background:var(--bg-elev); border:1px solid var(--border); border-left:6px solid var(--primary); padding:.7rem 1rem; border-radius:12px; box-shadow:var(--shadow)}
+.toast.error{border-left-color:var(--danger)}
+.toast.success{border-left-color:var(--success)}
+.spinner{width:22px; height:22px; border:3px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin .9s linear infinite}
+/* .modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 50;
+}
+.modal {
+  background: var(--c-bg, #fff);
+  padding: 2rem;
+  border-radius: 1rem;
+  width: 600px;
+  max-width: 90%;
+  max-height: 90%;
+  overflow-y: auto;
+}
+.modal h2 { margin-bottom: 1rem; }
+.actions { text-align: right; margin-top: 1rem; } */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0; /* top:0, right:0, bottom:0, left:0 */
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center; /* horizontal centar */
+  align-items: center;     /* vertikalni centar */
+  z-index: 1000;
+  padding: 1rem;
+
+}
+
+/* modal box */
+.modal {
+  background:  var(--bg-elev, #FAFAFA);;
+  border-radius: 12px;
+  border: 1px solid var(--border, #ccc);
+  padding: 2rem;
+  max-width: 600px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+  text-align: center; /* centriraj sav tekst */
+  position: relative;
+}
+
+/* input i textarea neka budu full width i centrirani */
+.modal input[type="text"],
+.modal input[type="number"],
+.modal input[type="file"],
+.modal textarea {
+  display: block;
+  width: 100%;
+  margin: 0.5rem auto;
+  padding: 0.5rem;
+  text-align: center; /* centriraj tekst u inputima */
+}
+
+/* zone za akcije (dugmad) centriraj */
+.modal .actions {
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.campaign-name {
+  font-weight: 400; 
+  font-size: 18px;
+}
+
+/* KPI stat cards */
+.stat-card {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1.2rem;
+  text-align: center;
+  box-shadow: var(--shadow);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.25);
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: var(--fg);
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: var(--muted);
+  margin-top: 0.3rem;
+}
+
+/* varijante po statusu */
+.stat-card.total   { border-left: 5px solid var(--primary); }
+.stat-card.sent    { border-left: 5px solid var(--success); }
+.stat-card.replied { border-left: 5px solid #3b82f6; }
+.stat-card.failed  { border-left: 5px solid var(--danger); }
+.stat-card.pending { border-left: 5px solid #facc15; }
+
+/* Samo za campaign detalje */
+.campaign-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 2rem;          /* ✅ unutrašnji razmak */
+  margin-bottom: 1.5rem;
+}
+.messages-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  margin-top: 1rem;
+}
+
+.message-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  margin-bottom: 0.75rem;
+
+}
+
+.message-main {
+  flex: 1;
+  margin-right: 1rem;
+}
+
+.message-meta {
+  text-align: right;
+  min-width: 180px;
+}
+
+.message-card strong {
+  color: var(--fg);
+  font-weight: 500;
+}
+
+.message-card .helper {
+  font-size: 0.85rem;
+  color: var(--muted);
+}
+
+/* status badge */
+.message-status {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.message-status.sent {
+  background: rgba(39, 196, 151, 0.15);
+  color: var(--success);
+}
+
+.message-status.failed {
+  background: rgba(255, 77, 77, 0.15);
+  color: var(--danger);
+}
+
+.message-status.replied {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+}
+
+.message-status.pending {
+  background: rgba(250, 204, 21, 0.15);
+  color: #facc15;
+}
+
+
+
+
+@keyframes spin{to{transform:rotate(360deg)}}

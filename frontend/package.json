@@ -1,0 +1,24 @@
+{
+  "name": "html-css-js---email-sender-web",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@fortawesome/fontawesome-free": "^7.0.0",
+    "@tanstack/query-core": "^5.85.5",
+    "axios": "^1.11.0",
+    "page": "^1.11.6",
+    "yup": "^1.7.0"
+  },
+  "devDependencies": {
+    "vite": "^5.4.19"
+  }
+}

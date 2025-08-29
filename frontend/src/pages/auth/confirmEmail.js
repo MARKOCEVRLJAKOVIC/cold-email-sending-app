@@ -1,0 +1,2 @@
+import { mount } from '../../utils/dom.js'; import { confirm } from '../../api/authApi.js'; import { toast } from '../../utils/dom.js';
+export default { async render(root){ const url = new URL(location.href); const token = url.searchParams.get('token'); try{ const res = await confirm({ token }); mount(root, `<div class="card" style="padding:1rem"><h2>Confirmed</h2><p>${res.message||'Email confirmed'}</p><a class="btn mt-2" href="/login">Go to login</a></div>`);}catch(e){ mount(root, `<div class="card" style="padding:1rem">Failed: ${e.error||'Error'}</div>`);} } };

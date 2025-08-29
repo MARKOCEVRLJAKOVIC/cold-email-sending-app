@@ -1,0 +1,55 @@
+/* assets\layout.css */
+
+.app-shell{
+  display:grid; grid-template-rows:64px 1fr; height:100vh
+}
+.header{
+  display:flex; align-items:center; justify-content:space-between; padding:0 2.5rem; background:var(--bg-elev); border-bottom:1px solid var(--border)
+}
+.brand{display:flex; align-items:center; gap:.6rem; font-weight:800}
+.theme-toggle{margin-left:.8rem}
+.layout{
+  display:grid; grid-template-columns:300px 1fr; height:calc(100vh - 64px)
+}
+.sidebar{
+  border-right:0px solid var(--border); background:var(--bg-elev); padding:2rem; overflow:auto
+}
+.sidebar a{
+  display:flex; align-items:center; gap:.6rem; padding:.7rem 0rem; border-radius:12px; color:var(--fg);
+}
+.sidebar a.active, 
+.sidebar a:hover {
+  color: #F06D09;
+
+  .sidebar a.active {
+  color: #F06D09;
+}
+}.main{overflow:auto}
+.main .container{max-width:1200px; margin:0 auto}
+
+.searchbar{
+  display:flex; 
+  gap: 1rem; 
+  align-items:center;
+  height: 36px;         /* smanji visinu searchbara */
+
+}
+
+.searchbar input {
+  background-color: var(--bg-elev);
+  border-color: #888;
+  flex: 1;
+  height: 18px;         /* smanji visinu inputa */
+  padding: 22px 15px;      /* unutrašnji padding */
+  border-radius: 90px;   /* manji radius ako želiš */
+  
+}
+
+
+
+.kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:1rem}
+@media (max-width: 1000px){
+  .layout{grid-template-columns: 72px 1fr}
+  .sidebar .label{display:none}
+}
+

@@ -1,0 +1,163 @@
+/* assets\base.css */
+
+
+:root {
+  --bg: #201c1c;
+  --bg-elev: #201c1c;
+  --fg: #ccccc8;
+  --muted: #ccccc8;
+  --primary: #F06D09;
+  --primary-600: #F06D09;
+  --danger: #ff4d4d;
+  --success: #27c497;
+  --card: #282424;
+  --border: #444444;
+  --shadow: 0 6px 24px rgba(0,0,0,.35);
+  --radius: 16px;
+}
+
+html[data-theme="light"]{
+  --bg:#FAFAFA; 
+  --bg-elev:#FAFAFA; 
+  --card:#F2F2F2; 
+  --fg:#0e0f12; 
+  --muted:rgb(98, 98, 98);
+  --border:#f0f0f0; --shadow:0 4px 18px rgba(99, 99, 99, 0.08);
+}
+
+*{box-sizing:border-box}
+html,body{
+  height:100%
+}
+
+body{
+  margin:0; font-family: Poppins, system-ui, -apple-system, Segoe UI, Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji", "Segoe UI Emoji";
+  background:var(--bg); color:var(--fg);
+}
+
+a{color:inherit; text-decoration:none}
+button{font:inherit}
+input,select,textarea{font:inherit; color:var(--fg); background:var(--bg-elev); border:1px solid var(--border); border-radius:12px; padding:.7rem .9rem}
+input:focus,select:focus,textarea:focus,button:focus{outline:2px solid var(--primary-600); outline-offset:2px}
+
+h1,h2,h3{margin:.2rem 0 1rem}
+.container{padding:1.2rem}
+
+.card{background:var(--card); border:1px solid var(--border); border-radius:var(--radius); box-shadow:var(--shadow)}
+.btn{
+  display:inline-flex; align-items:center; gap:.5rem; padding:.5rem 1.5rem; border-radius:999px; border:1px solid transparent; background:var(--primary); color:#ffffff; font: weight 400px;; cursor:pointer
+}
+.btn.ghost{background:transparent; border-color:var(--border); color:var(--fg)}
+.btn.danger{background:var(--danger); color:#fff}
+.btn.secondary{background:var(--bg-elev); color:var(--fg); border-color:var(--border)}
+.btn:disabled{opacity:.6; cursor:not-allowed}
+
+.badge{padding:.2rem .6rem; border-radius:999px; background:var(--bg-elev); border:1px solid var(--border); color:var(--muted); font-size:.8rem}
+input[type="file"]{background:transparent}
+
+.table{width:100%; border-collapse:separate; border-spacing:0 10px}
+.table th{color:var(--muted); font-weight:500; text-align:left; padding:.6rem .8rem}
+.table td{background:var(--card); border:0px solid var(--border); padding:.7rem .8rem}
+.table tr td:first-child{border-top-left-radius:12px; border-bottom-left-radius:12px}
+.table tr td:last-child{border-top-right-radius:12px; border-bottom-right-radius:12px}
+
+.error-msg{color:#ff5555; font-size:.85rem; margin-top:.35rem}
+.helper{color:var(--muted); font-size:.9rem}
+hr.sep{border:none; border-top:1px solid var(--border); margin:1rem 0}
+.hidden{display:none}
+.mt-1{margin-top:.5rem}
+.mt-2{
+  margin-top:1rem;
+  
+}
+.mt-3{margin-top:1.5rem}
+.mb-2{margin-bottom:1rem}
+.flex{
+  display:flex
+}
+.row{
+  display:flex;
+  gap:.8rem;
+  align-items:center;
+}
+.grow{
+  flex:1
+}
+.center{display:flex; align-items:center; justify-content:center}
+
+.wizard-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.progress-bar {
+  background: #e0e0e0;
+  height: 12px;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+
+.progress-bar .progress {
+  height: 100%;
+  background: var(--primary);
+  border-radius: 3px;
+  transition: width 0.3s;
+}
+
+input#campaignName {
+  width: 100%;
+  border-radius: 32px;
+  border: 1px solid #ccc;
+  margin-bottom: 1rem;
+}
+
+.actions {
+  text-align: right;
+}
+
+
+
+
+.brand img.logo {
+  height: 28px;   /* ili veličina po želji */
+  width: auto;
+  display: block;
+}
+.brand{
+  font-family: Poppins;
+  font-weight: 500;
+}
+.wizard-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
+
+.dropzone {
+  border: 2px dashed #ccc;
+  border-radius: 8px;
+  padding: 30px;
+  text-align: center;
+  margin: 20px 0;
+  cursor: pointer;
+}
+
+.dropzone.dragover {
+  background: #f0f8ff;
+  border-color: orange;
+}
+
+.dropzone-icon {
+  font-size: 30px;
+  margin-bottom: 10px;
+}
+
+.dropzone-icon i {
+  font-size: 36px;
+  color: var(--primary); /* koristi istu varijablu kao dugme */
+  margin-bottom: 10px;
+}
