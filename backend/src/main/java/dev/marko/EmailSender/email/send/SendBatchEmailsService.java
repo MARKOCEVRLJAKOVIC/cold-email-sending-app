@@ -19,6 +19,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,7 +40,6 @@ public class SendBatchEmailsService {
     private final CampaignRepository campaignRepository;
     private final EmailMessageRepository emailMessageRepository;
     private final EmailPreparationService preparationService;
-    private final EmailCsvParser csvParser;
     private final EmailSchedulingService emailSchedulingService;
     private final EmailMessageMapper emailMessageMapper;
 
@@ -64,7 +67,7 @@ public class SendBatchEmailsService {
                 .filter(s -> s.getUser().getId().equals(user.getId()))
                 .toList();
 
-        Set< Long> foundIds = smtpList.stream()
+        Set<Long> foundIds = smtpList.stream()
                 .map(SmtpCredentials::getId)
                 .collect(Collectors.toSet());
 
@@ -77,7 +80,7 @@ public class SendBatchEmailsService {
         }
 
         List<String> failed = new ArrayList<>();
-        List<EmailRecipientDto> recipients = csvParser.parse(file);
+        List<EmailRecipientDto> recipients = parseCsv(file);
         List<EmailMessage> allMessages = new ArrayList<>();
 
         for (int i = 0; i < recipients.size(); i++) {
@@ -129,6 +132,38 @@ public class SendBatchEmailsService {
             long delay = baseDelay + i * defaultDelay;
             emailSchedulingService.scheduleSingle(allMessages.get(i), delay);
         }
+    }
+
+    private List<EmailRecipientDto> parseCsv(MultipartFile file)  {
+        List<EmailRecipientDto> recipients = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+
+            String line;
+            boolean isFirst = true;
+
+            while ((line = reader.readLine()) != null) {
+                if (isFirst) {
+                    isFirst = false;
+                    continue;
+                }
+
+                String[] tokens = line.split(",");
+                if (tokens.length < 2) continue;
+
+                var dto = new EmailRecipientDto();
+                dto.setEmail(tokens[0].trim());
+                dto.setName(tokens[1].trim());
+                recipients.add(dto);
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read CSV file", e);
+        }
+
+        return recipients;
+
     }
 
 }
