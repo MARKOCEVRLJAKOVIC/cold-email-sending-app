@@ -55,3 +55,4 @@ google:
 
 app:
   url: http://localhost:8080
+  frontend-url: http://localhost:5173
