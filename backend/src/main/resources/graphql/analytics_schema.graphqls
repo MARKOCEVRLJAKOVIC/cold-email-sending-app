@@ -1,9 +1,10 @@
 scalar DateTime
 
 enum EmailStatus {
-    PENDING
+    TOTAL
     SENT
     FAILED
+    PENDING
     REPLIED
 }
 
