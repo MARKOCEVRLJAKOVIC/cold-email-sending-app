@@ -1,8 +1,33 @@
+scalar DateTime
+
+enum EmailStatus {
+    PENDING
+    SENT
+    FAILED
+    REPLIED
+}
+
+type CampaignStats {
+    sent: Int!
+    replied: Int!
+    failed: Int!
+}
+
+type EmailMessage {
+    id: ID!
+    to: String!
+    status: EmailStatus!
+    repliedAt: DateTime
+}
+
 type Campaign {
     id: ID!
     name: String!
+    stats: CampaignStats!
+    emails: [EmailMessage!]!
 }
 
 type Query {
     campaigns: [Campaign!]!
+    campaign(id: ID!): Campaign
 }
