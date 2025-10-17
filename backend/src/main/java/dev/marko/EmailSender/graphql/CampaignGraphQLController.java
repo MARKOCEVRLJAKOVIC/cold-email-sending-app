@@ -34,7 +34,7 @@ public class CampaignGraphQLController {
     }
 
     @SchemaMapping
-    public CampaignStatsDto getStats(Campaign campaign) {
+    public CampaignStatsDto stats(Campaign campaign) {
 
         List<EmailMessage> emails = emailMessageRepository.findAllByCampaign(campaign);
 
@@ -50,7 +50,7 @@ public class CampaignGraphQLController {
 
     }
 
-    @SchemaMapping
+    @SchemaMapping(typeName = "Campaign", field = "emails")
     public List<EmailMessage> emails(Campaign campaign) {
         return emailMessageRepository.findAllByCampaign(campaign);
     }

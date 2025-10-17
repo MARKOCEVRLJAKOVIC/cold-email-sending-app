@@ -1,7 +1,6 @@
 scalar DateTime
 
 enum EmailStatus {
-    TOTAL
     SENT
     FAILED
     PENDING
