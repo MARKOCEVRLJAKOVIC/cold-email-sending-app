@@ -31,7 +31,7 @@ public class PasswordResetService {
     private final PasswordEncoder passwordEncoder;
     private final UserMapper userMapper;
 
-    @Value("${app.url}")
+    @Value("${app.frontend-url}")
     private String appUrl;
 
 
@@ -49,7 +49,7 @@ public class PasswordResetService {
 
         passwordResetTokenRepository.save(resetToken);
 
-        String link = appUrl + "/password/forgot?token=" + token;
+        String link = appUrl + "/password/reset?token=" + token;
 
         notificationEmailService.sendEmail(request.getEmail(), "Reset your password using the following link: ", link);
 
