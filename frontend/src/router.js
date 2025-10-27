@@ -46,8 +46,9 @@ export function initRouter(){
   page('/login', () => LoginPage.render(outlet()));
   page('/register', () => RegisterPage.render(outlet()));
   page('/confirm-email', () => ConfirmEmailPage.render(outlet()));
+  page('/password/reset', () => ResetPasswordConfirmPage.render(outlet()));
+  page('/password/confirm', () => ResetPasswordConfirmPage.render(outlet()));
   page('/reset-password', () => ResetPasswordPage.render(outlet()));
-  page('/reset-password/confirm', () => ResetPasswordConfirmPage.render(outlet()));
 
   // Guarded routes middleware: primenjuj samo na rute koje zahtevaju login
   const guardedRoutes = [
