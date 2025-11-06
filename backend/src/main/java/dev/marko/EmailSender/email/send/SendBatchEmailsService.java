@@ -3,11 +3,10 @@ package dev.marko.EmailSender.email.send;
 import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.EmailMessageDto;
 import dev.marko.EmailSender.dtos.EmailRecipientDto;
+import dev.marko.EmailSender.email.gmailOAuth.SmtpListIsEmptyException;
 import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
 import dev.marko.EmailSender.email.spintax.EmailPreparationService;
-import dev.marko.EmailSender.entities.Campaign;
-import dev.marko.EmailSender.entities.EmailMessage;
-import dev.marko.EmailSender.entities.SmtpCredentials;
+import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.exception.EmailNotFoundException;
 import dev.marko.EmailSender.exception.TemplateNotFoundException;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;
@@ -16,6 +15,8 @@ import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -30,6 +31,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class SendBatchEmailsService {
@@ -51,20 +53,28 @@ public class SendBatchEmailsService {
                                                  Long campaignId) {
 
         var user = authService.getCurrentUser();
+        var template = getTemplateFromUser(templateId, user);
+        var campaign = findCampaignFromUser(campaignId, user.getId());
 
-        var template = templateRepository.findById(templateId)
-                .filter(t -> t.getUser().getId().equals(user.getId()))
-                .orElseThrow(TemplateNotFoundException::new);
+        List<SmtpCredentials> smtpList = validateAndGetSmptList(smtpIds, user.getId());
+        List<EmailRecipientDto> recipients = parseCsv(file);
+        List<EmailMessage> allMessages = prepareAndSaveEmails(
+                recipients, smtpList, user,
+                template, campaign, scheduledAt
+        );
 
-        Campaign campaign = null;
-        if (campaignId != null) {
-            campaign = campaignRepository.findById(campaignId)
-                    .filter(c -> c.getUser().getId().equals(user.getId()))
-                    .orElse(null);
-        }
 
-        List<SmtpCredentials> smtpList = smtpRepository.findAllById(smtpIds).stream()
-                .filter(s -> s.getUser().getId().equals(user.getId()))
+        scheduleEmails(scheduledAt, allMessages);
+
+        return allMessages.stream().map(emailMessageMapper::toDto)
+                        .toList();
+
+    }
+
+    @NotNull
+    private List<SmtpCredentials> validateAndGetSmptList(List<Long> smtpIds, Long userId) {
+        var smtpList = smtpRepository.findAllById(smtpIds).stream()
+                .filter(s -> s.getUser().getId().equals(userId))
                 .toList();
 
         Set<Long> foundIds = smtpList.stream()
@@ -76,31 +86,56 @@ public class SendBatchEmailsService {
         }
 
         if (smtpList.isEmpty()) {
-            throw new RuntimeException("No valid SMTP credentials selected");
+            throw new SmtpListIsEmptyException();
         }
 
-        List<String> failed = new ArrayList<>();
-        List<EmailRecipientDto> recipients = parseCsv(file);
-        List<EmailMessage> allMessages = new ArrayList<>();
+        return smtpList;
+    }
+
+    private EmailTemplate getTemplateFromUser(Long templateId, User user) {
+        return templateRepository.findById(templateId)
+                .filter(t -> t.getUser().getId().equals(user.getId()))
+                .orElseThrow(TemplateNotFoundException::new);
+    }
+
+    private Campaign findCampaignFromUser(Long campaignId, Long userId) {
+        if (campaignId == null) return null;
+
+        return campaignRepository.findById(campaignId)
+                .filter(c -> c.getUser().getId().equals(userId))
+                .orElse(null);
+    }
+
+    private List<EmailMessage> prepareAndSaveEmails(
+            List<EmailRecipientDto> recipients,
+            List<SmtpCredentials> smtpList,
+            User user,
+            EmailTemplate template,
+            Campaign campaign,
+            LocalDateTime scheduledAt
+    ) {
+        List<EmailMessage> messages = new ArrayList<>();
 
         for (int i = 0; i < recipients.size(); i++) {
-            EmailRecipientDto recipient = recipients.get(i);
-            SmtpCredentials smtp = smtpList.get(i % smtpList.size()); // smtp inbox rotation
-
-            String messageText = preparationService.generateMessageText(template.getMessage(), recipient.getName());
+            var recipient = recipients.get(i);
+            var smtp = smtpList.get(i % smtpList.size()); // rotate inbox
+            var messageText = preparationService.generateMessageText(
+                    template.getMessage(), recipient.getName()
+            );
 
             try {
-                EmailMessage emailMessage = EmailMessageFactory.createMessageBasedOnSchedule(
-                        recipient.getEmail(), recipient.getName(), messageText,
+                var emailMessage = EmailMessageFactory.createMessageBasedOnSchedule(
+                        recipient.getEmail(),
+                        recipient.getName(),
+                        messageText,
                         user, template, smtp, campaign, scheduledAt
                 );
-
-                allMessages.add(emailMessage);
                 emailMessageRepository.save(emailMessage);
-
+                messages.add(emailMessage);
 
             } catch (Exception e) {
-                failed.add(recipient.getEmail());
+                log.error("Failed to create message for recipient {}: {}",
+                        recipient.getEmail(), e.getMessage());
 
                 var failedEmail = EmailMessageFactory.createFailedMessage(
                         recipient.getEmail(), recipient.getName(), messageText,
@@ -110,11 +145,13 @@ public class SendBatchEmailsService {
             }
         }
 
-        scheduleEmails(scheduledAt, allMessages);
+        return messages;
+    }
 
-        return allMessages.stream().map(emailMessageMapper::toDto)
-                        .toList();
 
+
+    private static SmtpCredentials getRotatedSmtp(List<SmtpCredentials> smtpList, int i) {
+        return smtpList.get(i % smtpList.size());
     }
 
     private void scheduleEmails(LocalDateTime scheduledAt, List<EmailMessage> allMessages) {

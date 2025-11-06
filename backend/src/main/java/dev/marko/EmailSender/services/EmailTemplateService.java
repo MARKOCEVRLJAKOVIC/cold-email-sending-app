@@ -68,6 +68,7 @@ public class EmailTemplateService {
         return emailTemplateDto;
     }
 
+
     public EmailTemplateDto updateTemplate(CreateTemplateRequest request, Long id){
 
         var user = authService.getCurrentUser();
