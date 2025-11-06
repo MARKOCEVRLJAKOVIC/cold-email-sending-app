@@ -73,17 +73,13 @@ public class SendBatchEmailsService {
 
     @NotNull
     private List<SmtpCredentials> validateAndGetSmptList(List<Long> smtpIds, Long userId) {
+        if (smtpIds == null || smtpIds.isEmpty()) {
+            throw new SmtpListIsEmptyException();
+        }
+
         var smtpList = smtpRepository.findAllById(smtpIds).stream()
                 .filter(s -> s.getUser().getId().equals(userId))
                 .toList();
-
-        Set<Long> foundIds = smtpList.stream()
-                .map(SmtpCredentials::getId)
-                .collect(Collectors.toSet());
-
-        if (!foundIds.containsAll(smtpIds)) {
-            throw new EmailNotFoundException();
-        }
 
         if (smtpList.isEmpty()) {
             throw new SmtpListIsEmptyException();
@@ -187,12 +183,16 @@ public class SendBatchEmailsService {
                 }
 
                 String[] tokens = line.split(",");
-                if (tokens.length < 2) continue;
 
-                var dto = new EmailRecipientDto();
-                dto.setEmail(tokens[0].trim());
-                dto.setName(tokens[1].trim());
+
+                String email = tokens[0].trim();
+                String name = tokens.length > 1 ? tokens[1].trim() : "";
+
+                if (email.isEmpty()) continue;
+
+                var dto = new EmailRecipientDto(name, email);
                 recipients.add(dto);
+
             }
 
         } catch (IOException e) {
