@@ -9,6 +9,8 @@ import java.util.regex.Pattern;
 @Service
 public class SpintaxProcessor {
 
+    // Uses a regex pattern to process spintax expressions inside { }, splitting options by |
+    // Example: "Good {morning|evening|night}" → randomly selects one option.
     private static final Pattern SPINTAX_PATTERN = Pattern.compile("\\{([^{}]+?)\\}");
     private final Random random = new Random();
 
