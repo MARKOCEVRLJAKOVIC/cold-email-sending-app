@@ -22,7 +22,7 @@ public class GmailConnectionService {
 
     public void connectGmail(OAuthTokens tokens, String senderEmail){
 
-        User user = authService.getCurrentUser();
+        var user = authService.getCurrentUser();
 
         Optional<SmtpCredentials> existing = smtpRepository.findByEmailAndUserId(senderEmail, user.getId());
         SmtpCredentials smtpCredentials = existing.orElseGet(SmtpCredentials::new);
