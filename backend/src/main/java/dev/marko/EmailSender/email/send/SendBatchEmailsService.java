@@ -141,12 +141,6 @@ public class SendBatchEmailsService {
         return messages;
     }
 
-
-
-    private static SmtpCredentials getRotatedSmtp(List<SmtpCredentials> smtpList, int i) {
-        return smtpList.get(i % smtpList.size());
-    }
-
     private void scheduleEmails(LocalDateTime scheduledAt, List<EmailMessage> allMessages) {
         if (allMessages.isEmpty()) return;
 

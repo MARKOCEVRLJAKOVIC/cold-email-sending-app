@@ -43,7 +43,7 @@ public class GmailReplyScanner {
                 String accessToken = tokenEncryptor.decryptIfNeeded(creds.getOauthAccessToken());
                 String refreshToken = tokenEncryptor.decryptIfNeeded(creds.getOauthRefreshToken());
 
-                Gmail service = gmailServiceFactory.createService(creds, accessToken, refreshToken);
+                Gmail service = gmailServiceFactory.createService(accessToken, refreshToken);
 
                 ListMessagesResponse response = service.users().messages().list("me")
                         .setQ("in:inbox is:unread newer_than:1d")

@@ -25,16 +25,13 @@ public class GmailConnectionService {
         User user = authService.getCurrentUser();
 
         Optional<SmtpCredentials> existing = smtpRepository.findByEmailAndUserId(senderEmail, user.getId());
-
         SmtpCredentials smtpCredentials = existing.orElseGet(SmtpCredentials::new);
-
 
         smtpCredentials.setEmail(senderEmail);
         smtpCredentials.setSmtpHost("smtp.gmail.com");
         smtpCredentials.setSmtpPort(587);
         smtpCredentials.setSmtpUsername(senderEmail);
         smtpCredentials.setSmtpPassword(null);
-
         smtpCredentials.setOauthAccessToken(tokenEncryptor.encryptIfNeeded(tokens.getAccessToken()));
 
 

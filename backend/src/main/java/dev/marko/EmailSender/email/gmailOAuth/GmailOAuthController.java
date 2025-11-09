@@ -57,7 +57,6 @@ public class GmailOAuthController {
         tempCreds.setOauthRefreshToken(tokens.getRefreshToken());
 
         Gmail gmailService = gmailServiceFactory.createService(
-                tempCreds,
                 tokens.getAccessToken(),
                 tokens.getRefreshToken()
         );
