@@ -1,16 +1,15 @@
 # Cold Email Automation Platform
 
-A full-stack application for managing cold email campaigns. The platform allows user registration, SMTP account management, campaign and template creation, batch email sending with CSV imports, and automatic follow-up scheduling. It also supports Gmail OAuth2 integration for connecting personal or business inboxes.
+A full-stack application for cold email automation campaigns. The platform allows user registration, SMTP account management, campaign and template creation, batch email sending with CSV imports, and automatic follow-up scheduling. It also supports Gmail OAuth2 integration for connecting personal or business inboxes.
 
 ---
 
 ## Tech Stack
 
-- **Backend**: Spring Boot (Java 17), Spring Security, Jakarta Mail (Angus Mail), OAuth2
-- **Database**: MySQL
+- **Tools**: Built in Intellij using Java
+- **Backend**: Spring Boot (Java 24), Spring Security, Jakarta Mail (Angus Mail), OAuth2
+- **Database**: SQL
 - **Frontend**: HTML, CSS, JavaScript (vanilla)
-- **Authentication**: JWT with email verification
-- **Scheduling**: In-memory scheduling + database persistence
 - **Deployment**: runnable locally or on a server/cloud
 
 ---
