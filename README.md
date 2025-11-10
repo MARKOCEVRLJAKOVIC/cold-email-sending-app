@@ -99,7 +99,11 @@ All endpoints follow a RESTful structure. Authentication is handled with JWT, ex
 - `POST /password/forgot` – Request password reset
 - `POST /password/reset` – Reset password
 
+---
+
 ## SOLID Implementation
+
+---
 
 ### Open/Closed Principle
 
@@ -168,3 +172,55 @@ public class GmailSmtpSender implements EmailSender {
     }
 }
 ```
+
+---
+
+## Main Logic
+
+---
+
+### Csv parsing
+
+```java
+ private List<EmailRecipientDto> parseCsv(MultipartFile file)  {
+        List<EmailRecipientDto> recipients = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+
+            String line;
+            boolean isFirst = true;
+
+            while ((line = reader.readLine()) != null) {
+                if (isFirst) {
+                    isFirst = false;
+                    continue;
+                }
+
+                String[] tokens = line.split(",");
+
+
+                String email = tokens[0].trim();
+                String name = tokens.length > 1 ? tokens[1].trim() : "";
+
+                if (email.isEmpty()) continue;
+
+                var dto = new EmailRecipientDto(name, email);
+                recipients.add(dto);
+
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read CSV file", e);
+        }
+
+        return recipients;
+
+    }
+```
+
+#### Expected CSV format
+
+| name | email |
+| marko | marko@email.com |
+
