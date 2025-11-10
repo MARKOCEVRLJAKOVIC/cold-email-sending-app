@@ -9,13 +9,13 @@ import dev.marko.EmailSender.entities.Status;
 import dev.marko.EmailSender.exception.EmailNotFoundException;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;
 import dev.marko.EmailSender.mappers.EmailReplyMapper;
-import dev.marko.EmailSender.repositories.*;
+import dev.marko.EmailSender.repositories.EmailMessageRepository;
+import dev.marko.EmailSender.repositories.EmailReplyRepository;
+import dev.marko.EmailSender.repositories.SmtpRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.util.UriComponentsBuilder;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @AllArgsConstructor
@@ -51,8 +51,7 @@ public class EmailReplyService {
     }
 
     public EmailMessageDto replyToReply(Long replyId,
-                                        EmailReplyResponseDto response,
-                                        UriComponentsBuilder builder){
+                                        EmailReplyResponseDto response){
         var user = authService.getCurrentUser();
 
         EmailReply originalReply = replyRepository.findByIdAndUserId(replyId, user.getId()).orElseThrow();

@@ -1,8 +1,9 @@
 package dev.marko.EmailSender.email.reply;
 
 import com.google.api.services.gmail.Gmail;
-import com.google.api.services.gmail.model.*;
-import dev.marko.EmailSender.email.connection.gmailOAuth.GmailConnectionService;
+import com.google.api.services.gmail.model.ListMessagesResponse;
+import com.google.api.services.gmail.model.Message;
+import dev.marko.EmailSender.email.connection.EmailConnectionService;
 import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.EmailReplyRepository;
@@ -25,7 +26,7 @@ public class GmailReplyScanner {
     private final EmailMessageRepository messageRepo;
     private final EmailReplyRepository replyRepo;
     private final GmailServiceFactory gmailServiceFactory;
-    private final GmailConnectionService gmailConnectionService;
+    private final EmailConnectionService emailConnectionService;
     private final TokenEncryptor tokenEncryptor;
 
     @Scheduled(fixedRate = 300_000) // every 5 minutes
@@ -38,7 +39,7 @@ public class GmailReplyScanner {
         for (SmtpCredentials creds : credsList) {
             try {
 
-                creds = gmailConnectionService.refreshTokenIfNeeded(creds);
+                creds = emailConnectionService.refreshTokenIfNeeded(creds);
 
                 String accessToken = tokenEncryptor.decryptIfNeeded(creds.getOauthAccessToken());
                 String refreshToken = tokenEncryptor.decryptIfNeeded(creds.getOauthRefreshToken());

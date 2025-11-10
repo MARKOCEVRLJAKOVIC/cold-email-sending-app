@@ -8,15 +8,22 @@ import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.SmtpType;
 import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.repositories.SmtpRepository;
-import dev.marko.EmailSender.security.TokenEncryptor;
+import dev.marko.EmailSender.security.EncryptionService;
+import dev.marko.EmailSender.services.SmtpCredentialService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.mockito.ArgumentMatchers.*;
+import java.util.Optional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -25,13 +32,14 @@ public class GmailConnectionTest {
     @Mock private OAuthTokenService tokenService;
     @Mock private SmtpRepository smtpRepository;
     @Mock private AuthService authService;
-    @Mock private TokenEncryptor tokenEncryptor;
+    @Mock private EncryptionService encryptionService;
+    @Mock private SmtpCredentialService smtpService;
+
 
     @InjectMocks
     private GmailConnectionService gmailConnectionService;
 
     private User mockUser;
-
 
     @BeforeEach
     public void setup() {
@@ -40,24 +48,28 @@ public class GmailConnectionTest {
         mockUser = new User();
         mockUser.setId(1L);
         when(authService.getCurrentUser()).thenReturn(mockUser);
-
+        when(encryptionService.encrypt(anyString())).thenAnswer(inv -> "enc_" + inv.getArgument(0));
+        when(encryptionService.decrypt(anyString())).thenAnswer(inv -> inv.getArgument(0).toString().replace("enc_", ""));
 
     }
 
     @Test
     public void connectGmail_shouldSaveNewCredentials_whenRefreshTokenPresent() {
 
-        OAuthTokens tokens = new OAuthTokens("access", "refresh", 3600, anyString(), anyString());
-        String senderEmail = "user@gmail.com";
+        OAuthTokens tokens = new OAuthTokens("access", "refresh", 3600, null, null);
+        when(smtpService.findByEmailAndUser("test@gmail.com")).thenReturn(Optional.empty());
 
-        var smtpCredentials = new SmtpCredentials();
+        gmailConnectionService.connect(tokens, "test@gmail.com");
 
-        smtpCredentials.setTokenExpiresAt(anyLong());
-        smtpCredentials.setSmtpType(SmtpType.OAUTH2);
-        smtpCredentials.setUser(mockUser);
+        ArgumentCaptor<SmtpCredentials> captor = ArgumentCaptor.forClass(SmtpCredentials.class);
+        verify(smtpService).save(captor.capture());
 
-
-
+        SmtpCredentials saved = captor.getValue();
+        assertEquals("smtp.gmail.com", saved.getSmtpHost());
+        assertEquals(SmtpType.OAUTH2, saved.getSmtpType());
+        assertEquals("enc_access", saved.getOauthAccessToken());
+        assertEquals("enc_refresh", saved.getOauthRefreshToken());
+        assertEquals(mockUser, saved.getUser());
     }
 
 }
