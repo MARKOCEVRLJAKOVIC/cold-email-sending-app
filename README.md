@@ -99,3 +99,73 @@ All endpoints follow a RESTful structure. Authentication is handled with JWT, ex
 ### Password Reset API
 - `POST /password/forgot` – Request password reset
 - `POST /password/reset` – Reset password
+
+## SOLID Implementation
+
+### Open/Closed Principle
+
+This allows adding new senders (e.g., Mailgun, SendGrid, Outlook)  
+without modifying existing business logic, following the Open/Closed Principle.
+
+```java
+public interface EmailSender {
+    void sendEmails(EmailMessage emailMessage) throws MessagingException;
+}
+```
+```java
+public interface EmailConnectionService {
+    void connect(OAuthTokens tokens, String senderEmail);
+}
+```
+```java
+public interface TokenService {
+    OAuthTokens refreshAccessToken(String refreshToken);
+}
+```
+
+### Liskov Substitution Principle and Interface Segregation Principle
+
+Each email sender (e.g., Gmail, SendGrid) can be used interchangeably since they respect the same `EmailSender` contract,  
+and the interfaces are small and focused (no unused methods).
+
+```java
+public class GmailSmtpSender implements EmailSender {
+    /*...*/
+    @Override
+    public void sendEmails(EmailMessage email) throws MessagingException {
+        /*...*/
+    }
+}
+```
+
+### Dependency Inversion Principle
+
+Modules like `SendBatchEmailsService` depend on the `EmailSender` abstraction,  
+not on concrete implementations. This makes the system flexible and easy to test.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class SendBatchEmailsService {
+
+    private final EmailSender emailSender; // depends on abstraction
+
+    public void send(EmailMessage emailMessage) throws MessagingException {
+        emailSender.sendEmails(emailMessage);
+    }
+}
+```
+```java
+public interface EmailSender {
+    void sendEmails(EmailMessage emailMessage) throws MessagingException;
+}
+```
+```java
+@Service
+public class GmailSmtpSender implements EmailSender {
+    @Override
+    public void sendEmails(EmailMessage email) throws MessagingException {
+        /*...*/
+    }
+}
+```
