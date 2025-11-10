@@ -3,7 +3,7 @@ package dev.marko.EmailSender.email.send;
 import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.EmailMessageDto;
 import dev.marko.EmailSender.dtos.EmailRecipientDto;
-import dev.marko.EmailSender.email.gmailOAuth.SmtpListIsEmptyException;
+import dev.marko.EmailSender.email.connection.gmailOAuth.SmtpListIsEmptyException;
 import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
 import dev.marko.EmailSender.email.spintax.EmailPreparationService;
 import dev.marko.EmailSender.entities.*;

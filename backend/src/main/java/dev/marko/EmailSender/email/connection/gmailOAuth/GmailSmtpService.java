@@ -1,7 +1,8 @@
-package dev.marko.EmailSender.email.gmailOAuth;
+package dev.marko.EmailSender.email.connection.gmailOAuth;
 
 import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.SmtpDto;
+import dev.marko.EmailSender.email.connection.EmailConnectionService;
 import dev.marko.EmailSender.entities.SmtpType;
 import dev.marko.EmailSender.exception.EmailNotFoundException;
 import dev.marko.EmailSender.mappers.SmtpMapper;
@@ -17,7 +18,7 @@ import java.util.List;
 @Service
 public class GmailSmtpService {
 
-    private final GmailConnectionService gmailConnectionService;
+    private final EmailConnectionService emailConnectionService;
     private final OAuthTokenService oAuthTokenService;
     private final SmtpRepository smtpRepository;
     private final SmtpMapper smtpMapper;
@@ -46,7 +47,7 @@ public class GmailSmtpService {
         OAuthTokens tokens = oAuthTokenService.exchangeCodeForTokens(request.getCode());
 
 
-        gmailConnectionService.connectGmail(tokens, request.getSenderEmail());
+        emailConnectionService.connect(tokens, request.getSenderEmail());
 
         var smtpCredentials = smtpRepository.findByEmail(request.getSenderEmail()).orElseThrow(EmailNotFoundException::new);
 

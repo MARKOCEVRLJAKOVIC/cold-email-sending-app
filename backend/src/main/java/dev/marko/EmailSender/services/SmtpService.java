@@ -19,7 +19,6 @@ public class SmtpService {
     private final SmtpRepository smtpRepository;
     private final SmtpMapper smtpMapper;
     private final AuthService authService;
-    private final PasswordEncoder passwordEncoder;
 
     public List<SmtpDto> getAllEmails(){
 

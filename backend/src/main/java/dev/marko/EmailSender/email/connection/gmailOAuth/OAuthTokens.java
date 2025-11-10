@@ -1,8 +1,10 @@
-package dev.marko.EmailSender.email.gmailOAuth;
+package dev.marko.EmailSender.email.connection.gmailOAuth;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 
+@AllArgsConstructor
 @Data
 public class OAuthTokens {
 

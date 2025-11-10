@@ -2,7 +2,7 @@ package dev.marko.EmailSender.email.reply;
 
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.*;
-import dev.marko.EmailSender.email.gmailOAuth.GmailConnectionService;
+import dev.marko.EmailSender.email.connection.gmailOAuth.GmailConnectionService;
 import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.EmailReplyRepository;

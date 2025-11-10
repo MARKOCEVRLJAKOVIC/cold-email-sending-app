@@ -4,8 +4,8 @@ import dev.marko.EmailSender.auth.TokenExpiredException;
 import dev.marko.EmailSender.auth.TokenNotFoundException;
 import dev.marko.EmailSender.dtos.ErrorDto;
 import dev.marko.EmailSender.email.followup.FollowUpNotFoundException;
-import dev.marko.EmailSender.email.gmailOAuth.GmailOAuthException;
-import dev.marko.EmailSender.email.gmailOAuth.SmtpListIsEmptyException;
+import dev.marko.EmailSender.email.connection.gmailOAuth.GmailOAuthException;
+import dev.marko.EmailSender.email.connection.gmailOAuth.SmtpListIsEmptyException;
 import dev.marko.EmailSender.email.reply.EmailReplyEmptyListException;
 import dev.marko.EmailSender.email.reply.EmailReplyNotFoundException;
 import dev.marko.EmailSender.email.send.EmailMessageNotFoundException;
@@ -119,6 +119,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(GmailOAuthException.class)
     public ResponseEntity<ErrorDto> handleGmailOAuthException(){
         return error(HttpStatus.NOT_FOUND, "Gmail account not found");
+    }
+
+    @ExceptionHandler(MissingRefreshTokenException.class)
+    public ResponseEntity<ErrorDto> handleMissingRefreshTokenException(){
+        return error(HttpStatus.NOT_FOUND, "Missing refresh token");
     }
 
 

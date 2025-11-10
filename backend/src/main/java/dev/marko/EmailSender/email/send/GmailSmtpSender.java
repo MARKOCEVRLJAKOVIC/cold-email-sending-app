@@ -1,11 +1,11 @@
 package dev.marko.EmailSender.email.send;
 
-import dev.marko.EmailSender.email.gmailOAuth.GmailConnectionService;
-import dev.marko.EmailSender.email.gmailOAuth.OAuth2Authenticator;
-import dev.marko.EmailSender.security.TokenEncryptor;
-import jakarta.mail.*;
+import dev.marko.EmailSender.email.connection.EmailConnectionService;
+import dev.marko.EmailSender.email.connection.gmailOAuth.OAuth2Authenticator;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.SmtpCredentials;
+import dev.marko.EmailSender.security.EncryptionService;
+import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
 import lombok.AllArgsConstructor;
@@ -19,8 +19,8 @@ import java.util.Properties;
 @AllArgsConstructor
 public class GmailSmtpSender implements EmailSender {
 
-    private final GmailConnectionService gmailConnectionService;
-    private final TokenEncryptor tokenEncryptor;
+    private final EmailConnectionService emailConnectionService;
+    private final EncryptionService encryptionService;
 
     @Override
     public void sendEmails(EmailMessage email) throws MessagingException {
@@ -31,13 +31,12 @@ public class GmailSmtpSender implements EmailSender {
             throw new IllegalArgumentException("Provided credentials are not Gmail OAuth2.");
         }
 
-        smtp = gmailConnectionService.refreshTokenIfNeeded(smtp);
-        smtp.setOauthAccessToken(tokenEncryptor.decryptIfNeeded(smtp.getOauthAccessToken()));
-        smtp.setOauthRefreshToken(tokenEncryptor.decryptIfNeeded(smtp.getOauthRefreshToken()));
+        smtp = emailConnectionService.refreshTokenIfNeeded(smtp);
+        String accessToken = encryptionService.decrypt(smtp.getOauthAccessToken());
 
         Properties properties = getProperties(smtp);
 
-        Authenticator auth = new OAuth2Authenticator(smtp.getEmail(), smtp.getOauthAccessToken());
+        Authenticator auth = new OAuth2Authenticator(smtp.getEmail(), accessToken);
         Session session = Session.getInstance(properties, auth);
 
         MimeMessage mimeMessage = getMimeMessage(email, session, smtp);
@@ -51,14 +50,14 @@ public class GmailSmtpSender implements EmailSender {
         String messageId = mimeMessage.getMessageID();
         email.setMessageId(messageId);
 
-        Transport transport = session.getTransport("smtp");
-        try {
+        try (Transport transport = session.getTransport("smtp")) {
             transport.connect();
             transport.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
         }
 
-        finally {
-            transport.close();
+        catch (MessagingException e) {
+            log.error("Failed to send email to {}", email.getRecipientEmail(), e);
+            throw e;
         }
 
     }

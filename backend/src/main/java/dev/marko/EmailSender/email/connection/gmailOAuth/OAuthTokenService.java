@@ -1,5 +1,6 @@
-package dev.marko.EmailSender.email.gmailOAuth;
+package dev.marko.EmailSender.email.connection.gmailOAuth;
 
+import dev.marko.EmailSender.email.connection.TokenService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -12,11 +13,10 @@ import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.Profile;
 
 import java.io.IOException;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
-public class OAuthTokenService {
+public class OAuthTokenService implements TokenService {
 
     private final GoogleOAuth2Properties properties;
 

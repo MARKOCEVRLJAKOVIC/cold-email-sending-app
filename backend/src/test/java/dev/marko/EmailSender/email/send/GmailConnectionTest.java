@@ -1,8 +1,9 @@
 package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.auth.AuthService;
-import dev.marko.EmailSender.email.gmailOAuth.GmailConnectionService;
-import dev.marko.EmailSender.email.gmailOAuth.OAuthTokenService;
+import dev.marko.EmailSender.email.connection.gmailOAuth.GmailConnectionService;
+import dev.marko.EmailSender.email.connection.gmailOAuth.OAuthTokenService;
+import dev.marko.EmailSender.email.connection.gmailOAuth.OAuthTokens;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.SmtpType;
 import dev.marko.EmailSender.entities.User;
@@ -15,8 +16,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
@@ -45,7 +45,10 @@ public class GmailConnectionTest {
     }
 
     @Test
-    public void testConnection() {
+    public void connectGmail_shouldSaveNewCredentials_whenRefreshTokenPresent() {
+
+        OAuthTokens tokens = new OAuthTokens("access", "refresh", 3600, anyString(), anyString());
+        String senderEmail = "user@gmail.com";
 
         var smtpCredentials = new SmtpCredentials();
 

@@ -1,4 +1,4 @@
-package dev.marko.EmailSender.email.gmailOAuth;
+package dev.marko.EmailSender.email.connection.gmailOAuth;
 
 import com.google.api.services.gmail.Gmail;
 import dev.marko.EmailSender.auth.AuthService;
@@ -63,7 +63,7 @@ public class GmailOAuthController {
 
         String senderEmail = oAuthTokenService.fetchSenderEmail(gmailService);
 
-        gmailConnectionService.connectGmail(tokens, senderEmail);
+        gmailConnectionService.connect(tokens, senderEmail);
 
         var smtpCredentials = smtpRepository.findByEmail(senderEmail)
                 .orElseThrow(EmailNotFoundException::new);

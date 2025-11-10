@@ -5,7 +5,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
-import dev.marko.EmailSender.email.gmailOAuth.GoogleOAuth2Properties;
+import dev.marko.EmailSender.email.connection.gmailOAuth.GoogleOAuth2Properties;
 import dev.marko.EmailSender.security.TokenEncryptor;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;

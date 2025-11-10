@@ -1,6 +1,5 @@
-package dev.marko.EmailSender.email.gmailOAuth;
+package dev.marko.EmailSender.email.connection.gmailOAuth;
 
-import dev.marko.EmailSender.dtos.ErrorDto;
 import dev.marko.EmailSender.dtos.SmtpDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
