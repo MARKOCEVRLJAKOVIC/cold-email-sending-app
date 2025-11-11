@@ -1,16 +1,15 @@
 # Cold Email Automation Platform
 
-A full-stack application for managing cold email campaigns. The platform allows user registration, SMTP account management, campaign and template creation, batch email sending with CSV imports, and automatic follow-up scheduling. It also supports Gmail OAuth2 integration for connecting personal or business inboxes.
+A full-stack application for cold email automation campaigns. The platform allows user registration, SMTP account management, campaign and template creation, batch email sending with CSV imports, and automatic follow-up scheduling. It also supports Gmail OAuth2 integration for connecting personal or business inboxes.
 
 ---
 
 ## Tech Stack
 
-- **Backend**: Spring Boot (Java 17), Spring Security, Jakarta Mail (Angus Mail), OAuth2
-- **Database**: MySQL
+- **Tools**: Built in Intellij using Java
+- **Backend**: Spring Boot (Java 24), Spring Security, Jakarta Mail (Angus Mail), OAuth2
+- **Database**: SQL
 - **Frontend**: HTML, CSS, JavaScript (vanilla)
-- **Authentication**: JWT with email verification
-- **Scheduling**: In-memory scheduling + database persistence
 - **Deployment**: runnable locally or on a server/cloud
 
 ---
@@ -99,3 +98,263 @@ All endpoints follow a RESTful structure. Authentication is handled with JWT, ex
 ### Password Reset API
 - `POST /password/forgot` – Request password reset
 - `POST /password/reset` – Reset password
+
+---
+
+## SOLID Implementation
+
+---
+
+### Open/Closed Principle
+
+This allows adding new senders (e.g., Mailgun, SendGrid, Outlook)  
+without modifying existing business logic, following the Open/Closed Principle.
+
+```java
+public interface EmailSender {
+    void sendEmails(EmailMessage emailMessage) throws MessagingException;
+}
+```
+```java
+public interface EmailConnectionService {
+    void connect(OAuthTokens tokens, String senderEmail);
+}
+```
+```java
+public interface TokenService {
+    OAuthTokens refreshAccessToken(String refreshToken);
+}
+```
+
+### Liskov Substitution Principle and Interface Segregation Principle
+
+Each email sender (e.g., Gmail, SendGrid) can be used interchangeably since they respect the same `EmailSender` contract,  
+and the interfaces are small and focused (no unused methods).
+
+```java
+public class GmailSmtpSender implements EmailSender {
+    /*...*/
+    @Override
+    public void sendEmails(EmailMessage email) throws MessagingException {
+        /*...*/
+    }
+}
+```
+
+### Dependency Inversion Principle
+
+Modules like `SendBatchEmailsService` depend on the `EmailSender` abstraction,  
+not on concrete implementations. This makes the system flexible and easy to test.
+
+```java
+@Service
+@RequiredArgsConstructor
+public class SendBatchEmailsService {
+
+    private final EmailSender emailSender; // depends on abstraction
+
+    public void send(EmailMessage emailMessage) throws MessagingException {
+        emailSender.sendEmails(emailMessage);
+    }
+}
+```
+```java
+public interface EmailSender {
+    void sendEmails(EmailMessage emailMessage) throws MessagingException;
+}
+```
+```java
+@Service
+public class GmailSmtpSender implements EmailSender {
+    @Override
+    public void sendEmails(EmailMessage email) throws MessagingException {
+        /*...*/
+    }
+}
+```
+
+## DRY Implemantation
+
+SpintaxProcessor is used in both SendBatchEmailsService and FollowUpSchedulerService through the shared EmailPreparationService, which centralizes email text generation (spintax + personalization) and eliminates code duplication in accordance with the DRY principle.
+
+### Resuing methods
+The DRY (Don’t Repeat Yourself) principle is implemented by reusing code and avoiding duplication, each unit of reusable work is encapsulated in its own method.
+```java
+public String generateMessageText(String templateText, String recipientName) {
+        String withName = templateText.replace("{{name}}", recipientName);
+        return spinTextProcessor.process(withName);
+}
+```
+
+---
+
+### Using email service for password recovery (Gmail SMTP)
+
+```java
+public void forgotPassword(ResetPasswordRequest request){
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow(UserNotFoundException::new);
+        String token = UUID.randomUUID().toString();
+
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(30))
+                .build();
+
+        passwordResetTokenRepository.save(resetToken);
+
+        String link = appUrl + "/password/reset?token=" + token;
+        notificationEmailService.sendEmail(request.getEmail(), subject, link);
+}
+```
+
+### Using CSV parsing
+
+```java
+ private List<EmailRecipientDto> parseCsv(MultipartFile file)  {
+        List<EmailRecipientDto> recipients = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+
+            String line;
+            boolean isFirst = true;
+
+            while ((line = reader.readLine()) != null) {
+                if (isFirst) {
+                    isFirst = false;
+                    continue;
+                }
+
+                String[] tokens = line.split(",");
+
+
+                String email = tokens[0].trim();
+                String name = tokens.length > 1 ? tokens[1].trim() : "";
+
+                if (email.isEmpty()) continue;
+
+                var dto = new EmailRecipientDto(name, email);
+                recipients.add(dto);
+
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read CSV file", e);
+        }
+
+        return recipients;
+
+    }
+```
+
+#### Expected CSV format
+
+| name | email |
+| marko | marko@email.com |
+
+### Using Spring Security
+
+#### Password hashing using BCrypt algorithm
+
+```java
+@Configuration
+public class PasswordConfig {
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+```
+
+#### Gmail SMTP Access and Refresh token encryption
+
+```java
+@Component
+public class TokenEncryptor {
+
+    @Value("${spring.token.encrypt}")
+    private String secretKey;
+
+    private SecretKeySpec getKey() {
+        byte[] decodedKey = Base64.getDecoder().decode(secretKey);
+        return new SecretKeySpec(decodedKey, "AES");
+    }
+
+    public String encrypt(String data) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, getKey());
+            return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
+        } catch (Exception e) {
+            throw new RuntimeException("Encryption error", e);
+        }
+    }
+
+    public String decrypt(String encrypted) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, getKey());
+            return new String(cipher.doFinal(Base64.getDecoder().decode(encrypted)));
+        } catch (Exception e) {
+            throw new RuntimeException("Decryption error", e);
+        }
+    }
+}
+```
+
+#### Authorization with Spring Security and JWT
+
+The application implements role-based authorization using Spring Security and JWT tokens.
+Each user receives a signed access token containing their id, email, and role, generated through the JwtService.
+Requests are intercepted by the custom JwtAuthenticationFilter, which validates the token, loads the user from the database, and injects the authentication context into Spring Security.
+
+```java
+public Jwt generateAccessToken(User user) {
+    var claims = Jwts.claims()
+            .subject(user.getId().toString())
+            .add("email", user.getEmail())
+            .add("role", user.getRole().name())
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + 1000 * jwtConfig.getAccessTokenExpiration()))
+            .build();
+
+    return new Jwt(claims, jwtConfig.getSecretKey());
+}
+```
+
+```java
+@Override
+protected void doFilterInternal(HttpServletRequest request,
+                                HttpServletResponse response,
+                                FilterChain filterChain) throws IOException, ServletException {
+    var authHeader = request.getHeader("Authorization");
+
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        filterChain.doFilter(request, response);
+        return;
+    }
+
+    var token = authHeader.replace("Bearer ", "");
+    var jwt = jwtService.parseToken(token);
+
+    if (jwt == null || jwt.isExpired()) {
+        filterChain.doFilter(request, response);
+        return;
+    }
+
+    var userDetails = userDetailsService.loadUserByUsername(jwt.getEmail());
+    var authentication = new UsernamePasswordAuthenticationToken(
+            userDetails, null, userDetails.getAuthorities()
+    );
+
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+    filterChain.doFilter(request, response);
+}
+```
+
+
+
+
+
