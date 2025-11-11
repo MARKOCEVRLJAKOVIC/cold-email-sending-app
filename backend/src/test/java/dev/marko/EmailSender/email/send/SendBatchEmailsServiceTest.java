@@ -14,9 +14,10 @@ import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -31,7 +32,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class SendBatchEmailsServiceTest {
 
     @Mock private AuthService authService;
@@ -80,7 +81,9 @@ public class SendBatchEmailsServiceTest {
 
         EmailRecipientDto recipientDto = new EmailRecipientDto("test@email.com", "test2@email.com");
 
-        MultipartFile file = getFile("email,name\nemail1@test.com,Marko\nemail2@test.com,Marko");
+        MultipartFile file = getFile("email,name\n" +
+                "email1@test.com,Marko\n" +
+                "email2@test.com,Marko");
 
         when(templateRepository.findById(template.getId())).thenReturn(Optional.of(template));
         when(campaignRepository.findById(campaign.getId())).thenReturn(Optional.of(campaign));

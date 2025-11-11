@@ -1,4 +1,4 @@
-package dev.marko.EmailSender.email.send;
+package dev.marko.EmailSender.email.connection;
 
 import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.email.connection.gmailOAuth.GmailConnectionService;
@@ -7,39 +7,37 @@ import dev.marko.EmailSender.email.connection.gmailOAuth.OAuthTokens;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.SmtpType;
 import dev.marko.EmailSender.entities.User;
-import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.security.EncryptionService;
 import dev.marko.EmailSender.services.SmtpCredentialService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class GmailConnectionTest {
 
     @Mock private OAuthTokenService tokenService;
-    @Mock private SmtpRepository smtpRepository;
     @Mock private AuthService authService;
     @Mock private EncryptionService encryptionService;
     @Mock private SmtpCredentialService smtpService;
-
 
     @InjectMocks
     private GmailConnectionService gmailConnectionService;
 
     private User mockUser;
+
 
     @BeforeEach
     public void setup() {
