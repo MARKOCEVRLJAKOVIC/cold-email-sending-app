@@ -173,13 +173,43 @@ public class GmailSmtpSender implements EmailSender {
 }
 ```
 
+## DRY Implemantation
+
+SpintaxProcessor is used in both SendBatchEmailsService and FollowUpSchedulerService through the shared EmailPreparationService, which centralizes email text generation (spintax + personalization) and eliminates code duplication in accordance with the DRY principle.
+
+### Resuing methods
+The DRY (Don’t Repeat Yourself) principle is implemented by reusing code and avoiding duplication, each unit of reusable work is encapsulated in its own method.
+```java
+public String generateMessageText(String templateText, String recipientName) {
+        String withName = templateText.replace("{{name}}", recipientName);
+        return spinTextProcessor.process(withName);
+}
+```
+
 ---
 
-## Main Logic
+### Using email service for password recovery (Gmail SMTP)
 
----
+```java
+public void forgotPassword(ResetPasswordRequest request){
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow(UserNotFoundException::new);
+        String token = UUID.randomUUID().toString();
 
-### Csv parsing
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(30))
+                .build();
+
+        passwordResetTokenRepository.save(resetToken);
+
+        String link = appUrl + "/password/reset?token=" + token;
+        notificationEmailService.sendEmail(request.getEmail(), subject, link);
+}
+```
+
+### Using CSV parsing
 
 ```java
  private List<EmailRecipientDto> parseCsv(MultipartFile file)  {
@@ -223,4 +253,108 @@ public class GmailSmtpSender implements EmailSender {
 
 | name | email |
 | marko | marko@email.com |
+
+### Using Spring Security
+
+#### Password hashing using BCrypt algorithm
+
+```java
+@Configuration
+public class PasswordConfig {
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+}
+```
+
+#### Gmail SMTP Access and Refresh token encryption
+
+```java
+@Component
+public class TokenEncryptor {
+
+    @Value("${spring.token.encrypt}")
+    private String secretKey;
+
+    private SecretKeySpec getKey() {
+        byte[] decodedKey = Base64.getDecoder().decode(secretKey);
+        return new SecretKeySpec(decodedKey, "AES");
+    }
+
+    public String encrypt(String data) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.ENCRYPT_MODE, getKey());
+            return Base64.getEncoder().encodeToString(cipher.doFinal(data.getBytes()));
+        } catch (Exception e) {
+            throw new RuntimeException("Encryption error", e);
+        }
+    }
+
+    public String decrypt(String encrypted) {
+        try {
+            Cipher cipher = Cipher.getInstance("AES");
+            cipher.init(Cipher.DECRYPT_MODE, getKey());
+            return new String(cipher.doFinal(Base64.getDecoder().decode(encrypted)));
+        } catch (Exception e) {
+            throw new RuntimeException("Decryption error", e);
+        }
+    }
+}
+```
+
+#### Authorization with Spring Security and JWT
+
+The application implements role-based authorization using Spring Security and JWT tokens.
+Each user receives a signed access token containing their id, email, and role, generated through the JwtService.
+Requests are intercepted by the custom JwtAuthenticationFilter, which validates the token, loads the user from the database, and injects the authentication context into Spring Security.
+
+```java
+public Jwt generateAccessToken(User user) {
+    var claims = Jwts.claims()
+            .subject(user.getId().toString())
+            .add("email", user.getEmail())
+            .add("role", user.getRole().name())
+            .issuedAt(new Date())
+            .expiration(new Date(System.currentTimeMillis() + 1000 * jwtConfig.getAccessTokenExpiration()))
+            .build();
+
+    return new Jwt(claims, jwtConfig.getSecretKey());
+}
+```
+
+```java
+@Override
+protected void doFilterInternal(HttpServletRequest request,
+                                HttpServletResponse response,
+                                FilterChain filterChain) throws IOException, ServletException {
+    var authHeader = request.getHeader("Authorization");
+
+    if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+        filterChain.doFilter(request, response);
+        return;
+    }
+
+    var token = authHeader.replace("Bearer ", "");
+    var jwt = jwtService.parseToken(token);
+
+    if (jwt == null || jwt.isExpired()) {
+        filterChain.doFilter(request, response);
+        return;
+    }
+
+    var userDetails = userDetailsService.loadUserByUsername(jwt.getEmail());
+    var authentication = new UsernamePasswordAuthenticationToken(
+            userDetails, null, userDetails.getAuthorities()
+    );
+
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+    filterChain.doFilter(request, response);
+}
+```
+
+
+
+
 
