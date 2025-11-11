@@ -103,7 +103,7 @@ All endpoints follow a RESTful structure. Authentication is handled with JWT, ex
 
 ## SOLID Implementation
 
-### Open/Closed Principle
+### Single Responsibility & Open/Closed Principle
 
 This allows adding new senders (e.g., Mailgun, SendGrid, Outlook)  
 without modifying existing business logic, following the Open/Closed Principle.
@@ -357,14 +357,29 @@ protected void doFilterInternal(HttpServletRequest request,
 ## Campaign Wizard Flow
 
 Below is the campaign creation wizard that guides the user through:
-1. Naming campaign
-2. Selecting Gmail accounts
-3. Uploading CSV leads list file
-4. Writning Email Subject, Body, and follow-up message
-5. Selecting a date for campaign launch
 
 ![Campaign Wizard Step 1](showcase-images/wizard-1.png)
+
+1. Naming campaign
+
 ![Campaign Wizard Step 2](showcase-images/wizard-2.png)
+
+2. Selecting Gmail accounts
+Users can select which sending accounts to use from the list of added Gmail accounts. They have the option to send emails using all accounts or only specific ones. Additionally, accounts will automatically rotate when a campaign is launched to help avoid spam filters.
+
 ![Campaign Wizard Step 3](showcase-images/wizard-3.png)
+
+3. Uploading CSV leads list file
+Upload from CSV file with following format:
+name,email
+Marko,marko@gmail.com
+
 ![Campaign Wizard Step 4](showcase-images/wizard-4.png)
+
+4. Writning Email Subject, Body, and follow-up message
+Create email content with the ability to personalize messages by mapping `{{name}}` fields to names from a CSV file. The system also supports spintax functionality (e.g., `{great|good|wonderful}`) to vary wording in each email, helping to reduce the risk of triggering spam filters.
+
 ![Campaign Wizard Step 5](showcase-images/wizard-5.png)
+
+5. Selecting a date for campaign launch
+Option to select date and time when campaign will be launch
