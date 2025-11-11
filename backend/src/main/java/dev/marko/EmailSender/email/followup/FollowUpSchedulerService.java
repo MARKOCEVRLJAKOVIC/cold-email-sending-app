@@ -1,7 +1,7 @@
 package dev.marko.EmailSender.email.followup;
 
 import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
-import dev.marko.EmailSender.email.spintax.SpintaxProcessor;
+import dev.marko.EmailSender.email.spintax.EmailPreparationService;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.FollowUpTemplate;
 import dev.marko.EmailSender.entities.Status;
@@ -25,7 +25,7 @@ public class FollowUpSchedulerService {
 
     private final EmailMessageRepository emailMessageRepository;
     private final EmailSchedulingService schedulingService;
-    private final SpintaxProcessor spintaxProcessor;
+    private final EmailPreparationService emailPreparationService;
 
     @Value("${email.follow-up.quantity}")
     private int maximumFollowUps;
@@ -94,7 +94,6 @@ public class FollowUpSchedulerService {
     }
 
     private String renderTemplate(String message, String recipientName) {
-        String result = spintaxProcessor.process(message);
-        return result.replace("{{name}}", recipientName != null ? recipientName : "");
+        return emailPreparationService.generateMessageText(message, recipientName);
     }
 }

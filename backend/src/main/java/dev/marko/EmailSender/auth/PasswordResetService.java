@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.auth;
 
-import dev.marko.EmailSender.dtos.GenericResponse;
 import dev.marko.EmailSender.dtos.ResetPasswordConfirmRequest;
 import dev.marko.EmailSender.dtos.ResetPasswordRequest;
 import dev.marko.EmailSender.dtos.UserDto;
@@ -9,14 +8,10 @@ import dev.marko.EmailSender.exception.UserNotFoundException;
 import dev.marko.EmailSender.mappers.UserMapper;
 import dev.marko.EmailSender.repositories.PasswordResetTokenRepository;
 import dev.marko.EmailSender.repositories.UserRepository;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -33,6 +28,8 @@ public class PasswordResetService {
 
     @Value("${app.frontend-url}")
     private String appUrl;
+
+    String subject = "Reset your password using the following link: ";
 
 
     public void forgotPassword(ResetPasswordRequest request){
@@ -51,7 +48,7 @@ public class PasswordResetService {
 
         String link = appUrl + "/password/reset?token=" + token;
 
-        notificationEmailService.sendEmail(request.getEmail(), "Reset your password using the following link: ", link);
+        notificationEmailService.sendEmail(request.getEmail(), subject, link);
 
     }
 
