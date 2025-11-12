@@ -91,7 +91,9 @@ public class EmailTemplateService {
     }
 
     public void deleteTemplate(Long id){
-        var emailTemplate = templateRepository.findById(id).orElseThrow(TemplateNotFoundException::new);
+
+        var user = authService.getCurrentUser();
+        var emailTemplate = templateRepository.findByIdAndUserId(id, user.getId()).orElseThrow(TemplateNotFoundException::new);
 
         templateRepository.delete(emailTemplate);
     }
