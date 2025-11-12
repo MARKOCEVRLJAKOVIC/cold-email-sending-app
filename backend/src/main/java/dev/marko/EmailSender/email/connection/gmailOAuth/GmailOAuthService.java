@@ -1,0 +1,82 @@
+package dev.marko.EmailSender.email.connection.gmailOAuth;
+
+import com.google.api.services.gmail.Gmail;
+import dev.marko.EmailSender.dtos.GmailConnectionResponse;
+import dev.marko.EmailSender.dtos.SmtpDto;
+import dev.marko.EmailSender.email.reply.GmailServiceFactory;
+import dev.marko.EmailSender.entities.SmtpCredentials;
+import dev.marko.EmailSender.exception.EmailNotFoundException;
+import dev.marko.EmailSender.mappers.SmtpMapper;
+import dev.marko.EmailSender.repositories.SmtpRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
+import dev.marko.EmailSender.security.TokenEncryptor;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+
+@AllArgsConstructor
+@Service
+public class GmailOAuthService {
+
+    private final OAuthTokenService oAuthTokenService;
+    private final GoogleOAuth2Properties properties;
+    private final GmailConnectionService gmailConnectionService;
+    private final SmtpRepository smtpRepository;
+    private final CurrentUserProvider currentUserProvider;
+    private final SmtpMapper smtpMapper;
+    private final TokenEncryptor tokenEncryptor;
+    private final GmailServiceFactory gmailServiceFactory;
+
+    public String generateAuthUrl(){
+        return  "https://accounts.google.com/o/oauth2/v2/auth" +
+                "?client_id=" + properties.getClientId() +
+                "&redirect_uri=" + properties.getRedirectUri() +
+                "&response_type=code" +
+                "&scope=https://mail.google.com/" +
+                "&access_type=offline" +
+                "&prompt=consent";
+    }
+
+    @Transactional
+    public SmtpDto oAuthCallback(String code) throws GeneralSecurityException, IOException {
+
+        OAuthTokens tokens = oAuthTokenService.exchangeCodeForTokens(code);
+
+        SmtpCredentials tempCredentials = new SmtpCredentials();
+        tempCredentials.setOauthAccessToken(tokens.getAccessToken());
+        tempCredentials.setOauthRefreshToken(tokens.getRefreshToken());
+
+        Gmail gmailService = gmailServiceFactory.createService(
+                tokens.getAccessToken(),
+                tokens.getRefreshToken()
+        );
+
+        String senderEmail = oAuthTokenService.fetchSenderEmail(gmailService);
+
+        gmailConnectionService.connect(tokens, senderEmail);
+
+        var smtpCredentials = smtpRepository.findByEmail(senderEmail)
+                .orElseThrow(EmailNotFoundException::new);
+
+        if (tokens.getRefreshToken() != null && !tokens.getRefreshToken().isEmpty()) {
+            smtpCredentials.setOauthRefreshToken(
+                    tokenEncryptor.encryptIfNeeded(tokens.getRefreshToken())
+            );
+        } else if (smtpCredentials.getOauthRefreshToken() != null &&
+                tokenEncryptor.isEncrypted(smtpCredentials.getOauthRefreshToken())) {
+            smtpCredentials.setOauthRefreshToken(
+                    tokenEncryptor.encryptIfNeeded(smtpCredentials.getOauthRefreshToken())
+            );
+        }
+
+        smtpCredentials.setEnabled(true);
+        smtpRepository.save(smtpCredentials);
+
+        return smtpMapper.toDto(smtpCredentials);
+
+    }
+
+}
