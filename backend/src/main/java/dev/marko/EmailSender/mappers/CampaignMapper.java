@@ -7,12 +7,16 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface CampaignMapper {
 
     @Mapping(target = "userId", source = "user.id")
     CampaignDto toDto(Campaign campaign);
     Campaign toEntity(CreateCampaignRequest request);
+
+    List<CampaignDto> toListDto(List<Campaign> campaigns);
 
     void update(CreateCampaignRequest request, @MappingTarget Campaign campaign);
 

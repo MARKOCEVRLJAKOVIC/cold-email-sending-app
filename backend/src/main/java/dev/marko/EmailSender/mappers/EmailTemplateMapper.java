@@ -8,6 +8,8 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface EmailTemplateMapper {
 
@@ -16,6 +18,8 @@ public interface EmailTemplateMapper {
     EmailTemplateDto toDto(EmailTemplate emailTemplate);
 
     EmailTemplate toEntity(CreateTemplateRequest request);
+
+    List<EmailTemplateDto> toTemplateListDto(List<EmailTemplate> templates);
 
     void update(CreateTemplateRequest request, @MappingTarget EmailTemplate emailTemplate);
 

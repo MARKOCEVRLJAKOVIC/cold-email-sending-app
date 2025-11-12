@@ -12,6 +12,7 @@ import dev.marko.EmailSender.repositories.TemplateRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -27,31 +28,26 @@ public class EmailTemplateService {
     public List<EmailTemplateDto> getAllTemplates() {
 
         var user = currentUserProvider.getCurrentUser();
-
         var templates = templateRepository.findAllByUserId(user.getId());
 
-        if (templates.isEmpty()) throw new TemplateEmptyListException();
-
-        return templates.stream().map(
-                emailTemplateMapper::toDto
-        ).toList();
+        return emailTemplateMapper.toTemplateListDto(templates);
 
     }
 
     public EmailTemplateDto getTemplate(Long id){
         var user = currentUserProvider.getCurrentUser();
-
         var emailTemplate = templateRepository.findByIdAndUserId(id,user.getId())
                 .orElseThrow(TemplateNotFoundException::new);
 
         return emailTemplateMapper.toDto(emailTemplate);
     }
 
+    @Transactional
     public EmailTemplateDto createTemplate(CreateTemplateRequest request){
         var user = currentUserProvider.getCurrentUser();
 
-        var campaign = campaignRepository.findById
-                (request.getCampaignId()).orElseThrow(CampaignNotFoundException::new);
+        var campaign = campaignRepository.findByIdAndUserId(request.getCampaignId(), user.getId())
+                .orElseThrow(CampaignNotFoundException::new);
 
         var emailTemplate = emailTemplateMapper.toEntity(request);
         emailTemplate.setCampaign(campaign);
@@ -59,15 +55,10 @@ public class EmailTemplateService {
 
         templateRepository.save(emailTemplate);
 
-        var emailTemplateDto = emailTemplateMapper.toDto(emailTemplate);
-        emailTemplateDto.setId(emailTemplate.getId());
-
-        emailTemplateDto.setUserId(user.getId());
-
-        return emailTemplateDto;
+        return emailTemplateMapper.toDto(emailTemplate);
     }
 
-
+    @Transactional
     public EmailTemplateDto updateTemplate(CreateTemplateRequest request, Long id){
 
         var user = currentUserProvider.getCurrentUser();
@@ -84,18 +75,17 @@ public class EmailTemplateService {
 
         templateRepository.save(emailTemplate);
 
-        var emailTemplateDto =  emailTemplateMapper.toDto(emailTemplate);
-        emailTemplateDto.setUserId(user.getId());
-        emailTemplateDto.setCampaignId(campaign.getId());
+        return emailTemplateMapper.toDto(emailTemplate);
 
-        return emailTemplateDto;
     }
 
+    @Transactional
     public void deleteTemplate(Long id){
 
         var user = currentUserProvider.getCurrentUser();
         var emailTemplate = templateRepository.findByIdAndUserId(id, user.getId()).orElseThrow(TemplateNotFoundException::new);
 
         templateRepository.delete(emailTemplate);
+
     }
 }

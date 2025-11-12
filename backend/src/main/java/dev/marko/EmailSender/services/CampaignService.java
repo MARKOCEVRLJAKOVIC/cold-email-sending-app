@@ -12,6 +12,7 @@ import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -28,17 +29,9 @@ public class CampaignService {
     public List<CampaignDto> getAllCampaignFromUser(){
 
         var user = currentUserProvider.getCurrentUser();
-
         var campaignList = campaignRepository.findAllByUserId(user.getId());
 
-        return campaignList.stream()
-                .map(campaign -> new CampaignDto(
-                        campaign.getId(),
-                        campaign.getDescription(),
-                        campaign.getName(),
-                        campaign.getCreatedAt(),
-                        campaign.getUser() != null ? campaign.getUser().getId() : null)
-                ).toList();
+        return campaignMapper.toListDto(campaignList);
 
     }
 
@@ -52,8 +45,10 @@ public class CampaignService {
 
     public CampaignStatsDto getCampaignStats(Long id){
 
-        var campaign = campaignRepository.findById(id).orElseThrow(CampaignNotFoundException::new);
+        var user = currentUserProvider.getCurrentUser();
 
+        var campaign = campaignRepository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(CampaignNotFoundException::new);
         var emails = emailMessageRepository.findAllByCampaign(campaign);
 
         int total = emails.size();
@@ -68,6 +63,7 @@ public class CampaignService {
 
     }
 
+    @Transactional
     public CampaignDto createCampaign(CreateCampaignRequest request){
         var user = currentUserProvider.getCurrentUser();
 
@@ -76,36 +72,27 @@ public class CampaignService {
 
         campaignRepository.save(campaign);
 
-        var campaignDto = campaignMapper.toDto(campaign);
-        campaignDto.setId(campaign.getId());
-        campaignDto.setUserId(user.getId());
-
-        return campaignDto;
+        return campaignMapper.toDto(campaign);
     }
 
+    @Transactional
     public CampaignDto updateCampaign(Long id ,CreateCampaignRequest request){
 
         var user = currentUserProvider.getCurrentUser();
 
-        var campaign = campaignRepository.findById(id).
+        var campaign = campaignRepository.findByIdAndUserId(id, user.getId()).
                 orElseThrow(CampaignNotFoundException::new);
 
         campaignMapper.update(request, campaign);
-
         campaignRepository.save(campaign);
 
-        var campaignDto = campaignMapper.toDto(campaign);
-
-        campaignDto.setUserId(user.getId());
-
-        return campaignDto;
+        return campaignMapper.toDto(campaign);
 
     }
 
     public void deleteCampaign(Long id){
         var campaign = campaignRepository.findById(id)
                 .orElseThrow(CampaignNotFoundException::new);
-
         campaignRepository.delete(campaign);
     }
 }

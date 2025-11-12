@@ -26,20 +26,15 @@ public class SmtpService {
         var user = currentUserProvider.getCurrentUser();
         var smtpList = smtpRepository.findAllByUserId(user.getId());
 
-        if(smtpList.isEmpty()){
-            throw new EmailNotFoundException();
-        }
-
-        return smtpList.stream()
-                .map(smtpMapper::toDto)
-                .toList();
+        return smtpMapper.smtpListToDtoList(smtpList);
 
     }
 
     public SmtpDto getEmail(Long id){
 
-        var smtp = smtpRepository.findById(id).orElseThrow(EmailNotFoundException::new);
+        var user = currentUserProvider.getCurrentUser();
 
+        var smtp = smtpRepository.findByIdAndUserId(id, user.getId()).orElseThrow(EmailNotFoundException::new);
         return smtpMapper.toDto(smtp);
 
     }
@@ -49,14 +44,9 @@ public class SmtpService {
         var user = currentUserProvider.getCurrentUser();
 
         var smtp = smtpMapper.toEntity(request);
-        smtp.setUser(user);
         smtpRepository.save(smtp);
 
-        var smtpDto = smtpMapper.toDto(smtp);
-        smtpDto.setId(smtp.getId());
-        smtpDto.setUserId(user.getId());
-
-        return smtpDto;
+        return smtpMapper.toDto(smtp);
 
     }
 
