@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.services;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.CreateTemplateRequest;
 import dev.marko.EmailSender.dtos.EmailTemplateDto;
 import dev.marko.EmailSender.entities.Campaign;
@@ -11,6 +10,7 @@ import dev.marko.EmailSender.exception.TemplateNotFoundException;
 import dev.marko.EmailSender.mappers.EmailTemplateMapper;
 import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,7 +31,7 @@ public class EmailTemplateServiceTest {
 
     @Mock private TemplateRepository templateRepository;
     @Mock private EmailTemplateMapper emailTemplateMapper;
-    @Mock private AuthService authService;
+    @Mock private CurrentUserProvider currentUserProvider;
     @Mock private CampaignRepository campaignRepository;
 
     @InjectMocks
@@ -61,7 +61,7 @@ public class EmailTemplateServiceTest {
         emailTemplateDto.setId(1L);
         emailTemplateDto.setUserId(user.getId());
 
-        when(authService.getCurrentUser()).thenReturn(user);
+        when(currentUserProvider.getCurrentUser()).thenReturn(user);
 
 
 //        when(templateRepository.findByIdAndUserId(emailTemplate.getId(), user.getId())).thenReturn(Optional.of(emailTemplate));

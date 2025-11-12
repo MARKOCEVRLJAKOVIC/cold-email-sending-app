@@ -1,12 +1,12 @@
 package dev.marko.EmailSender.email.connection;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.email.connection.gmailOAuth.GmailConnectionService;
 import dev.marko.EmailSender.email.connection.gmailOAuth.OAuthTokenService;
 import dev.marko.EmailSender.email.connection.gmailOAuth.OAuthTokens;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.SmtpType;
 import dev.marko.EmailSender.entities.User;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import dev.marko.EmailSender.security.EncryptionService;
 import dev.marko.EmailSender.services.SmtpCredentialService;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,7 @@ import static org.mockito.Mockito.when;
 public class GmailConnectionTest {
 
     @Mock private OAuthTokenService tokenService;
-    @Mock private AuthService authService;
+    @Mock private CurrentUserProvider currentUserProvider;
     @Mock private EncryptionService encryptionService;
     @Mock private SmtpCredentialService smtpService;
 
@@ -45,7 +45,7 @@ public class GmailConnectionTest {
         MockitoAnnotations.openMocks(this);
         mockUser = new User();
         mockUser.setId(1L);
-        when(authService.getCurrentUser()).thenReturn(mockUser);
+        when(currentUserProvider.getCurrentUser()).thenReturn(mockUser);
         when(encryptionService.encrypt(anyString())).thenAnswer(inv -> "enc_" + inv.getArgument(0));
         when(encryptionService.decrypt(anyString())).thenAnswer(inv -> inv.getArgument(0).toString().replace("enc_", ""));
 

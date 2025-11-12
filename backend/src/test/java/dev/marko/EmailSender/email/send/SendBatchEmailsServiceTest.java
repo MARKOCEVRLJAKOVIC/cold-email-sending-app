@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.email.send;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.EmailMessageDto;
 import dev.marko.EmailSender.dtos.EmailRecipientDto;
 import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
@@ -12,6 +11,7 @@ import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -35,7 +35,7 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 public class SendBatchEmailsServiceTest {
 
-    @Mock private AuthService authService;
+    @Mock private CurrentUserProvider currentUserProvider;
     @Mock private TemplateRepository templateRepository;
     @Mock private SmtpRepository smtpRepository;
     @Mock private CampaignRepository campaignRepository;
@@ -71,7 +71,7 @@ public class SendBatchEmailsServiceTest {
         smtpCredentials.setId(1L);
         smtpCredentials.setUser(user);
 
-        when(authService.getCurrentUser()).thenReturn(user);
+        when(currentUserProvider.getCurrentUser()).thenReturn(user);
 
 
     }

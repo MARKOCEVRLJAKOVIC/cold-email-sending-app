@@ -1,10 +1,10 @@
 package dev.marko.EmailSender.email.connection.gmailOAuth;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.email.connection.EmailConnectionService;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.SmtpType;
 import dev.marko.EmailSender.exception.MissingRefreshTokenException;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import dev.marko.EmailSender.security.EncryptionService;
 import dev.marko.EmailSender.services.SmtpCredentialService;
 import lombok.AllArgsConstructor;
@@ -20,13 +20,13 @@ public class GmailConnectionService implements EmailConnectionService {
 
     private final OAuthTokenService tokenService;
     private final SmtpCredentialService smtpService;
-    private final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
     private final EncryptionService encryptionService;
 
     @Override
     public void connect(OAuthTokens tokens, String senderEmail) {
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         Optional<SmtpCredentials> existing = smtpService.findByEmailAndUser(senderEmail);
         SmtpCredentials smtpCredentials = existing.orElseGet(SmtpCredentials::new);

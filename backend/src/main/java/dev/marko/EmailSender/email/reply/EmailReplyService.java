@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.email.reply;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.EmailMessageDto;
 import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
 import dev.marko.EmailSender.entities.EmailMessage;
@@ -12,6 +11,7 @@ import dev.marko.EmailSender.mappers.EmailReplyMapper;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.EmailReplyRepository;
 import dev.marko.EmailSender.repositories.SmtpRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -22,7 +22,7 @@ import java.util.List;
 @Service
 public class EmailReplyService {
 
-    private final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
     private final SmtpRepository smtpRepository;
     private final EmailSchedulingService schedulingService;
     private final EmailReplyRepository replyRepository;
@@ -32,7 +32,7 @@ public class EmailReplyService {
 
 
     public List<EmailReplyDto> getAllRepliesFromUser(){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var emailRepliesList = replyRepository.findAllByUserId(user.getId());
 
@@ -41,7 +41,7 @@ public class EmailReplyService {
 
     public EmailReplyDto getEmailReply(Long id){
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var emailReply = replyRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(EmailReplyNotFoundException::new);
@@ -52,7 +52,7 @@ public class EmailReplyService {
 
     public EmailMessageDto replyToReply(Long replyId,
                                         EmailReplyResponseDto response){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         EmailReply originalReply = replyRepository.findByIdAndUserId(replyId, user.getId()).orElseThrow();
         EmailMessage originalMessage = originalReply.getEmailMessage();
@@ -82,7 +82,7 @@ public class EmailReplyService {
     }
 
     public void deleteReply(Long id){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var reply = replyRepository.findByIdAndUserId(id, user.getId()).orElseThrow();
 

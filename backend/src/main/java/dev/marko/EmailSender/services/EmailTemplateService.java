@@ -9,6 +9,7 @@ import dev.marko.EmailSender.exception.TemplateNotFoundException;
 import dev.marko.EmailSender.mappers.EmailTemplateMapper;
 import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +21,12 @@ public class EmailTemplateService {
 
     private final TemplateRepository templateRepository;
     private final EmailTemplateMapper emailTemplateMapper;
-    private final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
     private final CampaignRepository campaignRepository;
 
     public List<EmailTemplateDto> getAllTemplates() {
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var templates = templateRepository.findAllByUserId(user.getId());
 
@@ -38,7 +39,7 @@ public class EmailTemplateService {
     }
 
     public EmailTemplateDto getTemplate(Long id){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var emailTemplate = templateRepository.findByIdAndUserId(id,user.getId())
                 .orElseThrow(TemplateNotFoundException::new);
@@ -47,7 +48,7 @@ public class EmailTemplateService {
     }
 
     public EmailTemplateDto createTemplate(CreateTemplateRequest request){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var campaign = campaignRepository.findById
                 (request.getCampaignId()).orElseThrow(CampaignNotFoundException::new);
@@ -69,7 +70,7 @@ public class EmailTemplateService {
 
     public EmailTemplateDto updateTemplate(CreateTemplateRequest request, Long id){
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var campaign = campaignRepository.findById
                 (request.getCampaignId()).orElseThrow(CampaignNotFoundException::new);
@@ -92,7 +93,7 @@ public class EmailTemplateService {
 
     public void deleteTemplate(Long id){
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
         var emailTemplate = templateRepository.findByIdAndUserId(id, user.getId()).orElseThrow(TemplateNotFoundException::new);
 
         templateRepository.delete(emailTemplate);

@@ -10,10 +10,7 @@ import dev.marko.EmailSender.exception.*;
 import dev.marko.EmailSender.mappers.UserMapper;
 import dev.marko.EmailSender.repositories.UserRepository;
 import dev.marko.EmailSender.repositories.VerificationTokenRepository;
-import dev.marko.EmailSender.security.JwtConfig;
-import dev.marko.EmailSender.security.JwtResponse;
-import dev.marko.EmailSender.security.JwtService;
-import dev.marko.EmailSender.security.UserDetailsImpl;
+import dev.marko.EmailSender.security.*;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -41,6 +38,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final VerificationTokenRepository verificationTokenRepository;
     private final NotificationEmailService notificationEmailService;
+    private final CurrentUserProvider currentUserProvider;
 
     @Value("${app.url}")
     private String appUrl;
@@ -127,33 +125,11 @@ public class AuthService {
 
     public UserDto me(){
 
-        var user = getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         if(user == null) throw new UserNotFoundException();
 
         return userMapper.toDto(user);
-    }
-
-    public User getCurrentUser() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-        if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("Unauthorized");
-        }
-
-        Object principal = authentication.getPrincipal();
-
-        if (principal instanceof UserDetailsImpl userDetails) {
-            return userDetails.getUser();
-        }
-
-        throw new RuntimeException("Invalid authentication principal");
-    }
-
-    public User getCurrentUserWithCredentials() {
-        var baseUser = getCurrentUser();
-        return userRepository.findByIdWithCredentials(baseUser.getId())
-                .orElseThrow(UserNotFoundException::new);
     }
 
     private void sendVerificationEmail(User user, String token){

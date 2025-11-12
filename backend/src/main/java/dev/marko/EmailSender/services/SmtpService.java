@@ -6,6 +6,7 @@ import dev.marko.EmailSender.dtos.SmtpDto;
 import dev.marko.EmailSender.exception.EmailNotFoundException;
 import dev.marko.EmailSender.mappers.SmtpMapper;
 import dev.marko.EmailSender.repositories.SmtpRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,12 +19,11 @@ public class SmtpService {
 
     private final SmtpRepository smtpRepository;
     private final SmtpMapper smtpMapper;
-    private final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
 
     public List<SmtpDto> getAllEmails(){
 
-        var user = authService.getCurrentUser();
-
+        var user = currentUserProvider.getCurrentUser();
         var smtpList = smtpRepository.findAllByUserId(user.getId());
 
         if(smtpList.isEmpty()){
@@ -46,7 +46,7 @@ public class SmtpService {
 
     public SmtpDto registerEmail(RegisterEmailRequest request){
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var smtp = smtpMapper.toEntity(request);
         smtp.setUser(user);
@@ -62,7 +62,7 @@ public class SmtpService {
 
     public SmtpDto updateEmail(Long id, RegisterEmailRequest request){
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var smtp = smtpRepository.findById(id)
                 .orElseThrow(EmailNotFoundException::new);

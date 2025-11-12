@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.email.send;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.EmailMessageDto;
 import dev.marko.EmailSender.dtos.EmailRecipientDto;
 import dev.marko.EmailSender.email.connection.gmailOAuth.SmtpListIsEmptyException;
@@ -13,6 +12,7 @@ import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -33,7 +33,7 @@ import java.util.List;
 @AllArgsConstructor
 public class SendBatchEmailsService {
 
-    private final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
     private final TemplateRepository templateRepository;
     private final SmtpRepository smtpRepository;
     private final CampaignRepository campaignRepository;
@@ -49,7 +49,7 @@ public class SendBatchEmailsService {
                                                  List<Long> smtpIds,
                                                  Long campaignId) {
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
         var template = getTemplateFromUser(templateId, user);
         var campaign = findCampaignFromUser(campaignId, user.getId());
 

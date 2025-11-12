@@ -3,9 +3,11 @@ package dev.marko.EmailSender.services;
 import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.repositories.SmtpRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Currency;
 import java.util.Optional;
 
 @AllArgsConstructor
@@ -13,10 +15,10 @@ import java.util.Optional;
 public class SmtpCredentialService {
 
     private final SmtpRepository smtpRepository;
-    private final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
 
     public Optional<SmtpCredentials> findByEmailAndUser(String email) {
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
         return smtpRepository.findByEmailAndUserId(email, user.getId());
     }
 

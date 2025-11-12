@@ -1,9 +1,9 @@
 package dev.marko.EmailSender.email.followup;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.mappers.FollowUpMapper;
 import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.FollowUpTemplateRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -15,11 +15,11 @@ public class FollowUpService {
 
     private final CampaignRepository campaignRepository;
     private final FollowUpTemplateRepository followUpTemplateRepository;
-    private final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
     private final FollowUpMapper followUpMapper;
 
     public List<FollowUpDto> getAllFollowUps(){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var followUpList = followUpTemplateRepository.findAllByUserId(user.getId());
         return followUpMapper.toListDto(followUpList);
@@ -27,7 +27,7 @@ public class FollowUpService {
 
     public FollowUpDto getFollowUp(Long id){
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var followUp = followUpTemplateRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(FollowUpNotFoundException::new);
@@ -37,7 +37,7 @@ public class FollowUpService {
     }
 
     public FollowUpDto addFollowUpToCampaign(Long campaignId, CreateFollowUpRequest request){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var campaign = campaignRepository.findById(campaignId)
                 .filter(c -> c.getUser().getId().equals(user.getId()))
@@ -51,7 +51,7 @@ public class FollowUpService {
     }
 
     public  FollowUpDto updateFollowUp(Long id, CreateFollowUpRequest request){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var followUp = followUpTemplateRepository
                 .findByIdAndUserId(id, user.getId()).orElseThrow(FollowUpNotFoundException::new);
@@ -63,7 +63,7 @@ public class FollowUpService {
     }
 
     public void deleteFollowUp(Long id){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var followUp = followUpTemplateRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(FollowUpNotFoundException::new);

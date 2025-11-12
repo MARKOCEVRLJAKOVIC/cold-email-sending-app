@@ -1,10 +1,10 @@
 package dev.marko.EmailSender.email.send;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.EmailMessageDto;
 import dev.marko.EmailSender.entities.Status;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -18,11 +18,11 @@ public class EmailMessageService {
 
     private final SendBatchEmailsService sendBatchEmailsService;
     private final EmailMessageRepository emailMessageRepository;
-    private final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
     private final EmailMessageMapper emailMessageMapper;
 
     public List<EmailMessageDto> findAllMessagesFromUser(){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
         var emailMessageList = emailMessageRepository.findAllByUserIdAndStatusIn(user.getId(), List.of(Status.SENT, Status.REPLIED));
 
         if(emailMessageList.isEmpty()){
@@ -33,7 +33,7 @@ public class EmailMessageService {
     }
 
     public List<EmailMessageDto> findAllMessagesFromCampaign(Long campaignId){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var emailMessageList = emailMessageRepository
                 .findAllByCampaignIdAndUserIdAndStatusIn(campaignId, user.getId(), List.of(Status.SENT, Status.REPLIED));
@@ -43,7 +43,7 @@ public class EmailMessageService {
     }
 
     public EmailMessageDto getEmailMessage(Long id){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var emailMessage = emailMessageRepository.findByIdAndUserId(id, user.getId()).orElseThrow(EmailMessageNotFoundException::new);
         return emailMessageMapper.toDto(emailMessage);
@@ -62,7 +62,7 @@ public class EmailMessageService {
 
     public EmailMessageDto updateEmailMessage(Long id, UpdateEmailMessageRequest request){
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var emailMessage = emailMessageRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(EmailMessageNotFoundException::new);
@@ -79,7 +79,7 @@ public class EmailMessageService {
     }
 
     public void deleteEmailMessage(Long id){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var emailMessage = emailMessageRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(EmailMessageNotFoundException::new);

@@ -1,13 +1,13 @@
 package dev.marko.EmailSender.email.connection.gmailOAuth;
 
 import com.google.api.services.gmail.Gmail;
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.SmtpDto;
 import dev.marko.EmailSender.email.reply.GmailServiceFactory;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.exception.EmailNotFoundException;
 import dev.marko.EmailSender.mappers.SmtpMapper;
 import dev.marko.EmailSender.repositories.SmtpRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import dev.marko.EmailSender.security.TokenEncryptor;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +25,7 @@ public class GmailOAuthController {
     private final GoogleOAuth2Properties properties;
     private final GmailConnectionService gmailConnectionService;
     private final SmtpRepository smtpRepository;
-    private  final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
     private final SmtpMapper smtpMapper;
     private final TokenEncryptor tokenEncryptor;
     private final GmailServiceFactory gmailServiceFactory;
@@ -48,7 +48,7 @@ public class GmailOAuthController {
     @GetMapping("/callback")
     public ResponseEntity<SmtpDto> oauthCallback(@RequestParam String code) throws Exception {
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         OAuthTokens tokens = oAuthTokenService.exchangeCodeForTokens(code);
 

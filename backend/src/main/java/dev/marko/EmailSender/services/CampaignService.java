@@ -9,6 +9,7 @@ import dev.marko.EmailSender.exception.CampaignNotFoundException;
 import dev.marko.EmailSender.mappers.CampaignMapper;
 import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
+import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -20,13 +21,13 @@ public class CampaignService {
 
     private final CampaignRepository campaignRepository;
     private final CampaignMapper campaignMapper;
-    private final AuthService authService;
+    private final CurrentUserProvider currentUserProvider;
     private final EmailMessageRepository emailMessageRepository;
 
 
     public List<CampaignDto> getAllCampaignFromUser(){
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var campaignList = campaignRepository.findAllByUserId(user.getId());
 
@@ -68,7 +69,7 @@ public class CampaignService {
     }
 
     public CampaignDto createCampaign(CreateCampaignRequest request){
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var campaign = campaignMapper.toEntity(request);
         campaign.setUser(user);
@@ -84,7 +85,7 @@ public class CampaignService {
 
     public CampaignDto updateCampaign(Long id ,CreateCampaignRequest request){
 
-        var user = authService.getCurrentUser();
+        var user = currentUserProvider.getCurrentUser();
 
         var campaign = campaignRepository.findById(id).
                 orElseThrow(CampaignNotFoundException::new);
