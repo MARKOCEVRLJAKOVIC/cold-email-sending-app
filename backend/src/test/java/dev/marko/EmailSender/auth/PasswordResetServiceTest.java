@@ -2,17 +2,14 @@ package dev.marko.EmailSender.auth;
 
 import dev.marko.EmailSender.dtos.ResetPasswordRequest;
 import dev.marko.EmailSender.entities.User;
-import dev.marko.EmailSender.mappers.UserMapper;
 import dev.marko.EmailSender.repositories.PasswordResetTokenRepository;
 import dev.marko.EmailSender.repositories.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Optional;
 

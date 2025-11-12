@@ -43,9 +43,7 @@ public class EmailTemplateService {
         var emailTemplate = templateRepository.findByIdAndUserId(id,user.getId())
                 .orElseThrow(TemplateNotFoundException::new);
 
-        var emailTemplateDto = emailTemplateMapper.toDto(emailTemplate);
-
-        return emailTemplateDto;
+        return emailTemplateMapper.toDto(emailTemplate);
     }
 
     public EmailTemplateDto createTemplate(CreateTemplateRequest request){
