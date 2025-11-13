@@ -42,8 +42,9 @@ public class SmtpService {
     public SmtpDto registerEmail(RegisterEmailRequest request){
 
         var user = currentUserProvider.getCurrentUser();
-
         var smtp = smtpMapper.toEntity(request);
+
+        smtp.setUser(user);
         smtpRepository.save(smtp);
 
         return smtpMapper.toDto(smtp);
@@ -54,7 +55,7 @@ public class SmtpService {
 
         var user = currentUserProvider.getCurrentUser();
 
-        var smtp = smtpRepository.findById(id)
+        var smtp = smtpRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(EmailNotFoundException::new);
 
         smtp.setUser(user);
@@ -71,9 +72,12 @@ public class SmtpService {
     }
 
     public void deleteEmail(Long id){
-        var smtp = smtpRepository.findById(id).orElseThrow(EmailNotFoundException::new);
 
+        var user = currentUserProvider.getCurrentUser();
+
+        var smtp = smtpRepository.findByIdAndUserId(id, user.getId()).orElseThrow(EmailNotFoundException::new);
         smtpRepository.delete(smtp);
+
     }
 
 }

@@ -21,7 +21,35 @@ public abstract class BaseService<E, D, C, R extends JpaRepository<E, Long>> {
     protected abstract void updateEntity(E entity, C request);
 
 
+    public List<D> getAll() {
+        var user = currentUserProvider.getCurrentUser();
+        var entities = repository.findAll(); // možeš kasnije filtrirati po userId
+        return entities.stream().map(this::toDto).toList();
+    }
 
+    public D getById(Long id) {
+        var entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+        return toDto(entity);
+    }
 
+    public D create(C request) {
+        var entity = toEntity(request);
+        repository.save(entity);
+        return toDto(entity);
+    }
 
+    public D update(Long id, C request) {
+        var entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+        updateEntity(entity, request);
+        repository.save(entity);
+        return toDto(entity);
+    }
+
+    public void delete(Long id) {
+        var entity = repository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Not found"));
+        repository.delete(entity);
+    }
 }
