@@ -1,5 +1,6 @@
 package dev.marko.EmailSender.services;
 
+import dev.marko.EmailSender.dtos.RegisterEmailRequest;
 import dev.marko.EmailSender.dtos.SmtpDto;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.User;
@@ -83,9 +84,38 @@ public class SmtpServiceTest {
         when(smtpRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
         assertThrows(EmailNotFoundException.class, () -> smtpService.getEmail(INVALID_ID));
 
+    }
+
+    @Test
+    void registerSmtp_ShouldRegisterSmtpAndReturnDto() {
+
+        RegisterEmailRequest request = new RegisterEmailRequest();
+
+        when(smtpMapper.toEntity(request)).thenReturn(smtp);
+        when(smtpMapper.toDto(smtp)).thenReturn(smtpDto);
+
+        var result = smtpService.registerEmail(request);
+
+        verify(smtpRepository).save(smtp);
+        assertEquals(VALID_ID, result.getId());
 
     }
 
+    @Test
+    void deleteSmtp_ShouldDeleteSmtp(){
 
+        when(smtpRepository.findByIdAndUserId(smtp.getId(), user.getId())).thenReturn(Optional.of(smtp));
 
+        smtpService.deleteEmail(smtp.getId());
+        verify(smtpRepository).delete(smtp);
+
+    }
+
+    @Test
+    void deleteSmtp_ShouldThrowEmailNotFound(){
+
+        when(smtpRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
+        assertThrows(EmailNotFoundException.class, () -> smtpService.deleteEmail(INVALID_ID));
+
+    }
 }
