@@ -22,10 +22,6 @@ import java.util.List;
 @Service
 public class EmailTemplateService extends BaseService<EmailTemplate, EmailTemplateDto, CreateTemplateRequest, TemplateRepository> {
 
-//    private final TemplateRepository templateRepository;
-//    private final EmailTemplateMapper emailTemplateMapper;
-//    private final CurrentUserProvider currentUserProvider;
-//    private final CampaignRepository campaignRepository;
 
     private final EmailTemplateMapper emailTemplateMapper;
     private final CampaignRepository campaignRepository;
@@ -65,75 +61,11 @@ public class EmailTemplateService extends BaseService<EmailTemplate, EmailTempla
         emailTemplateMapper.update(request, entity);
         entity.setCampaign(campaign);
     }
+
     @Override
     protected RuntimeException notFoundException() {
         return new TemplateNotFoundException();
     }
 
-//
-//
-//    public List<EmailTemplateDto> getAllTemplates() {
-//
-//        var user = currentUserProvider.getCurrentUser();
-//        var templates = templateRepository.findAllByUserId(user.getId());
-//
-//        return emailTemplateMapper.toTemplateListDto(templates);
-//
-//    }
-//
-//    public EmailTemplateDto getTemplate(Long id){
-//        var user = currentUserProvider.getCurrentUser();
-//        var emailTemplate = templateRepository.findByIdAndUserId(id,user.getId())
-//                .orElseThrow(TemplateNotFoundException::new);
-//
-//        return emailTemplateMapper.toDto(emailTemplate);
-//    }
-//
-//    @Transactional
-//    public EmailTemplateDto createTemplate(CreateTemplateRequest request){
-//        var user = currentUserProvider.getCurrentUser();
-//
-//        var campaign = campaignRepository.findByIdAndUserId(request.getCampaignId(), user.getId())
-//                .orElseThrow(CampaignNotFoundException::new);
-//
-//        var emailTemplate = emailTemplateMapper.toEntity(request);
-//        emailTemplate.setCampaign(campaign);
-//        emailTemplate.setUser(user);
-//
-//        templateRepository.save(emailTemplate);
-//
-//        return emailTemplateMapper.toDto(emailTemplate);
-//    }
-//
-//    @Transactional
-//    public EmailTemplateDto updateTemplate(CreateTemplateRequest request, Long id){
-//
-//        var user = currentUserProvider.getCurrentUser();
-//
-//        var campaign = campaignRepository.findById
-//                (request.getCampaignId()).orElseThrow(CampaignNotFoundException::new);
-//
-//        var emailTemplate = emailTemplateMapper.toEntity(request);
-//        emailTemplate.setId(id);
-//        emailTemplate.setUser(user);
-//        emailTemplate.setCampaign(campaign);
-//
-//        emailTemplateMapper.update(request, emailTemplate);
-//
-//        templateRepository.save(emailTemplate);
-//
-//        return emailTemplateMapper.toDto(emailTemplate);
-//
-//    }
-//
-//    @Transactional
-//    public void deleteTemplate(Long id){
-//
-//        var user = currentUserProvider.getCurrentUser();
-//        var emailTemplate = templateRepository.findByIdAndUserId(id, user.getId()).orElseThrow(TemplateNotFoundException::new);
-//
-//        templateRepository.delete(emailTemplate);
-//
-//    }
 
 }
