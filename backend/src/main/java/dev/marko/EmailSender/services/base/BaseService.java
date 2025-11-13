@@ -1,11 +1,15 @@
 package dev.marko.EmailSender.services.base;
 
+import dev.marko.EmailSender.repositories.base.UserScopedRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
+import lombok.Getter;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public abstract class BaseService<E, D, C, R extends JpaRepository<E, Long>> {
+@Getter
+public abstract class BaseService<E, D, C,
+        R extends JpaRepository<E, Long> & UserScopedRepository<E>> {
 
     public final R repository;
     public final CurrentUserProvider currentUserProvider;
@@ -15,6 +19,9 @@ public abstract class BaseService<E, D, C, R extends JpaRepository<E, Long>> {
         this.currentUserProvider = currentUserProvider;
     }
 
+    protected abstract RuntimeException notFoundException();
+
+
 
     protected abstract D toDto(E entity);
     protected abstract E toEntity(C createRequest);
@@ -23,13 +30,15 @@ public abstract class BaseService<E, D, C, R extends JpaRepository<E, Long>> {
 
     public List<D> getAll() {
         var user = currentUserProvider.getCurrentUser();
-        var entities = repository.findAll(); // možeš kasnije filtrirati po userId
+        var entities = repository.findAllByUserId(user.getId());
         return entities.stream().map(this::toDto).toList();
     }
 
     public D getById(Long id) {
-        var entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+        var user = currentUserProvider.getCurrentUser();
+
+        var entity = repository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(this::notFoundException);
         return toDto(entity);
     }
 
@@ -40,16 +49,20 @@ public abstract class BaseService<E, D, C, R extends JpaRepository<E, Long>> {
     }
 
     public D update(Long id, C request) {
-        var entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+
+        var user = currentUserProvider.getCurrentUser();
+        var entity = repository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(this::notFoundException);
         updateEntity(entity, request);
         repository.save(entity);
         return toDto(entity);
     }
 
     public void delete(Long id) {
-        var entity = repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
+        var user = currentUserProvider.getCurrentUser();
+        var entity = repository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(this::notFoundException);
         repository.delete(entity);
     }
+
 }

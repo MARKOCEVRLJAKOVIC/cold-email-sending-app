@@ -1,0 +1,40 @@
+package dev.marko.EmailSender.controllers.base;
+
+import dev.marko.EmailSender.services.base.BaseService;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+public abstract class BaseController<D, C> {
+
+    protected final BaseService<?, D, C, ?> service;
+
+    protected BaseController(BaseService<?, D, C, ?> service) {
+        this.service = service;
+    }
+
+    @GetMapping
+    public List<D> getAll() {
+        return service.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public D getById(@PathVariable Long id) {
+        return service.getById(id);
+    }
+
+    @PostMapping
+    public D create(@RequestBody C request) {
+        return service.create(request);
+    }
+
+    @PutMapping("/{id}")
+    public D update(@PathVariable Long id, @RequestBody C request) {
+        return service.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
+    }
+}

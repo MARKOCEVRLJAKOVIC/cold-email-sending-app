@@ -1,14 +1,10 @@
 package dev.marko.EmailSender.controllers;
 
-import dev.marko.EmailSender.dtos.ErrorDto;
 import dev.marko.EmailSender.dtos.RegisterEmailRequest;
 import dev.marko.EmailSender.dtos.SmtpDto;
-import dev.marko.EmailSender.exception.EmailNotFoundException;
-import dev.marko.EmailSender.exception.UserNotFoundException;
 import dev.marko.EmailSender.services.SmtpService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -25,7 +21,7 @@ public class SmtpController {
     @GetMapping
     public ResponseEntity<List<SmtpDto>> getAllEmails(){
 
-        var smtpDtoList = smtpService.getAllEmails();
+        var smtpDtoList = smtpService.getAllSmtpCredentials();
 
         return ResponseEntity.ok(smtpDtoList);
 

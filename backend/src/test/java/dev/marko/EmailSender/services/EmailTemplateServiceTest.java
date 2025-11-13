@@ -74,7 +74,7 @@ public class EmailTemplateServiceTest {
         when(templateRepository.findAllByUserId(1L)).thenReturn(List.of(emailTemplate));
         when(emailTemplateMapper.toDto(emailTemplate)).thenReturn(emailTemplateDto);
 
-        var result = emailTemplateService.getAllTemplates();
+        var result = emailTemplateService.getAll();
 
         assertEquals(1, result.size());
         assertEquals(1L, result.get(0).getId());
@@ -88,7 +88,7 @@ public class EmailTemplateServiceTest {
         when(templateRepository.findByIdAndUserId(1L,1L)).thenReturn(Optional.of(emailTemplate));
         when(emailTemplateMapper.toDto(emailTemplate)).thenReturn(emailTemplateDto);
 
-        var result = emailTemplateService.getTemplate(1L);
+        var result = emailTemplateService.getById(1L);
 
         assertEquals(1L, result.getId());
         verify(templateRepository).findByIdAndUserId(1L, 1L);
@@ -99,7 +99,7 @@ public class EmailTemplateServiceTest {
     void getTemplate_ShouldThrowNotFound() {
 
         when(templateRepository.findByIdAndUserId(99L, 1L)).thenReturn(Optional.empty());
-        assertThrows(TemplateNotFoundException.class, () -> emailTemplateService.getTemplate(99L));
+        assertThrows(TemplateNotFoundException.class, () -> emailTemplateService.getById(99L));
 
     }
 
@@ -109,11 +109,11 @@ public class EmailTemplateServiceTest {
         CreateTemplateRequest request = new CreateTemplateRequest();
         request.setCampaignId(1L);
 
-        when(campaignRepository.findById(1L)).thenReturn(Optional.of(campaign));
+        when(campaignRepository.findByIdAndUserId(1L,1L)).thenReturn(Optional.of(campaign));
         when(emailTemplateMapper.toEntity(request)).thenReturn(emailTemplate);
         when(emailTemplateMapper.toDto(emailTemplate)).thenReturn(emailTemplateDto);
 
-        var result = emailTemplateService.createTemplate(request);
+        var result = emailTemplateService.create(request);
 
         verify(templateRepository).save(emailTemplate);
         assertEquals(1L, result.getUserId());
@@ -126,17 +126,17 @@ public class EmailTemplateServiceTest {
         CreateTemplateRequest request = new CreateTemplateRequest();
         request.setCampaignId(99L);
 
-        when(campaignRepository.findById(99L)).thenReturn(Optional.empty());
+        when(campaignRepository.findByIdAndUserId(99L, 1L)).thenReturn(Optional.empty());
 
         assertThrows(CampaignNotFoundException.class,
-                () -> emailTemplateService.createTemplate(request));
+                () -> emailTemplateService.create(request));
     }
 
     @Test
     void deleteTemplate_shouldDeleteWhenFound() {
 
         when(templateRepository.findByIdAndUserId(1L, 1L)).thenReturn(Optional.of(emailTemplate));
-        emailTemplateService.deleteTemplate(1L);
+        emailTemplateService.delete(1L);
 
         verify(templateRepository).delete(emailTemplate);
 
@@ -147,6 +147,6 @@ public class EmailTemplateServiceTest {
         when(templateRepository.findByIdAndUserId(99L, 1L)).thenReturn(Optional.empty());
 
         assertThrows(TemplateNotFoundException.class,
-                () -> emailTemplateService.deleteTemplate(99L));
+                () -> emailTemplateService.delete(99L));
     }
 }

@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.services;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.RegisterEmailRequest;
 import dev.marko.EmailSender.dtos.SmtpDto;
 import dev.marko.EmailSender.exception.EmailNotFoundException;
@@ -8,7 +7,6 @@ import dev.marko.EmailSender.mappers.SmtpMapper;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,7 +19,7 @@ public class SmtpService {
     private final SmtpMapper smtpMapper;
     private final CurrentUserProvider currentUserProvider;
 
-    public List<SmtpDto> getAllEmails(){
+    public List<SmtpDto> getAllSmtpCredentials(){
 
         var user = currentUserProvider.getCurrentUser();
         var smtpList = smtpRepository.findAllByUserId(user.getId());
