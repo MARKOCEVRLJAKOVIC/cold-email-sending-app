@@ -2,80 +2,57 @@ package dev.marko.EmailSender.services;
 
 import dev.marko.EmailSender.dtos.RegisterEmailRequest;
 import dev.marko.EmailSender.dtos.SmtpDto;
+import dev.marko.EmailSender.entities.SmtpCredentials;
+import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.exception.EmailNotFoundException;
 import dev.marko.EmailSender.mappers.SmtpMapper;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
+import dev.marko.EmailSender.services.base.BaseService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Service
-public class SmtpService {
+public class SmtpService extends BaseService<SmtpCredentials, SmtpDto, RegisterEmailRequest, SmtpRepository> {
 
-    private final SmtpRepository smtpRepository;
     private final SmtpMapper smtpMapper;
-    private final CurrentUserProvider currentUserProvider;
 
-    public List<SmtpDto> getAllSmtpCredentials(){
-
-        var user = currentUserProvider.getCurrentUser();
-        var smtpList = smtpRepository.findAllByUserId(user.getId());
-
-        return smtpMapper.smtpListToDtoList(smtpList);
-
+    protected SmtpService(SmtpRepository repository, CurrentUserProvider currentUserProvider, SmtpMapper smtpMapper) {
+        super(repository, currentUserProvider);
+        this.smtpMapper = smtpMapper;
     }
 
-    public SmtpDto getEmail(Long id){
-
-        var user = currentUserProvider.getCurrentUser();
-
-        var smtp = smtpRepository.findByIdAndUserId(id, user.getId()).orElseThrow(EmailNotFoundException::new);
-        return smtpMapper.toDto(smtp);
-
+    @Override
+    protected RuntimeException notFoundException() {
+        return new EmailNotFoundException();
     }
 
-    public SmtpDto registerEmail(RegisterEmailRequest request){
-
-        var user = currentUserProvider.getCurrentUser();
-        var smtp = smtpMapper.toEntity(request);
-
-        smtp.setUser(user);
-        smtpRepository.save(smtp);
-
-        return smtpMapper.toDto(smtp);
-
+    @Override
+    protected SmtpDto toDto(SmtpCredentials entity) {
+        return smtpMapper.toDto(entity);
     }
 
-    public SmtpDto updateEmail(Long id, RegisterEmailRequest request){
-
-        var user = currentUserProvider.getCurrentUser();
-
-        var smtp = smtpRepository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(EmailNotFoundException::new);
-
-        smtp.setUser(user);
-
-        smtpMapper.update(request, smtp);
-
-        smtpRepository.save(smtp);
-
-        var smtpDto = smtpMapper.toDto(smtp);
-        smtpDto.setId(smtp.getId());
-
-        return smtpDto;
-
+    @Override
+    protected SmtpCredentials toEntity(RegisterEmailRequest createRequest) {
+        return smtpMapper.toEntity(createRequest);
     }
 
-    public void deleteEmail(Long id){
-
-        var user = currentUserProvider.getCurrentUser();
-
-        var smtp = smtpRepository.findByIdAndUserId(id, user.getId()).orElseThrow(EmailNotFoundException::new);
-        smtpRepository.delete(smtp);
-
+    @Override
+    protected void updateEntity(SmtpCredentials entity, RegisterEmailRequest request) {
+        smtpMapper.update(request, entity);
     }
+
+    @Override
+    protected void setUserOnEntity(SmtpCredentials entity, User user) {
+        entity.setUser(user);
+    }
+
+    @Override
+    protected List<SmtpDto> toListDto(List<SmtpCredentials> listEntity) {
+        return smtpMapper.smtpListToDtoList(listEntity);
+    }
+
 
 }

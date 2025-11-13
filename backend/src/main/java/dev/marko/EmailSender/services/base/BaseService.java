@@ -1,5 +1,6 @@
 package dev.marko.EmailSender.services.base;
 
+import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.repositories.base.UserScopedRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.Getter;
@@ -26,12 +27,13 @@ public abstract class BaseService<E, D, C,
     protected abstract D toDto(E entity);
     protected abstract E toEntity(C createRequest);
     protected abstract void updateEntity(E entity, C request);
-
+    protected abstract void setUserOnEntity(E entity, User user);
+    protected abstract List<D> toListDto(List<E> listEntity);
 
     public List<D> getAll() {
         var user = currentUserProvider.getCurrentUser();
         var entities = repository.findAllByUserId(user.getId());
-        return entities.stream().map(this::toDto).toList();
+        return toListDto(entities);
     }
 
     public D getById(Long id) {
@@ -43,7 +45,9 @@ public abstract class BaseService<E, D, C,
     }
 
     public D create(C request) {
+        var user = currentUserProvider.getCurrentUser();
         var entity = toEntity(request);
+        setUserOnEntity(entity, user);
         repository.save(entity);
         return toDto(entity);
     }

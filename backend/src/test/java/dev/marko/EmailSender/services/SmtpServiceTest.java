@@ -54,10 +54,10 @@ public class SmtpServiceTest {
     @Test
     void getAllSmtpCredentials_ShouldReturnListOfDtos(){
 
-        when(smtpRepository.findAllByUserId(1L)).thenReturn(List.of(smtp));
+        when(smtpRepository.findAllByUserId(user.getId())).thenReturn(List.of(smtp));
         when(smtpMapper.smtpListToDtoList(List.of(smtp))).thenReturn(List.of(smtpDto));
 
-        var result = smtpService.getAllSmtpCredentials();
+        var result = smtpService.getAll();
 
         assertEquals(1, result.size());
         assertEquals(VALID_ID, result.getFirst().getId());
@@ -70,7 +70,7 @@ public class SmtpServiceTest {
         when(smtpRepository.findByIdAndUserId(smtp.getId(), user.getId())).thenReturn(Optional.of(smtp));
         when(smtpMapper.toDto(smtp)).thenReturn(smtpDto);
 
-        var result = smtpService.getEmail(smtp.getId());
+        var result = smtpService.getById(smtp.getId());
 
         assertEquals(VALID_ID, result.getId());
         verify(smtpRepository).findByIdAndUserId(smtp.getId(), user.getId());
@@ -82,7 +82,7 @@ public class SmtpServiceTest {
 
         // throw exception by providing non-existing id
         when(smtpRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
-        assertThrows(EmailNotFoundException.class, () -> smtpService.getEmail(INVALID_ID));
+        assertThrows(EmailNotFoundException.class, () -> smtpService.getById(INVALID_ID));
 
     }
 
@@ -94,7 +94,7 @@ public class SmtpServiceTest {
         when(smtpMapper.toEntity(request)).thenReturn(smtp);
         when(smtpMapper.toDto(smtp)).thenReturn(smtpDto);
 
-        var result = smtpService.registerEmail(request);
+        var result = smtpService.create(request);
 
         verify(smtpRepository).save(smtp);
         assertEquals(VALID_ID, result.getId());
@@ -106,7 +106,7 @@ public class SmtpServiceTest {
 
         when(smtpRepository.findByIdAndUserId(smtp.getId(), user.getId())).thenReturn(Optional.of(smtp));
 
-        smtpService.deleteEmail(smtp.getId());
+        smtpService.delete(smtp.getId());
         verify(smtpRepository).delete(smtp);
 
     }
@@ -115,7 +115,7 @@ public class SmtpServiceTest {
     void deleteSmtp_ShouldThrowEmailNotFound(){
 
         when(smtpRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
-        assertThrows(EmailNotFoundException.class, () -> smtpService.deleteEmail(INVALID_ID));
+        assertThrows(EmailNotFoundException.class, () -> smtpService.delete(INVALID_ID));
 
     }
 }

@@ -3,6 +3,7 @@ package dev.marko.EmailSender.services;
 import dev.marko.EmailSender.dtos.CreateTemplateRequest;
 import dev.marko.EmailSender.dtos.EmailTemplateDto;
 import dev.marko.EmailSender.entities.EmailTemplate;
+import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.exception.CampaignNotFoundException;
 import dev.marko.EmailSender.exception.TemplateNotFoundException;
 import dev.marko.EmailSender.mappers.EmailTemplateMapper;
@@ -10,18 +11,14 @@ import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
 import dev.marko.EmailSender.services.base.BaseService;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.experimental.SuperBuilder;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Getter
 @Service
 public class EmailTemplateService extends BaseService<EmailTemplate, EmailTemplateDto, CreateTemplateRequest, TemplateRepository> {
-
 
     private final EmailTemplateMapper emailTemplateMapper;
     private final CampaignRepository campaignRepository;
@@ -60,6 +57,16 @@ public class EmailTemplateService extends BaseService<EmailTemplate, EmailTempla
                 .orElseThrow(CampaignNotFoundException::new);
         emailTemplateMapper.update(request, entity);
         entity.setCampaign(campaign);
+    }
+
+    @Override
+    protected void setUserOnEntity(EmailTemplate entity, User user) {
+        entity.setUser(user);
+    }
+
+    @Override
+    protected List<EmailTemplateDto> toListDto(List<EmailTemplate> listEntity) {
+        return emailTemplateMapper.toTemplateListDto(listEntity);
     }
 
     @Override
