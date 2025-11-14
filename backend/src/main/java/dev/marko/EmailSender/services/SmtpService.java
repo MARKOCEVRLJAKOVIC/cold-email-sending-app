@@ -15,44 +15,41 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class SmtpService extends BaseService<SmtpCredentials, SmtpDto, RegisterEmailRequest, SmtpRepository> {
+public class SmtpService extends BaseService<
+        SmtpCredentials,
+        SmtpDto,
+        RegisterEmailRequest,
+        SmtpRepository
+        > {
 
-    private final SmtpMapper smtpMapper;
+    private final SmtpMapper mapper;
 
-    protected SmtpService(SmtpRepository repository, CurrentUserProvider currentUserProvider, SmtpMapper smtpMapper) {
-        super(repository, currentUserProvider);
-        this.smtpMapper = smtpMapper;
-    }
-
-    @Override
-    protected RuntimeException notFoundException() {
-        return new EmailNotFoundException();
+    public SmtpService(
+            SmtpRepository repository,
+            CurrentUserProvider currentUserProvider,
+            SmtpMapper mapper
+    ) {
+        super(repository, currentUserProvider, EmailNotFoundException::new);
+        this.mapper = mapper;
     }
 
     @Override
     protected SmtpDto toDto(SmtpCredentials entity) {
-        return smtpMapper.toDto(entity);
+        return mapper.toDto(entity);
     }
 
     @Override
-    protected SmtpCredentials toEntity(RegisterEmailRequest createRequest) {
-        return smtpMapper.toEntity(createRequest);
+    protected SmtpCredentials toEntity(RegisterEmailRequest request) {
+        return mapper.toEntity(request);
     }
 
     @Override
     protected void updateEntity(SmtpCredentials entity, RegisterEmailRequest request) {
-        smtpMapper.update(request, entity);
+        mapper.update(request, entity);
     }
 
     @Override
-    protected void setUserOnEntity(SmtpCredentials entity, User user) {
+    protected void setUser(SmtpCredentials entity, User user) {
         entity.setUser(user);
     }
-
-    @Override
-    protected List<SmtpDto> toListDto(List<SmtpCredentials> listEntity) {
-        return smtpMapper.smtpListToDtoList(listEntity);
-    }
-
-
 }

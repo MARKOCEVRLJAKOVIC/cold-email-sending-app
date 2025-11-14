@@ -16,63 +16,60 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 
-@Getter
 @Service
-public class EmailTemplateService extends BaseService<EmailTemplate, EmailTemplateDto, CreateTemplateRequest, TemplateRepository> {
+public class EmailTemplateService extends BaseService<
+        EmailTemplate,
+        EmailTemplateDto,
+        CreateTemplateRequest,
+        TemplateRepository
+        > {
 
-    private final EmailTemplateMapper emailTemplateMapper;
+    private final EmailTemplateMapper mapper;
     private final CampaignRepository campaignRepository;
 
     public EmailTemplateService(
             TemplateRepository repository,
             CurrentUserProvider currentUserProvider,
-            EmailTemplateMapper emailTemplateMapper,
+            EmailTemplateMapper mapper,
             CampaignRepository campaignRepository
     ) {
-        super(repository, currentUserProvider);
-        this.emailTemplateMapper = emailTemplateMapper;
+        super(
+                repository,
+                currentUserProvider,
+                TemplateNotFoundException::new
+        );
+        this.mapper = mapper;
         this.campaignRepository = campaignRepository;
     }
 
     @Override
     protected EmailTemplateDto toDto(EmailTemplate entity) {
-        return emailTemplateMapper.toDto(entity);
+        return mapper.toDto(entity);
     }
 
     @Override
-    protected EmailTemplate toEntity(CreateTemplateRequest request) {
+    protected EmailTemplate toEntity(CreateTemplateRequest req) {
         var user = currentUserProvider.getCurrentUser();
-        var campaign = campaignRepository.findByIdAndUserId(request.getCampaignId(), user.getId())
+        var campaign = campaignRepository.findByIdAndUserId(req.getCampaignId(), user.getId())
                 .orElseThrow(CampaignNotFoundException::new);
-        var entity = emailTemplateMapper.toEntity(request);
-        entity.setUser(user);
+
+        var entity = mapper.toEntity(req);
         entity.setCampaign(campaign);
         return entity;
     }
 
     @Override
-    protected void updateEntity(EmailTemplate entity, CreateTemplateRequest request) {
+    protected void updateEntity(EmailTemplate entity, CreateTemplateRequest req) {
         var user = currentUserProvider.getCurrentUser();
-        var campaign = campaignRepository.findByIdAndUserId(request.getCampaignId(), user.getId())
+        var campaign = campaignRepository.findByIdAndUserId(req.getCampaignId(), user.getId())
                 .orElseThrow(CampaignNotFoundException::new);
-        emailTemplateMapper.update(request, entity);
+
+        mapper.update(req, entity);
         entity.setCampaign(campaign);
     }
 
     @Override
-    protected void setUserOnEntity(EmailTemplate entity, User user) {
+    protected void setUser(EmailTemplate entity, User user) {
         entity.setUser(user);
     }
-
-    @Override
-    protected List<EmailTemplateDto> toListDto(List<EmailTemplate> listEntity) {
-        return emailTemplateMapper.toTemplateListDto(listEntity);
-    }
-
-    @Override
-    protected RuntimeException notFoundException() {
-        return new TemplateNotFoundException();
-    }
-
-
 }

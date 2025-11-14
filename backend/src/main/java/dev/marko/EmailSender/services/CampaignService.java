@@ -90,6 +90,7 @@ public class CampaignService {
 
     }
 
+    @Transactional
     public void deleteCampaign(Long id){
         var campaign = campaignRepository.findById(id)
                 .orElseThrow(CampaignNotFoundException::new);

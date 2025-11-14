@@ -55,7 +55,7 @@ public class SmtpServiceTest {
     void getAllSmtpCredentials_ShouldReturnListOfDtos(){
 
         when(smtpRepository.findAllByUserId(user.getId())).thenReturn(List.of(smtp));
-        when(smtpMapper.smtpListToDtoList(List.of(smtp))).thenReturn(List.of(smtpDto));
+        when(smtpMapper.toDto(smtp)).thenReturn(smtpDto);
 
         var result = smtpService.getAll();
 

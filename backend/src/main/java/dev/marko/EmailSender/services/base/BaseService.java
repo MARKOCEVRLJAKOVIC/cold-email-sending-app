@@ -7,66 +7,79 @@ import lombok.Getter;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 @Getter
-public abstract class BaseService<E, D, C,
-        R extends JpaRepository<E, Long> & UserScopedRepository<E>> {
+public abstract class BaseService<
+        E,
+        D,
+        C,
+        R extends UserScopedRepository<E> & JpaRepository<E, Long>
+        > {
 
-    public final R repository;
-    public final CurrentUserProvider currentUserProvider;
+    protected final R repository;
+    protected final CurrentUserProvider currentUserProvider;
+    private final Supplier<RuntimeException> notFound;
 
-    protected BaseService(R repository, CurrentUserProvider currentUserProvider) {
+    protected BaseService(
+            R repository,
+            CurrentUserProvider currentUserProvider,
+            Supplier<RuntimeException> notFound
+    ) {
         this.repository = repository;
         this.currentUserProvider = currentUserProvider;
+        this.notFound = notFound;
     }
 
-    protected abstract RuntimeException notFoundException();
-
-
-
     protected abstract D toDto(E entity);
-    protected abstract E toEntity(C createRequest);
+    protected abstract E toEntity(C request);
     protected abstract void updateEntity(E entity, C request);
-    protected abstract void setUserOnEntity(E entity, User user);
-    protected abstract List<D> toListDto(List<E> listEntity);
+
+    /** every entity must have a user */
+    protected abstract void setUser(E entity, User user);
+
+    protected List<D> toListDto(List<E> entities) {
+        return entities.stream()
+                .map(this::toDto)
+                .toList();
+    }
 
     public List<D> getAll() {
         var user = currentUserProvider.getCurrentUser();
-        var entities = repository.findAllByUserId(user.getId());
-        return toListDto(entities);
+        return toListDto(repository.findAllByUserId(user.getId()));
     }
 
     public D getById(Long id) {
         var user = currentUserProvider.getCurrentUser();
-
         var entity = repository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(this::notFoundException);
+                .orElseThrow(notFound);
         return toDto(entity);
     }
 
     public D create(C request) {
         var user = currentUserProvider.getCurrentUser();
         var entity = toEntity(request);
-        setUserOnEntity(entity, user);
+        setUser(entity, user);
         repository.save(entity);
         return toDto(entity);
     }
 
     public D update(Long id, C request) {
-
         var user = currentUserProvider.getCurrentUser();
         var entity = repository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(this::notFoundException);
+                .orElseThrow(notFound);
+
         updateEntity(entity, request);
         repository.save(entity);
+
         return toDto(entity);
     }
 
     public void delete(Long id) {
         var user = currentUserProvider.getCurrentUser();
         var entity = repository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(this::notFoundException);
+                .orElseThrow(notFound);
+
         repository.delete(entity);
     }
-
 }
