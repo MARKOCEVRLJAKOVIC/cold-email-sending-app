@@ -604,4 +604,26 @@ Create email content with the ability to personalize messages by mapping `{{name
 ![Campaign Wizard Step 5](showcase-images/wizard-5.png)
 
 5. Selecting a date for campaign launch
+   
 Option to select date and time when campaign will be launch
+
+![Analytics](showcase-images/campaign-analytics.png)
+
+6. Tracking analytics for every campaign
+See every sent email with time, status, and email body
+
+---
+
+## Connect sending accounts via Google OAuth2
+
+Below is the proces of connecting sending account
+
+![Sending account Step 1](showcase-images/sending-accounts.png)
+
+1. In sending accounts page click on connect sending Google email for connecting Gmail/Google workspace email
+
+![Sending account Step 1](showcase-images/oauth2-gmail-onnect.png)
+
+2. Select account to connect from your Google accounts list
+
+
