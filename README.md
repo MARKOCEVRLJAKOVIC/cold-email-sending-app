@@ -622,7 +622,7 @@ Below is the proces of connecting sending account
 
 1. In sending accounts page click on connect sending Google email for connecting Gmail/Google workspace email
 
-![Sending account Step 1](showcase-images/oauth2-gmail-onnect.png)
+![Sending account Step 1](showcase-images/oauth2-gmail-connect.png)
 
 2. Select account to connect from your Google accounts list
 
