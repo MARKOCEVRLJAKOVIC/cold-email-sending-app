@@ -178,11 +178,233 @@ SpintaxProcessor is used in both SendBatchEmailsService and FollowUpSchedulerSer
 ### Resuing methods
 The DRY (Don’t Repeat Yourself) principle is implemented by reusing code and avoiding duplication, each unit of reusable work is encapsulated in its own method.
 ```java
-public String generateMessageText(String templateText, String recipientName) {
+@Service
+@RequiredArgsConstructor
+public class EmailPreparationService {
+
+    private final SpintaxProcessor spinTextProcessor;
+
+    public String generateMessageText(String templateText, String recipientName) {
         String withName = templateText.replace("{{name}}", recipientName);
         return spinTextProcessor.process(withName);
+    }
 }
 ```
+
+```java
+private List<EmailMessage> prepareAndSaveEmails(EmailTemplate template, List<EmailRecipientDto> recipients){
+    var messageText = preparationService.generateMessageText(template.getMessage(), recipient.getName());
+}
+```
+
+### Using Generics
+
+I used Generic classes to avoid repetition within basic CRUD operations that shares same logic
+
+#### Generic class for CRUD service operations
+
+```java
+@Getter
+public abstract class BaseService<
+        E,
+        D,
+        C,
+        R extends UserScopedRepository<E> & JpaRepository<E, Long>
+        > {
+
+    protected final R repository;
+    protected final CurrentUserProvider currentUserProvider;
+    private final Supplier<RuntimeException> notFound;
+
+    protected BaseService(
+            R repository,
+            CurrentUserProvider currentUserProvider,
+            Supplier<RuntimeException> notFound
+    ) {
+        this.repository = repository;
+        this.currentUserProvider = currentUserProvider;
+        this.notFound = notFound;
+    }
+
+    protected abstract D toDto(E entity);
+    protected abstract E toEntity(C request);
+    protected abstract void updateEntity(E entity, C request);
+
+    /** every entity must have a user */
+    protected abstract void setUser(E entity, User user);
+
+    protected List<D> toListDto(List<E> entities) {
+        return entities.stream()
+                .map(this::toDto)
+                .toList();
+    }
+
+    public List<D> getAll() {
+        var user = currentUserProvider.getCurrentUser();
+        return toListDto(repository.findAllByUserId(user.getId()));
+    }
+
+    public D getById(Long id) {
+        var user = currentUserProvider.getCurrentUser();
+        var entity = repository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(notFound);
+        return toDto(entity);
+    }
+
+    public D create(C request) {
+        var user = currentUserProvider.getCurrentUser();
+        var entity = toEntity(request);
+        setUser(entity, user);
+        repository.save(entity);
+        return toDto(entity);
+    }
+
+    public D update(Long id, C request) {
+        var user = currentUserProvider.getCurrentUser();
+        var entity = repository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(notFound);
+
+        updateEntity(entity, request);
+        repository.save(entity);
+
+        return toDto(entity);
+    }
+
+    public void delete(Long id) {
+        var user = currentUserProvider.getCurrentUser();
+        var entity = repository.findByIdAndUserId(id, user.getId())
+                .orElseThrow(notFound);
+
+        repository.delete(entity);
+    }
+}
+```
+
+```java
+@Service
+public class EmailTemplateService extends BaseService<
+        EmailTemplate,
+        EmailTemplateDto,
+        CreateTemplateRequest,
+        TemplateRepository
+        > {
+
+    private final EmailTemplateMapper mapper;
+    private final CampaignRepository campaignRepository;
+
+    public EmailTemplateService(
+            TemplateRepository repository,
+            CurrentUserProvider currentUserProvider,
+            EmailTemplateMapper mapper,
+            CampaignRepository campaignRepository
+    ) {
+        super(
+                repository,
+                currentUserProvider,
+                TemplateNotFoundException::new
+        );
+        this.mapper = mapper;
+        this.campaignRepository = campaignRepository;
+    }
+
+    @Override
+    protected EmailTemplateDto toDto(EmailTemplate entity) {
+        return mapper.toDto(entity);
+    }
+
+    @Override
+    protected EmailTemplate toEntity(CreateTemplateRequest req) {
+        var user = currentUserProvider.getCurrentUser();
+        var campaign = campaignRepository.findByIdAndUserId(req.getCampaignId(), user.getId())
+                .orElseThrow(CampaignNotFoundException::new);
+
+        var entity = mapper.toEntity(req);
+        entity.setCampaign(campaign);
+        return entity;
+    }
+
+    @Override
+    protected void updateEntity(EmailTemplate entity, CreateTemplateRequest req) {
+        var user = currentUserProvider.getCurrentUser();
+        var campaign = campaignRepository.findByIdAndUserId(req.getCampaignId(), user.getId())
+                .orElseThrow(CampaignNotFoundException::new);
+
+        mapper.update(req, entity);
+        entity.setCampaign(campaign);
+    }
+
+    @Override
+    protected void setUser(EmailTemplate entity, User user) {
+        entity.setUser(user);
+    }
+}
+```
+
+#### Generic Class for CRUD Controllers
+
+```java
+public abstract class BaseController<D, C> {
+
+    protected final BaseService<?, D, C, ?> service;
+
+    protected BaseController(BaseService<?, D, C, ?> service) {
+        this.service = service;
+    }
+
+    @GetMapping
+    public List<D> getAll() {
+        return service.getAll();
+    }
+
+    @GetMapping("/{id}")
+    public D getById(@PathVariable Long id) {
+        return service.getById(id);
+    }
+
+    @PostMapping
+    public D create(@RequestBody C request) {
+        return service.create(request);
+    }
+
+    @PutMapping("/{id}")
+    public D update(@PathVariable Long id, @RequestBody C request) {
+        return service.update(id, request);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Long id) {
+        service.delete(id);
+    }
+}
+```
+
+```java
+@RestController
+@RequestMapping("templates")
+public class EmailTemplateController extends BaseController<EmailTemplateDto, CreateTemplateRequest> {
+    public EmailTemplateController(EmailTemplateService emailTemplateService) {
+        super(emailTemplateService);
+    }
+}
+```
+
+#### UserScopeRepository for Security checkup
+
+```java
+public interface UserScopedRepository<E> {
+    List<E> findAllByUserId(Long userId);
+    Optional<E> findByIdAndUserId(Long id, Long userId);
+}
+```
+
+```java
+public interface TemplateRepository
+        extends JpaRepository<EmailTemplate, Long>, UserScopedRepository<EmailTemplate> {
+    List<EmailTemplate> findAllByUserId(Long userId);
+    Optional<EmailTemplate> findByIdAndUserId(Long id, Long userId);
+}
+```
+
 
 ---
 
