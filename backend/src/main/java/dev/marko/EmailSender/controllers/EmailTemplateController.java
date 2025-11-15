@@ -16,9 +16,7 @@ import java.util.List;
 @RestController
 @RequestMapping("templates")
 public class EmailTemplateController extends BaseController<EmailTemplateDto, CreateTemplateRequest> {
-
     public EmailTemplateController(EmailTemplateService emailTemplateService) {
         super(emailTemplateService);
     }
-
 }

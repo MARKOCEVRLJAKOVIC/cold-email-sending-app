@@ -9,9 +9,6 @@ import java.util.Optional;
 
 public interface TemplateRepository
         extends JpaRepository<EmailTemplate, Long>, UserScopedRepository<EmailTemplate> {
-
     List<EmailTemplate> findAllByUserId(Long userId);
-
     Optional<EmailTemplate> findByIdAndUserId(Long id, Long userId);
-
 }

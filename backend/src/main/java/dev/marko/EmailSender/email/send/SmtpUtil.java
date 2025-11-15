@@ -1,9 +1,11 @@
 package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.entities.SmtpCredentials;
+import lombok.NoArgsConstructor;
 
 import java.util.Properties;
 
+@NoArgsConstructor
 public class SmtpUtil {
     public static Properties buildSmtpProperties(SmtpCredentials smtp) {
         Properties properties = new Properties();
