@@ -27,80 +27,6 @@ A full-stack application for cold email automation campaigns. The platform allow
 
 ---
 
-## API Overview
-
-All endpoints follow a RESTful structure. Authentication is handled with JWT, except for login/register endpoints.
-
-### Auth API
-- `POST /auth/register` – Register new user
-- `GET /auth/confirm` – Confirm email using token
-- `POST /auth/login` – User login
-- `POST /auth/refresh` – Refresh JWT token
-- `POST /auth/me` – Get authenticated user
-
-### User API
-- `GET /users/{id}` – Get user by ID
-- `POST /users/registerAdmin` – Register admin
-- `PUT /users/{id}` – Update user
-- `DELETE /users/{id}` – Delete user
-
-### Campaign API
-- `GET /campaigns` – Get all campaigns
-- `GET /campaigns/{id}` – Get campaign by ID
-- `GET /campaigns/{id}/stats` – Campaign statistics
-- `GET /campaigns/{id}/replied` – Replied emails
-- `POST /campaigns` – Create campaign
-- `PUT /campaigns/{id}` – Update campaign
-- `DELETE /campaigns/{id}` – Delete campaign
-
-### Template API
-- `GET /templates` – Get all templates
-- `GET /templates/{id}` – Get template by ID
-- `POST /templates` – Create template
-- `PUT /templates/{id}` – Update template
-- `DELETE /templates/{id}` – Delete template
-
-### SMTP API
-- `GET /smtp` – Get all SMTP accounts
-- `GET /smtp/{id}` – Get one SMTP account
-- `POST /smtp` – Add new SMTP account
-- `PUT /smtp/{id}` – Update SMTP account
-- `DELETE /smtp/{id}` – Delete SMTP account
-
-### Gmail OAuth API
-- `GET /oauth-url` – Generate Gmail OAuth2 URL
-- `GET /callback` – OAuth callback
-- `GET /gmail-smtp` – Get connected Gmail accounts
-- `POST /gmail-smtp` – Connect Gmail account
-- `DELETE /gmail-smtp/{id}` – Disconnect Gmail account
-
-### Email Message API
-- `GET /email-messages` – Get all messages
-- `GET /email-messages/campaign/{campaignId}` – Get campaign messages
-- `GET /email-messages/{id}` – Get one message
-- `POST /email-messages/send-batch` – Send emails in batch
-- `PUT /email-messages/{id}` – Update message
-- `DELETE /email-messages/{id}` – Delete message
-
-### Email Reply API
-- `GET /reply` – Get all replies
-- `GET /reply/{id}` – Get one reply
-- `POST /reply/respond/{replyId}` – Reply to a reply
-- `DELETE /reply/{id}` – Delete reply
-
-### Follow-up API
-- `GET /follow-ups` – Get all follow-ups
-- `GET /follow-ups/{id}` – Get one follow-up
-- `POST /follow-ups/campaign/{campaignId}` – Add follow-up to campaign
-- `PUT /follow-ups/{id}` – Update follow-up
-- `DELETE /follow-ups/{id}` – Delete follow-up
-
-### Password Reset API
-- `POST /password/forgot` – Request password reset
-- `POST /password/reset` – Reset password
-
----
-
 ## SOLID Implementation
 
 ### Single Responsibility & Open/Closed Principle
@@ -405,74 +331,7 @@ public interface TemplateRepository
 }
 ```
 
-
 ---
-
-### Using email service for password recovery (Gmail SMTP)
-
-```java
-public void forgotPassword(ResetPasswordRequest request){
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow(UserNotFoundException::new);
-        String token = UUID.randomUUID().toString();
-
-        PasswordResetToken resetToken = PasswordResetToken.builder()
-                .token(token)
-                .user(user)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(30))
-                .build();
-
-        passwordResetTokenRepository.save(resetToken);
-
-        String link = appUrl + "/password/reset?token=" + token;
-        notificationEmailService.sendEmail(request.getEmail(), subject, link);
-}
-```
-
-### Using CSV parsing
-
-```java
- private List<EmailRecipientDto> parseCsv(MultipartFile file)  {
-        List<EmailRecipientDto> recipients = new ArrayList<>();
-
-        try (BufferedReader reader = new BufferedReader(
-                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
-
-            String line;
-            boolean isFirst = true;
-
-            while ((line = reader.readLine()) != null) {
-                if (isFirst) {
-                    isFirst = false;
-                    continue;
-                }
-
-                String[] tokens = line.split(",");
-
-
-                String email = tokens[0].trim();
-                String name = tokens.length > 1 ? tokens[1].trim() : "";
-
-                if (email.isEmpty()) continue;
-
-                var dto = new EmailRecipientDto(name, email);
-                recipients.add(dto);
-
-            }
-
-        } catch (IOException e) {
-            throw new RuntimeException("Failed to read CSV file", e);
-        }
-
-        return recipients;
-
-    }
-```
-
-#### Expected CSV format
-
-| name | email |
-| marko | marko@email.com |
 
 ### Using Spring Security
 
@@ -575,6 +434,181 @@ protected void doFilterInternal(HttpServletRequest request,
 ```
 
 ---
+
+### Using email service for password recovery (Gmail SMTP)
+
+```java
+public void forgotPassword(ResetPasswordRequest request){
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow(UserNotFoundException::new);
+        String token = UUID.randomUUID().toString();
+
+        PasswordResetToken resetToken = PasswordResetToken.builder()
+                .token(token)
+                .user(user)
+                .createdAt(LocalDateTime.now())
+                .expiresAt(LocalDateTime.now().plusMinutes(30))
+                .build();
+
+        passwordResetTokenRepository.save(resetToken);
+
+        String link = appUrl + "/password/reset?token=" + token;
+        notificationEmailService.sendEmail(request.getEmail(), subject, link);
+}
+```
+
+### Using CSV parsing
+
+```java
+ private List<EmailRecipientDto> parseCsv(MultipartFile file)  {
+        List<EmailRecipientDto> recipients = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8))) {
+
+            String line;
+            boolean isFirst = true;
+
+            while ((line = reader.readLine()) != null) {
+                if (isFirst) {
+                    isFirst = false;
+                    continue;
+                }
+
+                String[] tokens = line.split(",");
+
+
+                String email = tokens[0].trim();
+                String name = tokens.length > 1 ? tokens[1].trim() : "";
+
+                if (email.isEmpty()) continue;
+
+                var dto = new EmailRecipientDto(name, email);
+                recipients.add(dto);
+
+            }
+
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to read CSV file", e);
+        }
+
+        return recipients;
+
+    }
+```
+
+#### Expected CSV format
+
+| name | email |
+|------------|-------------|
+| marko | marko@email.com |
+
+---
+
+## Email Sending Logic
+
+```java
+public class GmailSmtpSender implements EmailSender {
+
+    private final EmailConnectionService emailConnectionService;
+    private final EncryptionService encryptionService;
+
+    @Override
+    public void sendEmails(EmailMessage email) throws MessagingException {
+
+        SmtpCredentials smtp = email.getSmtpCredentials();
+
+        if (!smtp.isGmailOauth()) {
+            throw new IllegalArgumentException("Provided credentials are not Gmail OAuth2.");
+        }
+
+        // Refresh access token if expired and update SmtpCredentials
+        smtp = emailConnectionService.refreshTokenIfNeeded(smtp);
+        String accessToken = encryptionService.decrypt(smtp.getOauthAccessToken());
+
+        Properties properties = getProperties(smtp);
+
+        Authenticator auth = new OAuth2Authenticator(smtp.getEmail(), accessToken);
+        Session session = Session.getInstance(properties, auth);
+
+        // Build the MIME message (email, session, smtp)
+        MimeMessage mimeMessage = getMimeMessage(email, session, smtp);
+
+        // If message is a reply, set threading headers
+        if (email.getInReplyTo() != null) {
+            mimeMessage.setHeader("In-Reply-To", email.getInReplyTo());
+            mimeMessage.setHeader("References", email.getInReplyTo());
+        }
+
+        mimeMessage.saveChanges();
+        String messageId = mimeMessage.getMessageID();
+        email.setMessageId(messageId);
+
+        try (Transport transport = session.getTransport("smtp")) {
+            transport.connect();
+            transport.sendMessage(mimeMessage, mimeMessage.getAllRecipients());
+        }
+    /*...*/
+}
+```
+
+```java
+public class EmailSchedulingService {
+
+    private final EmailSender emailSender;
+    private final EmailMessageRepository emailMessageRepository;
+
+    @Getter
+    @Value("${email.scheduling.default-delay-seconds}")
+    private int delayInSeconds;
+
+    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
+
+    public void scheduleBatch(List<EmailMessage> messages, long intervalInSeconds) {
+        for (int i = 0; i < messages.size(); i++) {
+            EmailMessage message = messages.get(i);
+            long delay = i * intervalInSeconds;
+
+            scheduler.schedule(() -> {
+                try {
+                    sendAndPersist(message);
+                } catch (Exception e) {
+                    log.error("Unexpected error while sending email to {}: {}",
+                            message.getRecipientEmail(), e.getMessage(), e);
+                    message.setStatus(Status.FAILED);
+                    emailMessageRepository.save(message);
+                }
+            }, delay, TimeUnit.SECONDS);
+        }
+    }
+
+    private void sendAndPersist(EmailMessage email) {
+        try {
+            emailSender.sendEmails(email);
+            email.setStatus(Status.SENT);
+            email.setSentAt(LocalDateTime.now());
+            log.info("Email sent to {}", email.getRecipientEmail());
+        } catch (MessagingException e) {
+            email.setStatus(Status.FAILED);
+            log.error("Failed to send email to {}: {}", email.getRecipientEmail(), e.getMessage());
+        } catch (Exception e) {
+            email.setStatus(Status.FAILED);
+            log.error("Unexpected error sending email to {}: {}", email.getRecipientEmail(), e.getMessage(), e);
+        }
+        emailMessageRepository.save(email);
+    }
+    public void scheduleSingle(EmailMessage message, long delayInSeconds) {
+        scheduler.schedule(() -> {
+            try {
+                sendAndPersist(message);
+            } catch (Exception e) {
+                log.error("Unexpected error while sending single email to {}: {}",
+                        message.getRecipientEmail(), e.getMessage(), e);
+                message.setStatus(Status.FAILED);
+                emailMessageRepository.save(message);
+            }
+        }, delayInSeconds, TimeUnit.SECONDS);
+    }
+```
 
 ## Campaign Wizard Flow
 
