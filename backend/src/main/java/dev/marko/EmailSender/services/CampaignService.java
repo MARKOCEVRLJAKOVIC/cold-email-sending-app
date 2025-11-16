@@ -71,6 +71,7 @@ public class CampaignService extends BaseService<Campaign, CampaignDto, CreateCa
 
         return new CampaignStatsDto(total, sent, failed, pending, replied);
 
+
     }
 
 

@@ -81,7 +81,7 @@ public class CampaignServiceTest {
     }
 
     @Test
-    void getSmtp_ShouldReturnDto() {
+    void getCampaign_ShouldReturnDto() {
 
         when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
         when(campaignMapper.toDto(campaign)).thenReturn(campaignDto);
@@ -94,7 +94,7 @@ public class CampaignServiceTest {
     }
 
     @Test
-    void getSmtp_ShouldThrowException() {
+    void getCampaign_ShouldThrowException() {
 
         // throw exception by providing non-existing id
         when(campaignRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
@@ -117,7 +117,7 @@ public class CampaignServiceTest {
     }
 
     @Test
-    void deleteSmtp_ShouldDeleteSmtp() {
+    void deleteCampaign_ShouldDeleteCampaign() {
 
         when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
 
@@ -127,7 +127,7 @@ public class CampaignServiceTest {
     }
 
     @Test
-    void deleteSmtp_ShouldThrowEmailNotFound() {
+    void deleteCampaign_ShouldThrowCampaignNotFound() {
 
         when(campaignRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
         assertThrows(CampaignNotFoundException.class, () -> campaignService.delete(INVALID_ID));

@@ -23,11 +23,8 @@ public class EmailMessageService {
 
     public List<EmailMessageDto> findAllMessagesFromUser(){
         var user = currentUserProvider.getCurrentUser();
-        var emailMessageList = emailMessageRepository.findAllByUserIdAndStatusIn(user.getId(), List.of(Status.SENT, Status.REPLIED));
-
-        if(emailMessageList.isEmpty()){
-            throw new EmailMessageNotFoundException();
-        }
+        var emailMessageList = emailMessageRepository
+                .findAllByUserIdAndStatusIn(user.getId(), List.of(Status.SENT, Status.REPLIED));
 
         return emailMessageMapper.toListDto(emailMessageList);
     }
