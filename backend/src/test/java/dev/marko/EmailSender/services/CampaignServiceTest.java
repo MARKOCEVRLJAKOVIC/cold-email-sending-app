@@ -3,6 +3,8 @@ package dev.marko.EmailSender.services;
 import dev.marko.EmailSender.dtos.CampaignDto;
 import dev.marko.EmailSender.dtos.CreateCampaignRequest;
 import dev.marko.EmailSender.entities.Campaign;
+import dev.marko.EmailSender.entities.EmailMessage;
+import dev.marko.EmailSender.entities.Status;
 import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.exception.CampaignNotFoundException;
 import dev.marko.EmailSender.exception.EmailNotFoundException;
@@ -28,12 +30,17 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class CampaignServiceTest {
 
-    @Mock private CampaignRepository campaignRepository;
-    @Mock private CampaignMapper campaignMapper;
-    @Mock private CurrentUserProvider currentUserProvider;
-    @Mock private EmailMessageRepository emailMessageRepository;
+    @Mock
+    private CampaignRepository campaignRepository;
+    @Mock
+    private CampaignMapper campaignMapper;
+    @Mock
+    private CurrentUserProvider currentUserProvider;
+    @Mock
+    private EmailMessageRepository emailMessageRepository;
 
-    @InjectMocks CampaignService campaignService;
+    @InjectMocks
+    CampaignService campaignService;
 
     User user;
     Campaign campaign;
@@ -43,7 +50,7 @@ public class CampaignServiceTest {
     Long INVALID_ID = 99L;
 
     @BeforeEach
-    void setup(){
+    void setup() {
 
         user = new User();
         user.setId(VALID_ID);
@@ -60,7 +67,7 @@ public class CampaignServiceTest {
     }
 
     @Test
-    void getAllCampaignFromUser_ShouldReturnListOfUserDtos(){
+    void getAllCampaignFromUser_ShouldReturnListOfUserDtos() {
 
         when(campaignRepository.findAllByUserId(user.getId())).thenReturn(List.of(campaign));
         when(campaignMapper.toDto(campaign)).thenReturn(campaignDto);
@@ -74,7 +81,7 @@ public class CampaignServiceTest {
     }
 
     @Test
-    void getSmtp_ShouldReturnDto(){
+    void getSmtp_ShouldReturnDto() {
 
         when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
         when(campaignMapper.toDto(campaign)).thenReturn(campaignDto);
@@ -96,7 +103,7 @@ public class CampaignServiceTest {
     }
 
     @Test
-    void createCampaign_ShouldCreateNewCampaignAndReturnDto(){
+    void createCampaign_ShouldCreateNewCampaignAndReturnDto() {
 
         CreateCampaignRequest request = new CreateCampaignRequest();
         when(campaignMapper.toEntity(request)).thenReturn(campaign);
@@ -110,7 +117,7 @@ public class CampaignServiceTest {
     }
 
     @Test
-    void deleteSmtp_ShouldDeleteSmtp(){
+    void deleteSmtp_ShouldDeleteSmtp() {
 
         when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
 
@@ -120,11 +127,59 @@ public class CampaignServiceTest {
     }
 
     @Test
-    void deleteSmtp_ShouldThrowEmailNotFound(){
+    void deleteSmtp_ShouldThrowEmailNotFound() {
 
         when(campaignRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
         assertThrows(CampaignNotFoundException.class, () -> campaignService.delete(INVALID_ID));
 
+    }
+
+    @Test
+    void getCampaignStats_ShouldReturnCorrectStats() {
+
+        when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
+
+        var email1 = createEmailMessageWithStatus(Status.SENT);
+        var email2 = createEmailMessageWithStatus(Status.REPLIED);
+        var email3 = createEmailMessageWithStatus(Status.FAILED);
+        var email4 = createEmailMessageWithStatus(Status.PENDING);
+        var email5 = createEmailMessageWithStatus(Status.PENDING);
+
+        var emails = List.of(email1, email2, email3, email4, email5);
+
+        when(emailMessageRepository.findAllByCampaign(campaign)).thenReturn(emails);
+
+        var result = campaignService.getCampaignStats(VALID_ID);
+
+        assertEquals(5, result.total());
+        assertEquals(2, result.sent()); // 1 sent + 1 replied
+        assertEquals(1, result.failed());
+        assertEquals(1, result.replied());
+        assertEquals(2, result.pending());
+
+
+        verify(campaignRepository).findByIdAndUserId(VALID_ID, user.getId());
+        verify(emailMessageRepository).findAllByCampaign(campaign);
+
+
+
+    }
+
+    @Test
+    void getCampaignStats_ShouldThrowException_WhenCampaignNotFound() {
+
+        when(campaignRepository.findByIdAndUserId(INVALID_ID, user.getId()))
+                .thenReturn(Optional.empty());
+
+        assertThrows(CampaignNotFoundException.class,
+                () -> campaignService.getCampaignStats(INVALID_ID));
+    }
+
+
+    EmailMessage createEmailMessageWithStatus(Status status){
+        EmailMessage emailMessage = new EmailMessage();
+        emailMessage.setStatus(status);
+        return emailMessage;
     }
 
 }
