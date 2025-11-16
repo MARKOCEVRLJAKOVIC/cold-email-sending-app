@@ -31,6 +31,7 @@ public class GmailSmtpSender implements EmailSender {
             throw new IllegalArgumentException("Provided credentials are not Gmail OAuth2.");
         }
 
+        // Refresh access token if expired and update SmtpCredentials
         smtp = emailConnectionService.refreshTokenIfNeeded(smtp);
         String accessToken = encryptionService.decrypt(smtp.getOauthAccessToken());
 
@@ -39,8 +40,10 @@ public class GmailSmtpSender implements EmailSender {
         Authenticator auth = new OAuth2Authenticator(smtp.getEmail(), accessToken);
         Session session = Session.getInstance(properties, auth);
 
+        // Build the MIME message (email, session, smtp)
         MimeMessage mimeMessage = getMimeMessage(email, session, smtp);
 
+        // If message is a reply, set threading headers
         if (email.getInReplyTo() != null) {
             mimeMessage.setHeader("In-Reply-To", email.getInReplyTo());
             mimeMessage.setHeader("References", email.getInReplyTo());

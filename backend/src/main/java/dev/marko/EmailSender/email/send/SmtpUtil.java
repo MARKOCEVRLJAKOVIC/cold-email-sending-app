@@ -7,6 +7,7 @@ import java.util.Properties;
 
 @NoArgsConstructor
 public class SmtpUtil {
+    // Creates SMTP properties (host, port, auth, TLS)
     public static Properties buildSmtpProperties(SmtpCredentials smtp) {
         Properties properties = new Properties();
         properties.put("mail.smtp.auth", "true");

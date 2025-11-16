@@ -98,7 +98,8 @@ public class SendBatchEmailsService {
                 .filter(c -> c.getUser().getId().equals(userId))
                 .orElse(null);
     }
-            private List<EmailMessage> prepareAndSaveEmails(
+
+    private List<EmailMessage> prepareAndSaveEmails(
             List<EmailRecipientDto> recipients,
             List<SmtpCredentials> smtpList,
             User user,

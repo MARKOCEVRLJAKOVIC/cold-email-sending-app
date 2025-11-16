@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.services;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.dtos.CampaignDto;
 import dev.marko.EmailSender.dtos.CampaignStatsDto;
 import dev.marko.EmailSender.dtos.CreateCampaignRequest;
@@ -37,8 +36,8 @@ public class CampaignService {
 
     public CampaignDto getCampaign(Long id){
 
-        var campaign = campaignRepository.findById(id).orElseThrow(CampaignNotFoundException::new);
-
+        var user = currentUserProvider.getCurrentUser();
+        var campaign = campaignRepository.findByIdAndUserId(id, user.getId()).orElseThrow(CampaignNotFoundException::new);
         return campaignMapper.toDto(campaign);
 
     }
@@ -92,8 +91,12 @@ public class CampaignService {
 
     @Transactional
     public void deleteCampaign(Long id){
-        var campaign = campaignRepository.findById(id)
+
+        var user = currentUserProvider.getCurrentUser();
+
+        var campaign = campaignRepository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(CampaignNotFoundException::new);
         campaignRepository.delete(campaign);
+
     }
 }

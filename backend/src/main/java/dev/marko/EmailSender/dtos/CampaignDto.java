@@ -5,7 +5,6 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
 @Data
 public class CampaignDto {
 
