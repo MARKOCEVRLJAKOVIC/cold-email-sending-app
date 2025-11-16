@@ -3,50 +3,61 @@ package dev.marko.EmailSender.services;
 import dev.marko.EmailSender.dtos.CampaignDto;
 import dev.marko.EmailSender.dtos.CampaignStatsDto;
 import dev.marko.EmailSender.dtos.CreateCampaignRequest;
+import dev.marko.EmailSender.entities.Campaign;
 import dev.marko.EmailSender.entities.Status;
+import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.exception.CampaignNotFoundException;
 import dev.marko.EmailSender.mappers.CampaignMapper;
 import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
-import lombok.AllArgsConstructor;
+import dev.marko.EmailSender.services.base.BaseService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
-@AllArgsConstructor
 @Service
-public class CampaignService {
+public class CampaignService extends BaseService<Campaign, CampaignDto, CreateCampaignRequest, CampaignRepository> {
 
-    private final CampaignRepository campaignRepository;
     private final CampaignMapper campaignMapper;
-    private final CurrentUserProvider currentUserProvider;
     private final EmailMessageRepository emailMessageRepository;
 
-
-    public List<CampaignDto> getAllCampaignFromUser(){
-
-        var user = currentUserProvider.getCurrentUser();
-        var campaignList = campaignRepository.findAllByUserId(user.getId());
-
-        return campaignMapper.toListDto(campaignList);
+    public CampaignService( CampaignRepository repository,
+                            CurrentUserProvider currentUserProvider,
+                            CampaignMapper campaignMapper,
+                            EmailMessageRepository emailMessageRepository) {
+        super(repository, currentUserProvider, CampaignNotFoundException::new);
+        this.campaignMapper = campaignMapper;
+        this.emailMessageRepository = emailMessageRepository;
 
     }
 
-    public CampaignDto getCampaign(Long id){
+    @Override
+    protected CampaignDto toDto(Campaign entity) {
+        return campaignMapper.toDto(entity);
+    }
 
-        var user = currentUserProvider.getCurrentUser();
-        var campaign = campaignRepository.findByIdAndUserId(id, user.getId()).orElseThrow(CampaignNotFoundException::new);
-        return campaignMapper.toDto(campaign);
+    @Override
+    protected Campaign toEntity(CreateCampaignRequest request) {
+        return campaignMapper.toEntity(request);
+    }
 
+    @Override
+    protected void updateEntity(Campaign entity, CreateCampaignRequest request) {
+        campaignMapper.update(request, entity);
+    }
+
+    @Override
+    protected void setUser(Campaign entity, User user) {
+        entity.setUser(user);
     }
 
     public CampaignStatsDto getCampaignStats(Long id){
 
         var user = currentUserProvider.getCurrentUser();
 
-        var campaign = campaignRepository.findByIdAndUserId(id, user.getId())
+        var campaign = repository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(CampaignNotFoundException::new);
         var emails = emailMessageRepository.findAllByCampaign(campaign);
 
@@ -62,41 +73,4 @@ public class CampaignService {
 
     }
 
-    @Transactional
-    public CampaignDto createCampaign(CreateCampaignRequest request){
-        var user = currentUserProvider.getCurrentUser();
-
-        var campaign = campaignMapper.toEntity(request);
-        campaign.setUser(user);
-
-        campaignRepository.save(campaign);
-
-        return campaignMapper.toDto(campaign);
-    }
-
-    @Transactional
-    public CampaignDto updateCampaign(Long id ,CreateCampaignRequest request){
-
-        var user = currentUserProvider.getCurrentUser();
-
-        var campaign = campaignRepository.findByIdAndUserId(id, user.getId()).
-                orElseThrow(CampaignNotFoundException::new);
-
-        campaignMapper.update(request, campaign);
-        campaignRepository.save(campaign);
-
-        return campaignMapper.toDto(campaign);
-
-    }
-
-    @Transactional
-    public void deleteCampaign(Long id){
-
-        var user = currentUserProvider.getCurrentUser();
-
-        var campaign = campaignRepository.findByIdAndUserId(id, user.getId())
-                .orElseThrow(CampaignNotFoundException::new);
-        campaignRepository.delete(campaign);
-
-    }
 }

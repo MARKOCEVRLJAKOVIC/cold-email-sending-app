@@ -63,10 +63,9 @@ public class CampaignServiceTest {
     void getAllCampaignFromUser_ShouldReturnListOfUserDtos(){
 
         when(campaignRepository.findAllByUserId(user.getId())).thenReturn(List.of(campaign));
-        when(campaignMapper.toListDto(List.of(campaign)))
-                .thenReturn(List.of(campaignDto));
+        when(campaignMapper.toDto(campaign)).thenReturn(campaignDto);
 
-        var result = campaignService.getAllCampaignFromUser();
+        var result = campaignService.getAll();
 
         assertEquals(1, result.size());
         assertEquals(VALID_ID, result.getFirst().getId());
@@ -80,7 +79,7 @@ public class CampaignServiceTest {
         when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
         when(campaignMapper.toDto(campaign)).thenReturn(campaignDto);
 
-        var result = campaignService.getCampaign(campaign.getId());
+        var result = campaignService.getById(campaign.getId());
 
         assertEquals(VALID_ID, result.getId());
         verify(campaignRepository).findByIdAndUserId(campaign.getId(), user.getId());
@@ -92,7 +91,7 @@ public class CampaignServiceTest {
 
         // throw exception by providing non-existing id
         when(campaignRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
-        assertThrows(CampaignNotFoundException.class, () -> campaignService.getCampaign(INVALID_ID));
+        assertThrows(CampaignNotFoundException.class, () -> campaignService.getById(INVALID_ID));
 
     }
 
@@ -103,7 +102,7 @@ public class CampaignServiceTest {
         when(campaignMapper.toEntity(request)).thenReturn(campaign);
         when(campaignMapper.toDto(campaign)).thenReturn(campaignDto);
 
-        var result = campaignService.createCampaign(request);
+        var result = campaignService.create(request);
 
         verify(campaignRepository).save(campaign);
         assertEquals(VALID_ID, result.getId());
@@ -115,7 +114,7 @@ public class CampaignServiceTest {
 
         when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
 
-        campaignService.deleteCampaign(campaign.getId());
+        campaignService.delete(campaign.getId());
         verify(campaignRepository).delete(campaign);
 
     }
@@ -124,7 +123,7 @@ public class CampaignServiceTest {
     void deleteSmtp_ShouldThrowEmailNotFound(){
 
         when(campaignRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
-        assertThrows(CampaignNotFoundException.class, () -> campaignService.deleteCampaign(INVALID_ID));
+        assertThrows(CampaignNotFoundException.class, () -> campaignService.delete(INVALID_ID));
 
     }
 

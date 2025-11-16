@@ -59,12 +59,12 @@ public class EmailTemplateService extends BaseService<
     }
 
     @Override
-    protected void updateEntity(EmailTemplate entity, CreateTemplateRequest req) {
+    protected void updateEntity(EmailTemplate entity, CreateTemplateRequest request) {
         var user = currentUserProvider.getCurrentUser();
-        var campaign = campaignRepository.findByIdAndUserId(req.getCampaignId(), user.getId())
+        var campaign = campaignRepository.findByIdAndUserId(request.getCampaignId(), user.getId())
                 .orElseThrow(CampaignNotFoundException::new);
 
-        mapper.update(req, entity);
+        mapper.update(request, entity);
         entity.setCampaign(campaign);
     }
 
