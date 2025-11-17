@@ -42,23 +42,26 @@ public class EmailTemplateServiceTest {
     Campaign campaign;
     EmailTemplateDto emailTemplateDto;
 
+    Long VALID_ID = 1L;
+    Long INVALID_ID = 99L;
+
     @BeforeEach
     void setup(){
 
         user = new User();
-        user.setId(1L);
+        user.setId(VALID_ID);
 
         emailTemplate = new EmailTemplate();
         emailTemplate.setUser(user);
-        emailTemplate.setId(1L);
+        emailTemplate.setId(VALID_ID);
 
 
         campaign = new Campaign();
         campaign.setUser(user);
-        campaign.setId(1L);
+        campaign.setId(VALID_ID);
 
         emailTemplateDto = new EmailTemplateDto();
-        emailTemplateDto.setId(1L);
+        emailTemplateDto.setId(VALID_ID);
         emailTemplateDto.setUserId(user.getId());
 
         when(currentUserProvider.getCurrentUser()).thenReturn(user);
@@ -71,35 +74,35 @@ public class EmailTemplateServiceTest {
     @Test
     void getAllTemplates_ShouldReturnListOfDtos(){
 
-        when(templateRepository.findAllByUserId(1L)).thenReturn(List.of(emailTemplate));
+        when(templateRepository.findAllByUserId(VALID_ID)).thenReturn(List.of(emailTemplate));
         when(emailTemplateMapper.toDto(emailTemplate)).thenReturn(emailTemplateDto);
 
         var result = emailTemplateService.getAll();
 
         assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).getId());
-        verify(templateRepository).findAllByUserId(1L);
+        assertEquals(VALID_ID, result.get(0).getId());
+        verify(templateRepository).findAllByUserId(VALID_ID);
 
     }
 
     @Test
     void getTemplate_ShouldReturnDto(){
 
-        when(templateRepository.findByIdAndUserId(1L,1L)).thenReturn(Optional.of(emailTemplate));
+        when(templateRepository.findByIdAndUserId(VALID_ID,VALID_ID)).thenReturn(Optional.of(emailTemplate));
         when(emailTemplateMapper.toDto(emailTemplate)).thenReturn(emailTemplateDto);
 
-        var result = emailTemplateService.getById(1L);
+        var result = emailTemplateService.getById(VALID_ID);
 
-        assertEquals(1L, result.getId());
-        verify(templateRepository).findByIdAndUserId(1L, 1L);
+        assertEquals(VALID_ID, result.getId());
+        verify(templateRepository).findByIdAndUserId(VALID_ID, VALID_ID);
 
     }
 
     @Test
     void getTemplate_ShouldThrowNotFound() {
 
-        when(templateRepository.findByIdAndUserId(99L, 1L)).thenReturn(Optional.empty());
-        assertThrows(TemplateNotFoundException.class, () -> emailTemplateService.getById(99L));
+        when(templateRepository.findByIdAndUserId(INVALID_ID, VALID_ID)).thenReturn(Optional.empty());
+        assertThrows(TemplateNotFoundException.class, () -> emailTemplateService.getById(INVALID_ID));
 
     }
 
@@ -107,16 +110,16 @@ public class EmailTemplateServiceTest {
     void createTemplate_shouldSaveAndReturnDto() {
 
         CreateTemplateRequest request = new CreateTemplateRequest();
-        request.setCampaignId(1L);
+        request.setCampaignId(VALID_ID);
 
-        when(campaignRepository.findByIdAndUserId(1L,1L)).thenReturn(Optional.of(campaign));
+        when(campaignRepository.findByIdAndUserId(VALID_ID,VALID_ID)).thenReturn(Optional.of(campaign));
         when(emailTemplateMapper.toEntity(request)).thenReturn(emailTemplate);
         when(emailTemplateMapper.toDto(emailTemplate)).thenReturn(emailTemplateDto);
 
         var result = emailTemplateService.create(request);
 
         verify(templateRepository).save(emailTemplate);
-        assertEquals(1L, result.getUserId());
+        assertEquals(VALID_ID, result.getUserId());
 
     }
 
@@ -124,19 +127,20 @@ public class EmailTemplateServiceTest {
     void createTemplate_ShouldThrowNotFound() {
 
         CreateTemplateRequest request = new CreateTemplateRequest();
-        request.setCampaignId(99L);
+        request.setCampaignId(INVALID_ID);
 
-        when(campaignRepository.findByIdAndUserId(99L, 1L)).thenReturn(Optional.empty());
+        when(campaignRepository.findByIdAndUserId(INVALID_ID, VALID_ID)).thenReturn(Optional.empty());
 
         assertThrows(CampaignNotFoundException.class,
                 () -> emailTemplateService.create(request));
     }
 
+
     @Test
     void deleteTemplate_shouldDeleteWhenFound() {
 
-        when(templateRepository.findByIdAndUserId(1L, 1L)).thenReturn(Optional.of(emailTemplate));
-        emailTemplateService.delete(1L);
+        when(templateRepository.findByIdAndUserId(VALID_ID, VALID_ID)).thenReturn(Optional.of(emailTemplate));
+        emailTemplateService.delete(VALID_ID);
 
         verify(templateRepository).delete(emailTemplate);
 
@@ -144,9 +148,9 @@ public class EmailTemplateServiceTest {
 
     @Test
     void deleteTemplate_shouldThrowWhenNotFound() {
-        when(templateRepository.findByIdAndUserId(99L, 1L)).thenReturn(Optional.empty());
+        when(templateRepository.findByIdAndUserId(INVALID_ID, VALID_ID)).thenReturn(Optional.empty());
 
         assertThrows(TemplateNotFoundException.class,
-                () -> emailTemplateService.delete(99L));
+                () -> emailTemplateService.delete(INVALID_ID));
     }
 }

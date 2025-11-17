@@ -34,7 +34,7 @@ public class EmailMessageService {
 
         var emailMessageList = emailMessageRepository
                 .findAllByCampaignIdAndUserIdAndStatusIn(campaignId, user.getId(), List.of(Status.SENT, Status.REPLIED));
-        
+
 
         return emailMessageMapper.toListDto(emailMessageList);
     }

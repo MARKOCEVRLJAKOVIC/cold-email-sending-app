@@ -47,7 +47,7 @@ public class CampaignServiceTest {
     CampaignDto campaignDto;
 
     Long VALID_ID = 1L;
-    Long INVALID_ID = 99L;
+    Long INVALID_ID = 404L;
 
     @BeforeEach
     void setup() {
@@ -113,6 +113,22 @@ public class CampaignServiceTest {
 
         verify(campaignRepository).save(campaign);
         assertEquals(VALID_ID, result.getId());
+
+    }
+
+    @Test
+    void updateCampaign_ShouldUpdateCampaignAndReturnDto() {
+
+        CreateCampaignRequest request = new CreateCampaignRequest();
+
+        when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
+        when(campaignMapper.toDto(campaign)).thenReturn(campaignDto);
+
+        campaignService.update(VALID_ID, request);
+
+        verify(campaignRepository).findByIdAndUserId(campaign.getId(), user.getId());
+        verify(campaignMapper).update(request, campaign);
+        verify(campaignRepository).save(campaign);
 
     }
 

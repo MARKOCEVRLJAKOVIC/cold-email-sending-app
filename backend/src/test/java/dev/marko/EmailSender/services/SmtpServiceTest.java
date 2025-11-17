@@ -98,6 +98,13 @@ public class SmtpServiceTest {
 
         verify(smtpRepository).save(smtp);
         assertEquals(VALID_ID, result.getId());
+        assertEquals(smtpDto, result);
+
+    }
+
+    @Test
+    void updateSmtp_ShouldUpdateSmtpAndReturnDto(){
+
 
     }
 
