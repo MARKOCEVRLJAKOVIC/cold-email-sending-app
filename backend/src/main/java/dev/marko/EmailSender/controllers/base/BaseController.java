@@ -5,11 +5,11 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-public abstract class BaseController<D, C> {
+public abstract class BaseController<D, C, U> {
 
-    protected final BaseService<?, D, C, ?> service;
+    protected final BaseService<?, D, C, ?, U> service;
 
-    protected BaseController(BaseService<?, D, C, ?> service) {
+    protected BaseController(BaseService<?, D, C, ?, U> service) {
         this.service = service;
     }
 
@@ -29,7 +29,7 @@ public abstract class BaseController<D, C> {
     }
 
     @PutMapping("/{id}")
-    public D update(@PathVariable Long id, @RequestBody C request) {
+    public D update(@PathVariable Long id, @RequestBody U request) {
         return service.update(id, request);
     }
 

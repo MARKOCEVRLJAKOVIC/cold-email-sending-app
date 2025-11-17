@@ -3,6 +3,8 @@ package dev.marko.EmailSender.controllers;
 import dev.marko.EmailSender.controllers.base.BaseController;
 import dev.marko.EmailSender.dtos.RegisterEmailRequest;
 import dev.marko.EmailSender.dtos.SmtpDto;
+import dev.marko.EmailSender.dtos.UpdateCampaignRequest;
+import dev.marko.EmailSender.dtos.UpdateSmtpRequest;
 import dev.marko.EmailSender.services.SmtpService;
 import dev.marko.EmailSender.services.base.BaseService;
 import jakarta.validation.Valid;
@@ -15,10 +17,15 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/smtp")
-public class SmtpController extends BaseController<SmtpDto, RegisterEmailRequest> {
+public class SmtpController extends BaseController<
+        SmtpDto,
+        RegisterEmailRequest,
+        UpdateSmtpRequest
+        > {
 
-    protected SmtpController(BaseService<?, SmtpDto, RegisterEmailRequest, ?> service) {
+    public SmtpController(
+            SmtpService service
+    ) {
         super(service);
     }
-
 }

@@ -2,6 +2,7 @@ package dev.marko.EmailSender.services;
 
 import dev.marko.EmailSender.dtos.CreateTemplateRequest;
 import dev.marko.EmailSender.dtos.EmailTemplateDto;
+import dev.marko.EmailSender.dtos.UpdateTemplateRequest;
 import dev.marko.EmailSender.entities.EmailTemplate;
 import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.exception.CampaignNotFoundException;
@@ -21,7 +22,8 @@ public class EmailTemplateService extends BaseService<
         EmailTemplate,
         EmailTemplateDto,
         CreateTemplateRequest,
-        TemplateRepository
+        TemplateRepository,
+        UpdateTemplateRequest
         > {
 
     private final EmailTemplateMapper mapper;
@@ -59,14 +61,10 @@ public class EmailTemplateService extends BaseService<
     }
 
     @Override
-    protected void updateEntity(EmailTemplate entity, CreateTemplateRequest request) {
-        var user = currentUserProvider.getCurrentUser();
-        var campaign = campaignRepository.findByIdAndUserId(request.getCampaignId(), user.getId())
-                .orElseThrow(CampaignNotFoundException::new);
-
+    protected void updateEntity(EmailTemplate entity, UpdateTemplateRequest request) {
         mapper.update(request, entity);
-        entity.setCampaign(campaign);
     }
+
 
     @Override
     protected void setUser(EmailTemplate entity, User user) {

@@ -2,12 +2,12 @@ package dev.marko.EmailSender.services;
 
 import dev.marko.EmailSender.dtos.CampaignDto;
 import dev.marko.EmailSender.dtos.CreateCampaignRequest;
+import dev.marko.EmailSender.dtos.UpdateCampaignRequest;
 import dev.marko.EmailSender.entities.Campaign;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.Status;
 import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.exception.CampaignNotFoundException;
-import dev.marko.EmailSender.exception.EmailNotFoundException;
 import dev.marko.EmailSender.mappers.CampaignMapper;
 import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
@@ -119,7 +119,7 @@ public class CampaignServiceTest {
     @Test
     void updateCampaign_ShouldUpdateCampaignAndReturnDto() {
 
-        CreateCampaignRequest request = new CreateCampaignRequest();
+        UpdateCampaignRequest request = new UpdateCampaignRequest();
 
         when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
         when(campaignMapper.toDto(campaign)).thenReturn(campaignDto);

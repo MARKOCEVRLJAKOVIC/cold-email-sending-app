@@ -103,12 +103,6 @@ public class SmtpServiceTest {
     }
 
     @Test
-    void updateSmtp_ShouldUpdateSmtpAndReturnDto(){
-
-
-    }
-
-    @Test
     void deleteSmtp_ShouldDeleteSmtp(){
 
         when(smtpRepository.findByIdAndUserId(smtp.getId(), user.getId())).thenReturn(Optional.of(smtp));

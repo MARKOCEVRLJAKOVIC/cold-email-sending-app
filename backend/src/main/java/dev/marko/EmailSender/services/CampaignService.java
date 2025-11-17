@@ -3,6 +3,7 @@ package dev.marko.EmailSender.services;
 import dev.marko.EmailSender.dtos.CampaignDto;
 import dev.marko.EmailSender.dtos.CampaignStatsDto;
 import dev.marko.EmailSender.dtos.CreateCampaignRequest;
+import dev.marko.EmailSender.dtos.UpdateCampaignRequest;
 import dev.marko.EmailSender.entities.Campaign;
 import dev.marko.EmailSender.entities.Status;
 import dev.marko.EmailSender.entities.User;
@@ -18,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 @Service
-public class CampaignService extends BaseService<Campaign, CampaignDto, CreateCampaignRequest, CampaignRepository> {
+public class CampaignService extends BaseService<Campaign, CampaignDto, CreateCampaignRequest, CampaignRepository, UpdateCampaignRequest> {
 
     private final CampaignMapper campaignMapper;
     private final EmailMessageRepository emailMessageRepository;
@@ -44,7 +45,7 @@ public class CampaignService extends BaseService<Campaign, CampaignDto, CreateCa
     }
 
     @Override
-    protected void updateEntity(Campaign entity, CreateCampaignRequest request) {
+    protected void updateEntity(Campaign entity, UpdateCampaignRequest request) {
         campaignMapper.update(request, entity);
     }
 

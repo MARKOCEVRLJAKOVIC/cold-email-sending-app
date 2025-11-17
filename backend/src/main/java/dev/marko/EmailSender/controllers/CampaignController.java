@@ -15,11 +15,11 @@ import java.util.List;
 
 @RestController
 @RequestMapping("campaigns")
-public class CampaignController extends BaseController<CampaignDto, CreateCampaignRequest> {
+public class CampaignController extends BaseController<CampaignDto, CreateCampaignRequest, UpdateCampaignRequest> {
 
     private final CampaignService campaignService;
 
-    protected CampaignController(BaseService<?, CampaignDto, CreateCampaignRequest, ?> service, CampaignService campaignService) {
+    protected CampaignController(BaseService<?, CampaignDto, CreateCampaignRequest, ?, UpdateCampaignRequest> service, CampaignService campaignService) {
         super(service);
         this.campaignService = campaignService;
     }

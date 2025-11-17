@@ -14,7 +14,8 @@ public abstract class BaseService<
         E,
         D,
         C,
-        R extends UserScopedRepository<E> & JpaRepository<E, Long>
+        R extends UserScopedRepository<E> & JpaRepository<E, Long>,
+        U
         > {
 
     protected final R repository;
@@ -33,7 +34,7 @@ public abstract class BaseService<
 
     protected abstract D toDto(E entity);
     protected abstract E toEntity(C request);
-    protected abstract void updateEntity(E entity, C request);
+    protected abstract void updateEntity(E entity, U request);
 
     /** every entity must have a user */
     protected abstract void setUser(E entity, User user);
@@ -64,7 +65,7 @@ public abstract class BaseService<
         return toDto(entity);
     }
 
-    public D update(Long id, C request) {
+    public D update(Long id, U request) {
         var user = currentUserProvider.getCurrentUser();
         var entity = repository.findByIdAndUserId(id, user.getId())
                 .orElseThrow(notFound);

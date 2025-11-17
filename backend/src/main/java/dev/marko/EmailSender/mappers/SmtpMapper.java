@@ -2,6 +2,7 @@ package dev.marko.EmailSender.mappers;
 
 import dev.marko.EmailSender.dtos.RegisterEmailRequest;
 import dev.marko.EmailSender.dtos.SmtpDto;
+import dev.marko.EmailSender.dtos.UpdateSmtpRequest;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,5 +21,5 @@ public interface SmtpMapper {
     List<SmtpDto> smtpListToDtoList(List<SmtpCredentials> smtpList);
 
 
-    void update(RegisterEmailRequest request, @MappingTarget SmtpCredentials smtpCredentials);
+    void update(UpdateSmtpRequest request, @MappingTarget SmtpCredentials smtpCredentials);
 }

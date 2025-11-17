@@ -2,7 +2,7 @@ package dev.marko.EmailSender.mappers;
 
 import dev.marko.EmailSender.dtos.CreateTemplateRequest;
 import dev.marko.EmailSender.dtos.EmailTemplateDto;
-import dev.marko.EmailSender.dtos.RegisterEmailRequest;
+import dev.marko.EmailSender.dtos.UpdateTemplateRequest;
 import dev.marko.EmailSender.entities.EmailTemplate;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -21,6 +21,6 @@ public interface EmailTemplateMapper {
 
     List<EmailTemplateDto> toTemplateListDto(List<EmailTemplate> templates);
 
-    void update(CreateTemplateRequest request, @MappingTarget EmailTemplate emailTemplate);
+    void update(UpdateTemplateRequest request, @MappingTarget EmailTemplate emailTemplate);
 
 }

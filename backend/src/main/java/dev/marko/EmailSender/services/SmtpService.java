@@ -2,6 +2,7 @@ package dev.marko.EmailSender.services;
 
 import dev.marko.EmailSender.dtos.RegisterEmailRequest;
 import dev.marko.EmailSender.dtos.SmtpDto;
+import dev.marko.EmailSender.dtos.UpdateSmtpRequest;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.exception.EmailNotFoundException;
@@ -19,7 +20,8 @@ public class SmtpService extends BaseService<
         SmtpCredentials,
         SmtpDto,
         RegisterEmailRequest,
-        SmtpRepository
+        SmtpRepository,
+        UpdateSmtpRequest
         > {
 
     private final SmtpMapper mapper;
@@ -44,7 +46,7 @@ public class SmtpService extends BaseService<
     }
 
     @Override
-    protected void updateEntity(SmtpCredentials entity, RegisterEmailRequest request) {
+    protected void updateEntity(SmtpCredentials entity, UpdateSmtpRequest request) {
         mapper.update(request, entity);
     }
 
