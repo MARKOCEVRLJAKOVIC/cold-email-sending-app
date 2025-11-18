@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.email.connection.EmailConnectionService;
+import dev.marko.EmailSender.email.connection.OAuthRefreshable;
 import dev.marko.EmailSender.email.connection.gmailOAuth.OAuth2Authenticator;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.SmtpCredentials;
@@ -19,7 +20,7 @@ import java.util.Properties;
 @AllArgsConstructor
 public class GmailSmtpSender implements EmailSender {
 
-    private final EmailConnectionService emailConnectionService;
+    private final OAuthRefreshable refreshable;
     private final EncryptionService encryptionService;
 
     @Override
@@ -32,7 +33,7 @@ public class GmailSmtpSender implements EmailSender {
         }
 
         // Refresh access token if expired and update SmtpCredentials
-        smtp = emailConnectionService.refreshTokenIfNeeded(smtp);
+        smtp = refreshable.refreshTokenIfNeeded(smtp);
         String accessToken = encryptionService.decrypt(smtp.getOauthAccessToken());
 
         Properties properties = getProperties(smtp);

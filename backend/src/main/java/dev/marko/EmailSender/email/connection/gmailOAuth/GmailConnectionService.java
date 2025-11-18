@@ -13,11 +13,9 @@ import org.springframework.stereotype.Service;
 @Service
 public class GmailConnectionService implements EmailConnectionService, OAuthRefreshable {
 
-
     private final GmailTokenManager gmailTokenManager;
     private final CredentialsFactory credentialsFactory;
     private final SmtpCredentialService smtpCredentialService;
-
 
     @Override
     public void connect(OAuthTokens tokens, String senderEmail) {
@@ -25,12 +23,11 @@ public class GmailConnectionService implements EmailConnectionService, OAuthRefr
         var smtpCredentials = credentialsFactory.createOrUpdate(senderEmail, tokens);
         smtpCredentialService.save(smtpCredentials);
 
-
     }
 
     @Override
-    public SmtpCredentials refreshTokenIfNeeded(SmtpCredentials creds) {
-        return gmailTokenManager.refreshIfNeeded(creds);
+    public SmtpCredentials refreshTokenIfNeeded(SmtpCredentials smtpCredentials) {
+        return gmailTokenManager.refreshIfNeeded(smtpCredentials);
     }
 
 

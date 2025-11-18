@@ -16,7 +16,6 @@ public class GmailTokenManager {
 
     private final OAuthTokenService tokenService;
     private final SmtpCredentialService smtpService;
-    private final CurrentUserProvider currentUserProvider;
     private final EncryptionService encryptionService;
 
     public SmtpCredentials refreshIfNeeded(SmtpCredentials smtpCredentials) {
