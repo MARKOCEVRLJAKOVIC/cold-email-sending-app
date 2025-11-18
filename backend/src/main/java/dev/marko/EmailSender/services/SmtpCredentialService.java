@@ -7,7 +7,6 @@ import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Currency;
 import java.util.Optional;
 
 @AllArgsConstructor

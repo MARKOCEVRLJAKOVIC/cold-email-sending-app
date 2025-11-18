@@ -11,19 +11,17 @@ import dev.marko.EmailSender.security.EncryptionService;
 import dev.marko.EmailSender.security.TokenEncryptor;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 
-@Slf4j
 @RequiredArgsConstructor
 @Service
 public class GmailSmtpService {
 
-    @Value("${google.oauth2.revoke-uri}")
+    @Value("${google.oauth2.redirect-uri}")
     private String revokeUrl;
 
     private final EmailConnectionService emailConnectionService;
@@ -31,6 +29,7 @@ public class GmailSmtpService {
     private final SmtpRepository smtpRepository;
     private final SmtpMapper smtpMapper;
     private final CurrentUserProvider currentUserProvider;
+    private final TokenEncryptor tokenEncryptor;
     private final EncryptionService encryptionService;
 
     public List<SmtpDto> getAllEmailsFromUser(){
@@ -52,8 +51,8 @@ public class GmailSmtpService {
     }
 
     public SmtpDto connectGmail(GmailConnectRequest request){
-
         OAuthTokens tokens = oAuthTokenService.exchangeCodeForTokens(request.getCode());
+
 
         emailConnectionService.connect(tokens, request.getSenderEmail());
 
@@ -88,7 +87,8 @@ public class GmailSmtpService {
 
             }
             catch (Exception e){
-                log.error("Failed to revoke token for {}: {}", smtpCredentials.getEmail(), e.getMessage());
+                System.err.println("Failed to revoke token for " + smtpCredentials.getEmail() + ": " + e.getMessage());
+
             }
         }
 

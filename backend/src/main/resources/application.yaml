@@ -52,6 +52,11 @@ google:
     client-secret: ${GMAIL_CLIENT_SECRET}
     redirect-uri: http://localhost:5173/oauth2callback
     scope: https://mail.google.com/
+  smtp:
+    host: smtp.gmail.com
+    port: 587
+    type: OAUTH2
+
 
 app:
   url: http://localhost:8080
