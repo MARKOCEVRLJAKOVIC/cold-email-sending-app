@@ -18,4 +18,9 @@ public class EncryptionServiceImpl implements EncryptionService {
     public String decrypt(String value) {
         return tokenEncryptor.decryptIfNeeded(value);
     }
+
+    @Override
+    public Boolean isEncrypted(String value) {
+        return tokenEncryptor.isEncrypted(value);
+    }
 }

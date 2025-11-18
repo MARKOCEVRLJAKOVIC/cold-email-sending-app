@@ -55,14 +55,16 @@ public class GmailConnectionTest {
     public void connectGmail_shouldSaveNewCredentials_whenRefreshTokenPresent() {
 
         OAuthTokens tokens = new OAuthTokens("access", "refresh", 3600, null, null);
+
         when(smtpService.findByEmailAndUser("test@gmail.com")).thenReturn(Optional.empty());
 
         gmailConnectionService.connect(tokens, "test@gmail.com");
 
-        ArgumentCaptor<SmtpCredentials> captor = ArgumentCaptor.forClass(SmtpCredentials.class);
-        verify(smtpService).save(captor.capture());
+        ArgumentCaptor<SmtpCredentials> smtpCaptor = ArgumentCaptor.forClass(SmtpCredentials.class);
+        verify(smtpService).save(smtpCaptor.capture());
+        verify(smtpCaptor).getValue().setOauthAccessToken(encryptionService.encrypt(tokens.getAccessToken()));
 
-        SmtpCredentials saved = captor.getValue();
+        SmtpCredentials saved = smtpCaptor.getValue();
         assertEquals("smtp.gmail.com", saved.getSmtpHost());
         assertEquals(SmtpType.OAUTH2, saved.getSmtpType());
         assertEquals("enc_access", saved.getOauthAccessToken());

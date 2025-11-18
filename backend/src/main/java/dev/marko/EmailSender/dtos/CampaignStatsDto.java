@@ -1,8 +1,5 @@
 package dev.marko.EmailSender.dtos;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 public record CampaignStatsDto(
     int total,
     int sent,
