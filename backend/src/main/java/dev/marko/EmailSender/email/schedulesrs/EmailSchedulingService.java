@@ -22,87 +22,32 @@ import java.util.concurrent.TimeUnit;
 @RequiredArgsConstructor
 public class EmailSchedulingService {
 
-    private final EmailSender emailSender;
-    private final EmailMessageRepository emailMessageRepository;
+    private final EmailSendService sendService;
+
+    private final ScheduledExecutorService scheduler;
 
     @Getter
     @Value("${email.scheduling.default-delay-seconds}")
-    private int delayInSeconds;
+    private int defaultDelay;
 
-    private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(5);
+    public void scheduleSingle(EmailMessage message, long delayInSeconds) {
+        scheduler.schedule(() -> sendService.sendAndPersist(message),
+                delayInSeconds, TimeUnit.SECONDS);
+    }
 
     public void scheduleBatch(List<EmailMessage> messages, long intervalInSeconds) {
         for (int i = 0; i < messages.size(); i++) {
             EmailMessage message = messages.get(i);
             long delay = i * intervalInSeconds;
 
-            scheduler.schedule(() -> {
-                try {
-                    sendAndPersist(message);
-                } catch (Exception e) {
-                    log.error("Unexpected error while sending email to {}: {}",
-                            message.getRecipientEmail(), e.getMessage(), e);
-                    message.setStatus(Status.FAILED);
-                    emailMessageRepository.save(message);
-                }
-            }, delay, TimeUnit.SECONDS);
+            scheduler.schedule(() -> sendService.sendAndPersist(message),
+                    delay, TimeUnit.SECONDS);
         }
     }
 
-    private void sendAndPersist(EmailMessage email) {
-        try {
-            emailSender.sendEmails(email);
-            email.setStatus(Status.SENT);
-            email.setSentAt(LocalDateTime.now());
-            log.info("Email sent to {}", email.getRecipientEmail());
-        } catch (MessagingException e) {
-            email.setStatus(Status.FAILED);
-            log.error("Failed to send email to {}: {}", email.getRecipientEmail(), e.getMessage());
-        } catch (Exception e) {
-            email.setStatus(Status.FAILED);
-            log.error("Unexpected error sending email to {}: {}", email.getRecipientEmail(), e.getMessage(), e);
-        }
-        emailMessageRepository.save(email);
-    }
-    public void scheduleSingle(EmailMessage message, long delayInSeconds) {
-        scheduler.schedule(() -> {
-            try {
-                sendAndPersist(message);
-            } catch (Exception e) {
-                log.error("Unexpected error while sending single email to {}: {}",
-                        message.getRecipientEmail(), e.getMessage(), e);
-                message.setStatus(Status.FAILED);
-                emailMessageRepository.save(message);
-            }
-        }, delayInSeconds, TimeUnit.SECONDS);
-    }
-
-    public void sendAndPersistFollowUp(EmailMessage email) {
-        try {
-            emailSender.sendEmails(email);
-            email.setStatus(Status.SENT);
-            email.setSentAt(LocalDateTime.now());
-        } catch (MessagingException e) {
-            email.setStatus(Status.FAILED);
-            log.error("Failed to send follow-up email to {}: {}", email.getRecipientEmail(), e.getMessage());
-        } catch (Exception e) {
-            email.setStatus(Status.FAILED);
-            log.error("Unexpected error sending follow-up email to {}: {}", email.getRecipientEmail(), e.getMessage(), e);
-        }
-        emailMessageRepository.save(email);
-    }
-
-    public void scheduleSingleFollowUp(EmailMessage message, long delayInSeconds) {
-        scheduler.schedule(() -> {
-            try {
-                sendAndPersistFollowUp(message);
-            } catch (Exception e) {
-                log.error("Unexpected error while sending follow-up email to {}: {}",
-                        message.getRecipientEmail(), e.getMessage(), e);
-                message.setStatus(Status.FAILED);
-                emailMessageRepository.save(message);
-            }
-        }, delayInSeconds, TimeUnit.SECONDS);
+    public void scheduleFollowUp(EmailMessage message, long delayInSeconds) {
+        scheduler.schedule(() -> sendService.sendAndPersist(message),
+                delayInSeconds, TimeUnit.SECONDS);
     }
 
 }

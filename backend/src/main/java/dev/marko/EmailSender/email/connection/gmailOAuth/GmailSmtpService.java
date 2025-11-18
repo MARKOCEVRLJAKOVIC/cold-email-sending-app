@@ -50,6 +50,7 @@ public class GmailSmtpService {
         return smtpDto;
     }
 
+    // soft delete
     public void disconnectGoogleAccount(Long id){
         var user = currentUserProvider.getCurrentUser();
 

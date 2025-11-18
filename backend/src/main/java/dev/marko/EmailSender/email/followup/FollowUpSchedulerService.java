@@ -87,7 +87,7 @@ public class FollowUpSchedulerService {
         emailMessageRepository.save(followUp);
 
         long delayInSeconds = Math.max(0, Duration.between(LocalDateTime.now(), scheduledTime).getSeconds());
-        schedulingService.scheduleSingleFollowUp(followUp, delayInSeconds);
+        schedulingService.scheduleFollowUp(followUp, delayInSeconds);
 
         log.info("Scheduled follow-up for {} at {} (delay: {}s)",
                 followUp.getRecipientEmail(), scheduledTime, delayInSeconds);

@@ -144,7 +144,7 @@ public class SendBatchEmailsService {
     private void scheduleEmails(LocalDateTime scheduledAt, List<EmailMessage> allMessages) {
         if (allMessages.isEmpty()) return;
 
-        long defaultDelay = emailSchedulingService.getDelayInSeconds();
+        long defaultDelay = emailSchedulingService.getDefaultDelay();
 
         if (scheduledAt == null) {
             emailSchedulingService.scheduleBatch(allMessages, defaultDelay);
