@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.security;
 
 import dev.marko.EmailSender.entities.User;
+import dev.marko.EmailSender.exception.UnauthorizedException;
 import dev.marko.EmailSender.exception.UserNotFoundException;
 import dev.marko.EmailSender.repositories.UserRepository;
 import lombok.AllArgsConstructor;
@@ -20,7 +21,7 @@ public class SecurityContextCurrentUserProvider implements CurrentUserProvider {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
         if (authentication == null || !authentication.isAuthenticated()) {
-            throw new RuntimeException("Unauthorized");
+            throw new UnauthorizedException("Unauthorized");
         }
 
         Object principal = authentication.getPrincipal();
