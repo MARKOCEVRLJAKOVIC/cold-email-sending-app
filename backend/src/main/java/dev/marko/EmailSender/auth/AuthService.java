@@ -36,12 +36,8 @@ public class AuthService {
     private final JwtConfig jwtConfig;
     private final UserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
-    private final VerificationTokenRepository verificationTokenRepository;
-    private final NotificationEmailService notificationEmailService;
     private final CurrentUserProvider currentUserProvider;
-
-    @Value("${app.url}")
-    private String appUrl;
+    private final VerificationTokenService verificationTokenService;
 
 
     public UserDto registerUser(RegisterUserRequest request){
@@ -55,28 +51,13 @@ public class AuthService {
 
         userRepository.save(user);
 
-        String token = UUID.randomUUID().toString();
-
-        sendVerificationEmail(user, token);
+        verificationTokenService.sendVerificationEmail(user);
 
         return userMapper.toDto(user);
     }
 
     public ConfirmationResponse confirmEmail(String token){
-
-        var verificationToken = verificationTokenRepository.findByToken(token).orElseThrow(TokenNotFoundException::new);
-
-        if(verificationToken.getExpirationDate().isBefore(LocalDateTime.now())) {
-            throw new TokenExpiredException();
-        }
-
-        User user = verificationToken.getUser();
-        user.setEnabled(true);
-        userRepository.save(user);
-        verificationTokenRepository.delete(verificationToken);
-
-        return new ConfirmationResponse(true, "Email is successfully confirmed, you can now sign in.");
-
+        return verificationTokenService.confirmEmail(token);
     }
 
     public JwtResponse login(LoginRequest request, HttpServletResponse response){
@@ -132,24 +113,5 @@ public class AuthService {
         return userMapper.toDto(user);
     }
 
-    private void sendVerificationEmail(User user, String token){
-
-        VerificationToken verificationToken = VerificationToken.builder()
-                .token(token)
-                .user(user)
-                .expirationDate(LocalDateTime.now().plusHours(24))
-                .build();
-
-        verificationTokenRepository.save(verificationToken);
-
-
-        String confirmationUrl = appUrl + "/auth/confirm?token=" + token;
-
-        notificationEmailService.sendEmail(
-                user.getEmail(),
-                "Verification of email address",
-                notificationEmailService.confirmationMessage() + confirmationUrl
-        );
-    }
 
 }

@@ -12,6 +12,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
@@ -28,18 +29,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(
             HttpServletRequest request,
-            @NotNull HttpServletResponse response,
-            @NotNull FilterChain filterChain
+            HttpServletResponse response,
+            FilterChain filterChain
     ) throws ServletException, IOException {
 
-        var authHeader = request.getHeader("Authorization");
 
-        if(authHeader == null || !authHeader.startsWith("Bearer ")){
-            filterChain.doFilter(request,response);
-            return;
-        }
 
-        var token = authHeader.replace("Bearer ", "");
+        var token = extractToken(request);
         var jwt = jwtService.parseToken(token);
 
         if(jwt == null || jwt.isExpired()){
@@ -49,9 +45,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         String email = jwt.getEmail();
 
-        UserDetails userDetails = userDetailsService.loadUserByUsername(email);
-
-
+        UserDetails userDetails;
+        try {
+            userDetails = userDetailsService.loadUserByUsername(email);
+        }
+        catch (UsernameNotFoundException ex) {
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        return;
+    }
         var authentication = new UsernamePasswordAuthenticationToken(
                 userDetails,
                 null,
@@ -62,5 +63,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         filterChain.doFilter(request, response);
 
+    }
+
+    @NotNull
+    private static String extractToken(HttpServletRequest request) {
+        var authHeader = request.getHeader("Authorization");
+
+        if(authHeader == null || !authHeader.startsWith("Bearer ")) return null;
+        return authHeader.replace("Bearer ", "");
     }
 }
