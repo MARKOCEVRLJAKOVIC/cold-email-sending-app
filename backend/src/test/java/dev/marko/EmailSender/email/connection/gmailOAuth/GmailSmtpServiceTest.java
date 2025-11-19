@@ -7,7 +7,7 @@ import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.mappers.SmtpMapper;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
-import dev.marko.EmailSender.security.TokenEncryptor;
+import dev.marko.EmailSender.security.AesEncryptor;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -21,7 +21,7 @@ public class GmailSmtpServiceTest {
     @Mock private SmtpRepository smtpRepository;
     @Mock private SmtpMapper smtpMapper;
     @Mock private CurrentUserProvider currentUserProvider;
-    @Mock private TokenEncryptor tokenEncryptor;
+    @Mock private AesEncryptor aesEncryptor;
 
     User user;
     SmtpCredentials smtp;

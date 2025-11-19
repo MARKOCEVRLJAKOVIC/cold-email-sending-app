@@ -47,7 +47,9 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler({
             TokenExpiredException.class,
-            UserNotConfirmedException.class
+            UserNotConfirmedException.class,
+            UnauthorizedException.class,
+            InvalidPrincipalException.class
     })
     public ResponseEntity<ErrorDto> handleUnauthorized(RuntimeException ex) {
         return error(HttpStatus.UNAUTHORIZED, ex.getMessage());

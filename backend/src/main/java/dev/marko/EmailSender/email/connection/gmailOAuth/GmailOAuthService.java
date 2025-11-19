@@ -1,7 +1,6 @@
 package dev.marko.EmailSender.email.connection.gmailOAuth;
 
 import com.google.api.services.gmail.Gmail;
-import dev.marko.EmailSender.dtos.GmailConnectionResponse;
 import dev.marko.EmailSender.dtos.SmtpDto;
 import dev.marko.EmailSender.email.reply.GmailServiceFactory;
 import dev.marko.EmailSender.entities.SmtpCredentials;
@@ -9,7 +8,7 @@ import dev.marko.EmailSender.exception.EmailNotFoundException;
 import dev.marko.EmailSender.mappers.SmtpMapper;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
-import dev.marko.EmailSender.security.TokenEncryptor;
+import dev.marko.EmailSender.security.EncryptionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +26,7 @@ public class GmailOAuthService {
     private final SmtpRepository smtpRepository;
     private final CurrentUserProvider currentUserProvider;
     private final SmtpMapper smtpMapper;
-    private final TokenEncryptor tokenEncryptor;
+    private final EncryptionService encryptionService;
     private final GmailServiceFactory gmailServiceFactory;
 
     public String generateAuthUrl(){
@@ -63,12 +62,12 @@ public class GmailOAuthService {
 
         if (tokens.getRefreshToken() != null && !tokens.getRefreshToken().isEmpty()) {
             smtpCredentials.setOauthRefreshToken(
-                    tokenEncryptor.encryptIfNeeded(tokens.getRefreshToken())
+                    encryptionService.encryptIfNeeded(tokens.getRefreshToken())
             );
         } else if (smtpCredentials.getOauthRefreshToken() != null &&
-                tokenEncryptor.isEncrypted(smtpCredentials.getOauthRefreshToken())) {
+                encryptionService.isEncrypted(smtpCredentials.getOauthRefreshToken())) {
             smtpCredentials.setOauthRefreshToken(
-                    tokenEncryptor.encryptIfNeeded(smtpCredentials.getOauthRefreshToken())
+                    encryptionService.encryptIfNeeded(smtpCredentials.getOauthRefreshToken())
             );
         }
 

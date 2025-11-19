@@ -1,7 +1,6 @@
 package dev.marko.EmailSender.email.connection.gmailOAuth;
 
 import dev.marko.EmailSender.entities.SmtpCredentials;
-import dev.marko.EmailSender.security.CurrentUserProvider;
 import dev.marko.EmailSender.security.EncryptionService;
 import dev.marko.EmailSender.services.SmtpCredentialService;
 import lombok.AllArgsConstructor;

@@ -6,7 +6,7 @@ import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import com.google.api.services.gmail.Gmail;
 import dev.marko.EmailSender.email.connection.gmailOAuth.GoogleOAuth2Properties;
-import dev.marko.EmailSender.security.TokenEncryptor;
+import dev.marko.EmailSender.security.AesEncryptor;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -17,7 +17,7 @@ import java.security.GeneralSecurityException;
 @Component
 public class GmailServiceFactory {
 
-    private final TokenEncryptor tokenEncryptor;
+    private final AesEncryptor aesEncryptor;
     private final GoogleOAuth2Properties properties;
 
     public Gmail createService(String accessToken, String refreshToken) throws IOException, GeneralSecurityException {

@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.security;
 
 import dev.marko.EmailSender.entities.User;
+import dev.marko.EmailSender.exception.InvalidPrincipalException;
 import dev.marko.EmailSender.exception.UnauthorizedException;
 import dev.marko.EmailSender.exception.UserNotFoundException;
 import dev.marko.EmailSender.repositories.UserRepository;
@@ -30,7 +31,7 @@ public class SecurityContextCurrentUserProvider implements CurrentUserProvider {
             return userDetails.getUser();
         }
 
-        throw new RuntimeException("Invalid authentication principal");
+        throw new InvalidPrincipalException("Invalid authentication principal");
     }
 
 

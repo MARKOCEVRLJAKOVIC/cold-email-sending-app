@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.email.send;
 
-import dev.marko.EmailSender.email.connection.EmailConnectionService;
 import dev.marko.EmailSender.email.connection.OAuthRefreshable;
 import dev.marko.EmailSender.email.connection.gmailOAuth.OAuth2Authenticator;
 import dev.marko.EmailSender.entities.EmailMessage;

@@ -13,7 +13,7 @@ import java.util.Optional;
 @AllArgsConstructor
 public class CredentialsFactory {
 
-    private final EncryptionService encryptionService;
+    private final EncryptionService encryptorService;
     private final GmailOAuthProvider provider;
     private final CurrentUserProvider userProvider;
     private final SmtpCredentialService smtpService;
@@ -35,12 +35,12 @@ public class CredentialsFactory {
         smtpCredentials.setUser(userProvider.getCurrentUser());
 
         smtpCredentials.setOauthAccessToken(
-                encryptionService.encrypt(tokens.getAccessToken())
+                encryptorService.encrypt(tokens.getAccessToken())
         );
 
         if (tokens.getRefreshToken() != null) {
             smtpCredentials.setOauthRefreshToken(
-                    encryptionService.encrypt(tokens.getRefreshToken())
+                    encryptorService.encrypt(tokens.getRefreshToken())
             );
         }
 

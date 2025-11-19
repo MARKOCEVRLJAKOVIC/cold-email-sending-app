@@ -3,13 +3,12 @@ package dev.marko.EmailSender.email.reply;
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
-import dev.marko.EmailSender.email.connection.EmailConnectionService;
 import dev.marko.EmailSender.email.connection.OAuthRefreshable;
 import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.EmailReplyRepository;
 import dev.marko.EmailSender.repositories.SmtpRepository;
-import dev.marko.EmailSender.security.TokenEncryptor;
+import dev.marko.EmailSender.security.EncryptionService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -27,7 +26,7 @@ public class GmailReplyScanner {
     private final EmailMessageRepository messageRepo;
     private final EmailReplyRepository replyRepo;
     private final GmailServiceFactory gmailServiceFactory;
-    private final TokenEncryptor tokenEncryptor;
+    private final EncryptionService encryptionService;
     private final OAuthRefreshable refreshable;
 
     @Scheduled(fixedRate = 300_000) // every 5 minutes
@@ -42,8 +41,8 @@ public class GmailReplyScanner {
 
                 creds = refreshable.refreshTokenIfNeeded(creds);
 
-                String accessToken = tokenEncryptor.decryptIfNeeded(creds.getOauthAccessToken());
-                String refreshToken = tokenEncryptor.decryptIfNeeded(creds.getOauthRefreshToken());
+                String accessToken = encryptionService.decryptIfNeeded(creds.getOauthAccessToken());
+                String refreshToken = encryptionService.decryptIfNeeded(creds.getOauthRefreshToken());
 
                 Gmail service = gmailServiceFactory.createService(accessToken, refreshToken);
 
