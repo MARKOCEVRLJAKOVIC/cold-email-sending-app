@@ -36,6 +36,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 
         var token = extractToken(request);
+
+        if (token == null || token.isBlank()) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         var jwt = jwtService.parseToken(token);
 
         if(jwt == null || jwt.isExpired()){
@@ -65,7 +71,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     }
 
-    @NotNull
     private static String extractToken(HttpServletRequest request) {
         var authHeader = request.getHeader("Authorization");
 
