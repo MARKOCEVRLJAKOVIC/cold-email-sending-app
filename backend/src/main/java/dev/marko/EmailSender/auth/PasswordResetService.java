@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -29,7 +30,6 @@ public class PasswordResetService {
     @Value("${app.frontend-url}")
     private String appUrl;
 
-    String subject = "Reset your password using the following link: ";
 
 
     public void forgotPassword(ResetPasswordRequest request){
@@ -48,7 +48,17 @@ public class PasswordResetService {
 
         String link = appUrl + "/password/reset?token=" + token;
 
-        notificationEmailService.sendEmail(request.getEmail(), subject, link);
+        String subject = "Reset your password";
+
+        Map<String, String> variables = Map.of(
+                "username", user.getUsername(),
+                "resetLink", link
+        );
+
+        String body = notificationEmailService.buildEmailFromTemplate("password_reset_email.txt", variables);
+
+
+        notificationEmailService.sendEmail(request.getEmail(), subject, body);
 
     }
 

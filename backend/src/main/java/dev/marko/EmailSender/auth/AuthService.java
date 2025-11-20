@@ -39,6 +39,8 @@ public class AuthService {
     private final CurrentUserProvider currentUserProvider;
     private final VerificationTokenService verificationTokenService;
 
+    String refreshTokenPath = "/auth/refresh";
+
 
     public UserDto registerUser(RegisterUserRequest request){
         if(userRepository.existsByEmail(request.getEmail())) throw new UserAlreadyExist();
@@ -74,12 +76,13 @@ public class AuthService {
         if(!user.getEnabled()){
             throw new UserNotConfirmedException();
         }
+
         var accessToken = jwtService.generateToken(user);
         var refreshToken = jwtService.generateRefreshToken(user);
 
         var cookie = new Cookie("refreshToken", refreshToken.toString());
         cookie.setHttpOnly(true);
-        cookie.setPath("/auth/refresh");
+        cookie.setPath(refreshTokenPath);
         cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration());
         cookie.setSecure(true);
         response.addCookie(cookie);
