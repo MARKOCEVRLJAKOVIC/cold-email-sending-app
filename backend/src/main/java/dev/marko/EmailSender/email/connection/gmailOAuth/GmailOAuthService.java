@@ -24,10 +24,10 @@ public class GmailOAuthService {
     private final GoogleOAuth2Properties properties;
     private final GmailConnectionService gmailConnectionService;
     private final SmtpRepository smtpRepository;
-    private final CurrentUserProvider currentUserProvider;
     private final SmtpMapper smtpMapper;
     private final EncryptionService encryptionService;
     private final GmailServiceFactory gmailServiceFactory;
+    private final GmailTokenManager gmailTokenManager;
 
     public String generateAuthUrl(){
         return  "https://accounts.google.com/o/oauth2/v2/auth" +
@@ -60,11 +60,9 @@ public class GmailOAuthService {
         var smtpCredentials = smtpRepository.findByEmail(senderEmail)
                 .orElseThrow(EmailNotFoundException::new);
 
-        if (tokens.getRefreshToken() != null && !tokens.getRefreshToken().isEmpty()) {
-            smtpCredentials.setOauthRefreshToken(
-                    encryptionService.encryptIfNeeded(tokens.getRefreshToken())
-            );
-        } else if (smtpCredentials.getOauthRefreshToken() != null &&
+        gmailTokenManager.setRefreshToken(smtpCredentials, tokens);
+
+        if (smtpCredentials.getOauthRefreshToken() != null &&
                 encryptionService.isEncrypted(smtpCredentials.getOauthRefreshToken())) {
             smtpCredentials.setOauthRefreshToken(
                     encryptionService.encryptIfNeeded(smtpCredentials.getOauthRefreshToken())

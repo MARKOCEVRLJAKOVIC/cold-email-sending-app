@@ -19,6 +19,7 @@ public class GmailAccountConnector {
     private final OAuthTokenService oAuthTokenService;
     private final EncryptionService encryptionService;
     private final RestTemplate restTemplate;
+    private final GmailTokenManager gmailTokenManager;
 
     public void connectGmail(GmailConnectRequest request, SmtpCredentials smtpCredentials){
 
@@ -27,11 +28,10 @@ public class GmailAccountConnector {
         emailConnectionService.connect(tokens, request.getSenderEmail());
 
 
-        if (tokens.getRefreshToken() != null && !tokens.getRefreshToken().isEmpty()) {
-            smtpCredentials.setOauthRefreshToken(encryptionService.encrypt(tokens.getRefreshToken()));
-        } else if (smtpCredentials.getOauthRefreshToken() != null &&
+        gmailTokenManager.setRefreshToken(smtpCredentials, tokens);
+        if (smtpCredentials.getOauthRefreshToken() != null &&
                 encryptionService.isEncrypted(smtpCredentials.getOauthRefreshToken())) {
-            smtpCredentials.setOauthRefreshToken(encryptionService.encrypt(smtpCredentials.getOauthRefreshToken()));
+            smtpCredentials.setOauthRefreshToken(encryptionService.encryptIfNeeded(smtpCredentials.getOauthRefreshToken()));
         }
         smtpCredentials.setEnabled(true);
 

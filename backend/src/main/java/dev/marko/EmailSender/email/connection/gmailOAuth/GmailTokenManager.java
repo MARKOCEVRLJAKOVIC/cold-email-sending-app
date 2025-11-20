@@ -27,29 +27,19 @@ public class GmailTokenManager {
             return smtpCredentials;
         }
 
-        String refreshToken = encryptionService.decrypt(smtpCredentials.getOauthRefreshToken());
+        String refreshToken = encryptionService.decryptIfNeeded(smtpCredentials.getOauthRefreshToken());
 
         if (refreshToken == null || refreshToken.isEmpty()) {
             throw new IllegalStateException("No refresh token available.");
         }
 
         try {
-            OAuthTokens refreshed = tokenService.refreshAccessToken(refreshToken);
+            OAuthTokens tokens = tokenService.refreshAccessToken(refreshToken);
 
-            smtpCredentials.setOauthAccessToken(encryptionService.encrypt(refreshed.getAccessToken()));
-            smtpCredentials.setTokenExpiresAt(now + refreshed.getExpiresIn() * 1000L);
+            smtpCredentials.setOauthAccessToken(encryptionService.encryptIfNeeded(tokens.getAccessToken()));
+            smtpCredentials.setTokenExpiresAt(now + tokens.getExpiresIn() * 1000L);
 
-            if (refreshed.getRefreshToken() != null &&
-                    !refreshed.getRefreshToken().isEmpty()) {
-
-                smtpCredentials.setOauthRefreshToken(
-                        encryptionService.encrypt(refreshed.getRefreshToken())
-                );
-
-                log.info("Updated refresh token for {}", smtpCredentials.getEmail());
-            } else {
-                log.info("Keeping existing refresh token for {}", smtpCredentials.getEmail());
-            }
+            setRefreshToken(smtpCredentials, tokens);
 
             return smtpService.save(smtpCredentials);
 
@@ -75,4 +65,14 @@ public class GmailTokenManager {
             throw e;
         }
     }
+
+    public void setRefreshToken(SmtpCredentials smtpCredentials, OAuthTokens tokens) {
+        if (tokens.getRefreshToken() != null && !tokens.getRefreshToken().isEmpty()) {
+
+            smtpCredentials.setOauthRefreshToken(encryptionService.encryptIfNeeded(tokens.getRefreshToken()));
+
+        }
+    }
+
+
 }

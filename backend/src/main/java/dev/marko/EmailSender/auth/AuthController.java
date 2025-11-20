@@ -14,7 +14,6 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
@@ -26,7 +25,6 @@ public class AuthController {
             @RequestBody RegisterUserRequest request){
 
         var userDto = authService.registerUser(request);
-
         return ResponseEntity.ok(userDto);
 
     }
@@ -35,7 +33,6 @@ public class AuthController {
     public ResponseEntity<ConfirmationResponse> confirmEmail(@RequestParam("token") String token){
 
         var confirmationResponse = authService.confirmEmail(token);
-
         return ResponseEntity.ok(confirmationResponse);
 
 
