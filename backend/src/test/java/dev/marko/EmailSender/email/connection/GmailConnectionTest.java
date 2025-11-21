@@ -66,7 +66,7 @@ public class GmailConnectionTest {
 
         SmtpCredentials saved = smtpCaptor.getValue();
         assertEquals("smtp.gmail.com", saved.getSmtpHost());
-        assertEquals(SmtpType.OAUTH2, saved.getSmtpType());
+        assertEquals(SmtpType.GMAIL, saved.getSmtpType());
         assertEquals("enc_access", saved.getOauthAccessToken());
         assertEquals("enc_refresh", saved.getOauthRefreshToken());
         assertEquals(mockUser, saved.getUser());

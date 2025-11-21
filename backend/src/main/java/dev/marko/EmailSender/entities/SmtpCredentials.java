@@ -61,7 +61,7 @@ public class SmtpCredentials {
     private List<EmailMessage> emailMessages = new ArrayList<>();
 
     public boolean isGmailOauth() {
-        return smtpType == SmtpType.OAUTH2 && smtpHost.contains("gmail");
+        return smtpType == SmtpType.GMAIL && smtpHost.contains("gmail");
     }
 
 }

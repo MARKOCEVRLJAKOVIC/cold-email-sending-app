@@ -23,7 +23,7 @@ public class GmailSmtpService {
     public List<SmtpDto> getAllEmailsFromUser(){
 
         var user = currentUserProvider.getCurrentUser();
-        var smtpList = smtpRepository.findAllBySmtpTypeAndUserId(SmtpType.OAUTH2, user.getId());
+        var smtpList = smtpRepository.findAllBySmtpTypeAndUserId(SmtpType.GMAIL, user.getId());
 
         return smtpMapper.smtpListToDtoList(smtpList);
 
@@ -45,7 +45,7 @@ public class GmailSmtpService {
         gmailAccountConnector.connectGmail(request, smtpCredentials);
 
         var smtpDto = smtpMapper.toDto(smtpCredentials);
-        smtpDto.setSmtpType(SmtpType.OAUTH2);
+        smtpDto.setSmtpType(SmtpType.GMAIL);
 
         return smtpDto;
     }

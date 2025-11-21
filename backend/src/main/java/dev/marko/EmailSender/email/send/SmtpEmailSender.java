@@ -2,6 +2,7 @@ package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.SmtpCredentials;
+import dev.marko.EmailSender.entities.SmtpType;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
 import jakarta.mail.internet.MimeMessage;
@@ -13,12 +14,20 @@ import java.util.Properties;
 @Service
 @AllArgsConstructor
 public class SmtpEmailSender implements EmailSender {
+
+    private final SmtpPropertiesBuilder smtpPropertiesBuilder;
+
     @Override
-    public void sendEmails(EmailMessage email) throws MessagingException {
+    public SmtpType supports() {
+        return SmtpType.PASSWORD;
+    }
+
+    @Override
+    public void sendEmail(EmailMessage email) throws MessagingException {
 
         SmtpCredentials smtp = email.getSmtpCredentials();
 
-        Properties properties = SmtpUtil.buildSmtpProperties(smtp);
+        Properties properties = smtpPropertiesBuilder.buildSmtpProperties(smtp);
 
         Session session = Session.getInstance(properties, new Authenticator() {
             @Override

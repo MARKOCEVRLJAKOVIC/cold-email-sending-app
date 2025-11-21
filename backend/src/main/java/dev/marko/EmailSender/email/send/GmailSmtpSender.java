@@ -4,6 +4,7 @@ import dev.marko.EmailSender.email.connection.OAuthRefreshable;
 import dev.marko.EmailSender.email.connection.gmailOAuth.OAuth2Authenticator;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.SmtpCredentials;
+import dev.marko.EmailSender.entities.SmtpType;
 import dev.marko.EmailSender.security.EncryptionService;
 import jakarta.mail.*;
 import jakarta.mail.internet.InternetAddress;
@@ -23,7 +24,12 @@ public class GmailSmtpSender implements EmailSender {
     private final EncryptionService encryptionService;
 
     @Override
-    public void sendEmails(EmailMessage email) throws MessagingException {
+    public SmtpType supports() {
+        return SmtpType.GMAIL;
+    }
+
+    @Override
+    public void sendEmail(EmailMessage email) throws MessagingException {
 
         SmtpCredentials smtp = email.getSmtpCredentials();
 

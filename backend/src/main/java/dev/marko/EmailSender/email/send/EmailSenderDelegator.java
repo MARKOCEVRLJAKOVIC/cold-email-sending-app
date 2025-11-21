@@ -1,31 +1,26 @@
 package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.entities.EmailMessage;
-import dev.marko.EmailSender.repositories.EmailMessageRepository;
+import dev.marko.EmailSender.entities.SmtpType;
 import jakarta.mail.MessagingException;
-import lombok.AllArgsConstructor;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-@Primary
-@AllArgsConstructor
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 @Service
-public class EmailSenderDelegator implements EmailSender{
+public class EmailSenderDelegator {
 
-    private final GmailSmtpSender gmailSmtpSender;
-    private final SmtpEmailSender smtpEmailSender;
-    private final EmailMessageRepository emailMessageRepository;
+    private final Map<SmtpType, EmailSender> senders;
 
-    @Override
-    public void sendEmails(EmailMessage  emailMessage) throws MessagingException {
+    public EmailSenderDelegator(List<EmailSender> senders) {
+        this.senders = senders.stream()
+                .collect(Collectors.toMap(EmailSender::supports, s -> s));
+    }
 
-        if(emailMessage.getSmtpCredentials().isGmailOauth()){
-            gmailSmtpSender.sendEmails(emailMessage);
-        }
-        else {
-            smtpEmailSender.sendEmails(emailMessage);
-        }
-        emailMessageRepository.save(emailMessage);
-
+    public void send(EmailMessage message) throws MessagingException {
+        EmailSender sender = senders.get(message.getSmtpCredentials().getSmtpType());
+        sender.sendEmail(message);
     }
 }

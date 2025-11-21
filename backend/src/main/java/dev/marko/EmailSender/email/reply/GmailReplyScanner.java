@@ -34,7 +34,7 @@ public class GmailReplyScanner {
         System.out.println("checkReplies invoked at " + java.time.LocalDateTime.now());
 
 
-        List<SmtpCredentials> credsList = smtpRepository.findAllBySmtpTypeAndEnabled(SmtpType.OAUTH2, true);
+        List<SmtpCredentials> credsList = smtpRepository.findAllBySmtpTypeAndEnabled(SmtpType.GMAIL, true);
 
         for (SmtpCredentials creds : credsList) {
             try {

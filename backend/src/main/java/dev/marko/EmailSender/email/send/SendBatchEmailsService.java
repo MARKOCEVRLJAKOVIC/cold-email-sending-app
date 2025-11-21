@@ -7,6 +7,7 @@ import dev.marko.EmailSender.email.send.batch.BatchSchedulingService;
 import dev.marko.EmailSender.email.send.batch.CsvParserService;
 import dev.marko.EmailSender.email.send.batch.EmailMessageCreationService;
 import dev.marko.EmailSender.entities.*;
+import dev.marko.EmailSender.exception.CampaignNotFoundException;
 import dev.marko.EmailSender.exception.TemplateNotFoundException;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;
 import dev.marko.EmailSender.repositories.CampaignRepository;
@@ -32,7 +33,6 @@ public class SendBatchEmailsService {
     private final SmtpRepository smtpRepository;
     private final CampaignRepository campaignRepository;
     private final EmailMessageMapper emailMessageMapper;
-
     private final CsvParserService csvParserService;
     private final EmailMessageCreationService emailMessageCreationService;
     private final BatchSchedulingService batchSchedulingService;
@@ -62,7 +62,6 @@ public class SendBatchEmailsService {
 
     }
 
-    @NotNull
     private List<SmtpCredentials> validateAndGetSmptList(List<Long> smtpIds, Long userId) {
         if (smtpIds == null || smtpIds.isEmpty()) {
             throw new SmtpListIsEmptyException();
@@ -80,17 +79,13 @@ public class SendBatchEmailsService {
     }
 
     private EmailTemplate getTemplateFromUser(Long templateId, User user) {
-        return templateRepository.findById(templateId)
-                .filter(t -> t.getUser().getId().equals(user.getId()))
+        return templateRepository.findByIdAndUserId(templateId, user.getId())
                 .orElseThrow(TemplateNotFoundException::new);
     }
 
     private Campaign findCampaignFromUser(Long campaignId, Long userId) {
-        if (campaignId == null) return null;
-
-        return campaignRepository.findById(campaignId)
-                .filter(c -> c.getUser().getId().equals(userId))
-                .orElse(null);
+        return campaignRepository.findByIdAndUserId(campaignId, userId)
+                .orElseThrow(CampaignNotFoundException::new);
     }
 
 
