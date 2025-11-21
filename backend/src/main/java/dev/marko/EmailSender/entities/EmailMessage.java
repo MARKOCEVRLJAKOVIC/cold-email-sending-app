@@ -62,6 +62,10 @@ public class EmailMessage {
     @Column(name = "in_reply_to")
     private String inReplyTo;
 
+    @Lob
+    @Column(name = "error_message")
+    private String errorMessage;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
