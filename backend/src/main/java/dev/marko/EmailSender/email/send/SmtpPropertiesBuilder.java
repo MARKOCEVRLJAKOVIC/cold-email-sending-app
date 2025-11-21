@@ -2,11 +2,12 @@ package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 import java.util.Properties;
 
-@Service
+@Component
 public class SmtpPropertiesBuilder {
     // Creates SMTP properties (host, port, auth, TLS)
     public Properties buildSmtpProperties(SmtpCredentials smtp) {
