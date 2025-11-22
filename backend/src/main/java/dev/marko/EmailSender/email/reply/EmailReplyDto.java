@@ -1,7 +1,5 @@
 package dev.marko.EmailSender.email.reply;
 
-import dev.marko.EmailSender.entities.EmailMessage;
-import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDateTime;

@@ -1,16 +1,11 @@
 package dev.marko.EmailSender.auth;
 
 import dev.marko.EmailSender.dtos.*;
-import dev.marko.EmailSender.exception.UserAlreadyExist;
-import dev.marko.EmailSender.exception.UserNotConfirmedException;
-import dev.marko.EmailSender.exception.UserNotFoundException;
 import dev.marko.EmailSender.security.JwtResponse;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor

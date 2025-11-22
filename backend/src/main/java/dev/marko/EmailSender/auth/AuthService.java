@@ -5,26 +5,18 @@ import dev.marko.EmailSender.dtos.LoginRequest;
 import dev.marko.EmailSender.dtos.RegisterUserRequest;
 import dev.marko.EmailSender.dtos.UserDto;
 import dev.marko.EmailSender.entities.Role;
-import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.exception.*;
 import dev.marko.EmailSender.mappers.UserMapper;
 import dev.marko.EmailSender.repositories.UserRepository;
-import dev.marko.EmailSender.repositories.VerificationTokenRepository;
 import dev.marko.EmailSender.security.*;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.time.LocalDateTime;
-import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service

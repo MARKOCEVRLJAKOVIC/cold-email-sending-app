@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.graphql;
 
-import dev.marko.EmailSender.dtos.CampaignDto;
 import dev.marko.EmailSender.dtos.CampaignStatsDto;
 import dev.marko.EmailSender.entities.Campaign;
 import dev.marko.EmailSender.entities.EmailMessage;
@@ -8,7 +7,6 @@ import dev.marko.EmailSender.entities.Status;
 import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import lombok.AllArgsConstructor;
-import org.apache.catalina.LifecycleState;
 import org.springframework.graphql.data.method.annotation.Argument;
 import org.springframework.graphql.data.method.annotation.QueryMapping;
 import org.springframework.graphql.data.method.annotation.SchemaMapping;

@@ -12,10 +12,7 @@ import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
 import dev.marko.EmailSender.services.base.BaseService;
-import lombok.Getter;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class EmailTemplateService extends BaseService<

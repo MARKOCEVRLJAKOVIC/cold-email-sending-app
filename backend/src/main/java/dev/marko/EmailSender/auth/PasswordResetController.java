@@ -3,6 +3,7 @@ package dev.marko.EmailSender.auth;
 import dev.marko.EmailSender.dtos.GenericResponse;
 import dev.marko.EmailSender.dtos.ResetPasswordConfirmRequest;
 import dev.marko.EmailSender.dtos.ResetPasswordRequest;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,7 +19,7 @@ public class PasswordResetController {
     private final PasswordResetService passwordResetService;
 
     @PostMapping("forgot")
-    public ResponseEntity<GenericResponse> forgotPassword(@RequestBody ResetPasswordRequest request){
+    public ResponseEntity<GenericResponse> forgotPassword(@RequestBody @Valid ResetPasswordRequest request){
 
         passwordResetService.forgotPassword(request);
         return ResponseEntity.ok(new GenericResponse("Password reset link sent to email"));

@@ -3,17 +3,10 @@ package dev.marko.EmailSender.controllers;
 import dev.marko.EmailSender.controllers.base.BaseController;
 import dev.marko.EmailSender.dtos.RegisterEmailRequest;
 import dev.marko.EmailSender.dtos.SmtpDto;
-import dev.marko.EmailSender.dtos.UpdateCampaignRequest;
 import dev.marko.EmailSender.dtos.UpdateSmtpRequest;
 import dev.marko.EmailSender.services.SmtpService;
-import dev.marko.EmailSender.services.base.BaseService;
-import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.util.UriComponentsBuilder;
-
-import java.util.List;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/smtp")

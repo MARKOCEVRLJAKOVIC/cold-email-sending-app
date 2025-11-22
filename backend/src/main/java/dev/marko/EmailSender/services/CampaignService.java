@@ -14,9 +14,6 @@ import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
 import dev.marko.EmailSender.services.base.BaseService;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 public class CampaignService extends BaseService<Campaign, CampaignDto, CreateCampaignRequest, CampaignRepository, UpdateCampaignRequest> {

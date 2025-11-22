@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.controllers.base;
 
 import dev.marko.EmailSender.services.base.BaseService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -24,12 +25,12 @@ public abstract class BaseController<D, C, U> {
     }
 
     @PostMapping
-    public D create(@RequestBody C request) {
+    public D create(@RequestBody @Valid C request) {
         return service.create(request);
     }
 
     @PutMapping("/{id}")
-    public D update(@PathVariable Long id, @RequestBody U request) {
+    public D update(@PathVariable @Valid Long id, @RequestBody U request) {
         return service.update(id, request);
     }
 

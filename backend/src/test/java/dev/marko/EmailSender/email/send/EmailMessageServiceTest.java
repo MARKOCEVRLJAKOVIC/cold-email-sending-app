@@ -5,7 +5,6 @@ import dev.marko.EmailSender.entities.Campaign;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.Status;
 import dev.marko.EmailSender.entities.User;
-import dev.marko.EmailSender.exception.CampaignNotFoundException;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;

@@ -3,7 +3,6 @@ package dev.marko.EmailSender.security;
 import dev.marko.EmailSender.entities.User;
 import dev.marko.EmailSender.exception.InvalidPrincipalException;
 import dev.marko.EmailSender.exception.UnauthorizedException;
-import dev.marko.EmailSender.exception.UserNotFoundException;
 import dev.marko.EmailSender.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
@@ -28,7 +27,7 @@ public class SecurityContextCurrentUserProvider implements CurrentUserProvider {
         Object principal = authentication.getPrincipal();
 
         if (principal instanceof UserDetailsImpl userDetails) {
-            return userDetails.getUser();
+            return userDetails.user();
         }
 
         throw new InvalidPrincipalException("Invalid authentication principal");

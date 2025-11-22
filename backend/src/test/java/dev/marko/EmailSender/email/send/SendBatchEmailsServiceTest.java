@@ -2,16 +2,13 @@ package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.dtos.EmailMessageDto;
 import dev.marko.EmailSender.dtos.EmailRecipientDto;
-import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
 import dev.marko.EmailSender.email.send.batch.BatchSchedulingService;
 import dev.marko.EmailSender.email.send.batch.CsvParserService;
 import dev.marko.EmailSender.email.send.batch.EmailMessageCreationService;
-import dev.marko.EmailSender.email.spintax.EmailPreparationService;
 import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.exception.TemplateNotFoundException;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;
 import dev.marko.EmailSender.repositories.CampaignRepository;
-import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
@@ -30,7 +27,6 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -53,25 +49,34 @@ public class SendBatchEmailsServiceTest {
     private EmailTemplate template;
     private Campaign campaign;
     private SmtpCredentials smtpCredentials;
+    private EmailMessage emailMessage1;
+    private EmailMessage emailMessage2;
+
+
+    Long VALID_ID = 1L;
+    Long INVALID_ID = 99L;
 
     @BeforeEach
     public void setup() {
 
         user = new User();
-        user.setId(1L);
+        user.setId(VALID_ID);
 
         template = new EmailTemplate();
-        template.setId(1L);
+        template.setId(VALID_ID);
         template.setUser(user);
         template.setMessage("Hello {{name}}");
 
         campaign = new Campaign();
-        campaign.setId(1L);
+        campaign.setId(VALID_ID);
         campaign.setUser(user);
 
         smtpCredentials = new SmtpCredentials();
-        smtpCredentials.setId(1L);
+        smtpCredentials.setId(VALID_ID);
         smtpCredentials.setUser(user);
+
+        emailMessage1 = new EmailMessage();
+        emailMessage2 = new EmailMessage();
 
         when(currentUserProvider.getCurrentUser()).thenReturn(user);
     }
@@ -85,9 +90,9 @@ public class SendBatchEmailsServiceTest {
                 email2@test.com,Marko
                 """);
 
-        when(templateRepository.findById(template.getId())).thenReturn(Optional.of(template));
-        when(campaignRepository.findById(campaign.getId())).thenReturn(Optional.of(campaign));
-        when(smtpRepository.findAllById(List.of(1L))).thenReturn(List.of(smtpCredentials));
+        when(templateRepository.findByIdAndUserId(template.getId(), user.getId())).thenReturn(Optional.of(template));
+        when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
+        when(smtpRepository.findAllById(List.of(VALID_ID))).thenReturn(List.of(smtpCredentials));
 
         when(csvParserService.parseCsv(any())).thenReturn(List.of(
                 new EmailRecipientDto("email1@test.com", "Marko"),
@@ -96,7 +101,7 @@ public class SendBatchEmailsServiceTest {
 
         when(emailMessageCreationService.prepareAndSaveEmails(
                 any(), any(), any(), any(), any(), any()
-        )).thenReturn(List.of(new EmailMessage(), new EmailMessage()));
+        )).thenReturn(List.of(emailMessage1, emailMessage2));
 
         when(emailMessageMapper.toDto(any())).thenReturn(new EmailMessageDto());
 
@@ -109,12 +114,20 @@ public class SendBatchEmailsServiceTest {
         );
 
         assertEquals(2, result.size());
+
+        verify(csvParserService, times(1)).parseCsv(file);
+        verify(emailMessageCreationService).prepareAndSaveEmails(any(), any(), any(), any(), any(), any());
+        verify(batchSchedulingService).scheduleEmails(
+                any(),
+                eq(List.of(emailMessage1, emailMessage2))
+        );
+        verify(emailMessageMapper, times(2)).toDto(any());
     }
 
     @Test
     public void testSendBatchEmails_ThrowsWhenTemplateNotFound() {
 
-        when(templateRepository.findById(anyLong())).thenReturn(Optional.empty());
+        when(templateRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
 
         MultipartFile file = getFile("email,name\nemail@email.com");
 
@@ -122,7 +135,7 @@ public class SendBatchEmailsServiceTest {
                 sendBatchEmailsService.sendBatchEmails(
                         file,
                         LocalDateTime.now(),
-                        999L,
+                        INVALID_ID,
                         List.of(smtpCredentials.getId()),
                         campaign.getId()
                 )
@@ -132,8 +145,8 @@ public class SendBatchEmailsServiceTest {
     @Test
     public void testSmtpRotation() {
 
-        when(templateRepository.findById(template.getId())).thenReturn(Optional.of(template));
-        when(campaignRepository.findById(anyLong())).thenReturn(Optional.of(campaign));
+        when(templateRepository.findByIdAndUserId(template.getId(), user.getId())).thenReturn(Optional.of(template));
+        when(campaignRepository.findByIdAndUserId(VALID_ID, user.getId())).thenReturn(Optional.of(campaign));
 
         when(smtpRepository.findAllById(any())).thenReturn(List.of(
                 createSmtp(1L, "smtp1@email.com"),

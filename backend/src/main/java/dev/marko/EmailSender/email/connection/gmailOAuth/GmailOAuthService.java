@@ -7,7 +7,6 @@ import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.exception.EmailNotFoundException;
 import dev.marko.EmailSender.mappers.SmtpMapper;
 import dev.marko.EmailSender.repositories.SmtpRepository;
-import dev.marko.EmailSender.security.CurrentUserProvider;
 import dev.marko.EmailSender.security.EncryptionService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;

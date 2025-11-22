@@ -2,16 +2,10 @@ package dev.marko.EmailSender.controllers;
 
 import dev.marko.EmailSender.controllers.base.BaseController;
 import dev.marko.EmailSender.dtos.*;
-import dev.marko.EmailSender.entities.Status;
-import dev.marko.EmailSender.mappers.EmailMessageMapper;
-import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.services.CampaignService;
 import dev.marko.EmailSender.services.base.BaseService;
-import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("campaigns")

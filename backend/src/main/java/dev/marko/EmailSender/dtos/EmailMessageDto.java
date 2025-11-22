@@ -2,8 +2,6 @@ package dev.marko.EmailSender.dtos;
 
 import dev.marko.EmailSender.entities.Status;
 import lombok.Data;
-import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.LocalDateTime;
 

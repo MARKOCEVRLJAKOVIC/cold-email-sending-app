@@ -1,6 +1,5 @@
 package dev.marko.EmailSender.services;
 
-import dev.marko.EmailSender.auth.AuthService;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;

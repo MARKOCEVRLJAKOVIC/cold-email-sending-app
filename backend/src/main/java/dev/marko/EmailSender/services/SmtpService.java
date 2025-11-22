@@ -10,10 +10,7 @@ import dev.marko.EmailSender.mappers.SmtpMapper;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
 import dev.marko.EmailSender.services.base.BaseService;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
 
 @Service
 public class SmtpService extends BaseService<
