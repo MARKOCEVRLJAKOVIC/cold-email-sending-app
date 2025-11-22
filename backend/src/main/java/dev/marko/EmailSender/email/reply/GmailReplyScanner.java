@@ -20,17 +20,22 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class GmailReplyScanner {
+public class GmailReplyScanner implements EmailReplyScanner{
 
     private final SmtpRepository smtpRepository;
-    private final EmailMessageRepository messageRepo;
-    private final EmailReplyRepository replyRepo;
+    private final EmailMessageRepository emailMessageRepository;
+    private final EmailReplyRepository replyRepository;
     private final GmailServiceFactory gmailServiceFactory;
     private final EncryptionService encryptionService;
     private final OAuthRefreshable refreshable;
 
-    @Scheduled(fixedRate = 300_000) // every 5 minutes
-    public void checkReplies() throws IOException, GeneralSecurityException {
+    @Override
+    public SmtpType supports() {
+        return SmtpType.GMAIL;
+    }
+
+    @Override
+    public void checkReplies() {
         System.out.println("checkReplies invoked at " + java.time.LocalDateTime.now());
 
 
@@ -63,12 +68,12 @@ public class GmailReplyScanner {
                     String subject = GmailUtils.getHeader(msg, "Subject");
                     String snippet = msg.getSnippet();
 
-                    Optional<EmailMessage> originalOpt = messageRepo.findByMessageId(inReplyTo);
+                    Optional<EmailMessage> originalOpt = emailMessageRepository.findByMessageId(inReplyTo);
 
                     if (originalOpt.isPresent()) {
                         EmailMessage original = originalOpt.get();
                         original.setStatus(Status.REPLIED);
-                        messageRepo.save(original);
+                        emailMessageRepository.save(original);
 
                         EmailReply reply = EmailReply.builder()
                                 .originalMessageId(inReplyTo)
@@ -81,10 +86,10 @@ public class GmailReplyScanner {
                                 .user(creds.getUser())
                                 .build();
 
-                        replyRepo.save(reply);
+                        replyRepository.save(reply);
                     }
                 }
-            } catch (IllegalStateException e) {
+            } catch (IllegalStateException | IOException | GeneralSecurityException e) {
                 System.err.println("Failed to refresh token for " + creds.getEmail() + ": " + e.getMessage());
             }
         }

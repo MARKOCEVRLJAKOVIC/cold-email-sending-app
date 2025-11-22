@@ -36,7 +36,7 @@ public class EmailReplyController {
                                                         UriComponentsBuilder builder){
 
         var emailMessageDto = emailReplyService.replyToReply(replyId, response);
-        var uri = builder.path("/reply/id").buildAndExpand(emailMessageDto.getId()).toUri();
+        var uri = builder.path("/reply/{id}").buildAndExpand(emailMessageDto.getId()).toUri();
 
         return ResponseEntity.created(uri).body(emailMessageDto);
 
