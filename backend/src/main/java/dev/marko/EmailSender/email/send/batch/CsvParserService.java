@@ -1,7 +1,11 @@
 package dev.marko.EmailSender.email.send.batch;
 
 import dev.marko.EmailSender.dtos.EmailRecipientDto;
+import dev.marko.EmailSender.exception.InvalidCsvException;
+import dev.marko.EmailSender.exception.InvalidEmailFormatException;
+import dev.marko.EmailSender.exception.InvalidPrincipalException;
 import lombok.AllArgsConstructor;
+import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -15,6 +19,8 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class CsvParserService {
+
+    private static final EmailValidator emailValidator = EmailValidator.getInstance();
 
     public List<EmailRecipientDto> parseCsv(MultipartFile file)  {
         List<EmailRecipientDto> recipients = new ArrayList<>();
@@ -38,6 +44,7 @@ public class CsvParserService {
                 String name = tokens.length > 1 ? tokens[1].trim() : "";
 
                 if (email.isEmpty()) continue;
+                if(!emailValidator.isValid(email)) throw new InvalidEmailFormatException("Invalid email format: " + email);
 
                 var dto = new EmailRecipientDto(name, email);
                 recipients.add(dto);
@@ -45,7 +52,7 @@ public class CsvParserService {
             }
 
         } catch (IOException e) {
-            throw new RuntimeException("Failed to read CSV file", e);
+            throw new InvalidCsvException("Failed to read CSV file", e);
         }
 
         return recipients;
