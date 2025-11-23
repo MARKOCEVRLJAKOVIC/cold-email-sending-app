@@ -89,4 +89,5 @@ public class EmailMessage {
     @OneToMany(mappedBy = "emailMessage")
     private List<EmailReply> emailReplies = new ArrayList<>();
 
+
 }
