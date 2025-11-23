@@ -40,6 +40,10 @@ spring:
     refreshTokenExpiration: 604800 # 7 days
   token:
     encrypt: ${TOKEN_ENCRYPTION_KEY}
+  data:
+    redis:
+      host: localhost
+      port: 6379
 email:
   scheduling:
     default-delay-seconds: 15 # 15 seconds

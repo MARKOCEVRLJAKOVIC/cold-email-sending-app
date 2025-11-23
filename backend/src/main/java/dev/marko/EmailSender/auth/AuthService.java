@@ -13,7 +13,9 @@ import io.jsonwebtoken.JwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.apache.http.auth.InvalidCredentialsException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -56,14 +58,21 @@ public class AuthService {
 
     public JwtResponse login(LoginRequest request, HttpServletResponse response){
 
-        authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        request.getEmail(),
-                        request.getPassword()
-                )
-        );
+        try{
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            request.getEmail(),
+                            request.getPassword()
+                    )
+            );
 
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow(UserNotFoundException::new);
+        }
+        catch (BadCredentialsException e) {
+            throw new UnauthorizedException("Email or password are wrong."); // -> 401
+        }
+
+
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UnauthorizedException("Email or password are wrong."));
 
         if(!user.getEnabled()){
             throw new UserNotConfirmedException();

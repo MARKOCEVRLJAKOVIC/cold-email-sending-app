@@ -18,14 +18,18 @@ public class EmailSchedulingService {
 
     private final EmailSendService sendService;
     private final ScheduledExecutorService scheduler;
+    private final RedisEmailScheduler redisEmailScheduler;
 
     @Getter
     @Value("${email.scheduling.default-delay-seconds}")
     private int defaultDelay;
 
     public void scheduleSingle(EmailMessage message, long delayInSeconds) {
-        scheduler.schedule(() -> sendService.sendAndPersist(message),
-                delayInSeconds, TimeUnit.SECONDS);
+//        scheduler.schedule(() -> sendService.sendAndPersist(message),
+//                delayInSeconds, TimeUnit.SECONDS);
+
+        redisEmailScheduler.schedule(message.getId(), delayInSeconds);
+
     }
 
     public void scheduleBatch(List<EmailMessage> messages, long intervalInSeconds) {
@@ -33,14 +37,20 @@ public class EmailSchedulingService {
             EmailMessage message = messages.get(i);
             long delay = i * intervalInSeconds;
 
-            scheduler.schedule(() -> sendService.sendAndPersist(message),
-                    delay, TimeUnit.SECONDS);
+//            scheduler.schedule(() -> sendService.sendAndPersist(message),
+//                    delay, TimeUnit.SECONDS);
+
+            redisEmailScheduler.schedule(message.getId(), delay);
+
         }
     }
 
     public void scheduleFollowUp(EmailMessage message, long delayInSeconds) {
-        scheduler.schedule(() -> sendService.sendAndPersist(message),
-                delayInSeconds, TimeUnit.SECONDS);
+//        scheduler.schedule(() -> sendService.sendAndPersist(message),
+//                delayInSeconds, TimeUnit.SECONDS);
+
+        redisEmailScheduler.schedule(message.getId(), delayInSeconds);
+
     }
 
 }

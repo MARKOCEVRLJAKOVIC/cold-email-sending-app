@@ -44,7 +44,7 @@ public class CsvParserService {
                 String name = tokens.length > 1 ? tokens[1].trim() : "";
 
                 if (email.isEmpty()) continue;
-                if(!emailValidator.isValid(email)) throw new InvalidEmailFormatException("Invalid email format: " + email);
+//                if(!emailValidator.isValid(email)) throw new InvalidEmailFormatException("Invalid email format: " + email);
 
                 var dto = new EmailRecipientDto(name, email);
                 recipients.add(dto);
