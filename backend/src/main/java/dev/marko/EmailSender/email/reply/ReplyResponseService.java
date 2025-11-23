@@ -3,6 +3,7 @@ package dev.marko.EmailSender.email.reply;
 import dev.marko.EmailSender.dtos.EmailMessageDto;
 import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
 import dev.marko.EmailSender.entities.*;
+import dev.marko.EmailSender.exception.ReplyMessageSchedulingException;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import lombok.AllArgsConstructor;
@@ -49,9 +50,10 @@ public class ReplyResponseService {
         catch (Exception e) {
 
             emailMessage.setStatus(Status.FAILED);
+            emailMessage.setErrorMessage(e.getMessage());
             emailMessageRepository.save(emailMessage);
 
-            throw new RuntimeException("Failed to schedule reply message", e);
+            throw new ReplyMessageSchedulingException();
 
         }
 

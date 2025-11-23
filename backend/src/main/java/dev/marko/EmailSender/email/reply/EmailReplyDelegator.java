@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.email.reply;
 
 import dev.marko.EmailSender.entities.SmtpType;
+import dev.marko.EmailSender.exception.ScannerNotSupportedException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public class EmailReplyDelegator {
     public EmailReplyScanner getScanner(SmtpType type) {
         EmailReplyScanner scanner = scanners.get(type);
         if (scanner == null) {
-            throw new IllegalArgumentException("No scanner found for type: " + type);
+            throw new ScannerNotSupportedException(type);
         }
         return scanner;
     }

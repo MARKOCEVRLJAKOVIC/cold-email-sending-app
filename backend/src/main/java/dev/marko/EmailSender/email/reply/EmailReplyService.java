@@ -9,6 +9,7 @@ import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -58,6 +59,7 @@ public class EmailReplyService {
     }
 
 
+    @Transactional
     public void deleteReply(Long id){
         var user = currentUserProvider.getCurrentUser();
 

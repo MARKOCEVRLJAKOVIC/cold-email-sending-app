@@ -41,7 +41,9 @@ public class GlobalExceptionHandler {
             EmailReplyEmptyListException.class,
             MissingRefreshTokenException.class,
             InvalidEmailFormatException.class,
-            InvalidCsvException.class
+            InvalidCsvException.class,
+            ReplyMessageSchedulingException.class,
+            ScannerNotSupportedException.class
     })
     public ResponseEntity<ErrorDto> handleBadRequest(RuntimeException ex) {
         return error(HttpStatus.BAD_REQUEST, ex.getMessage());
