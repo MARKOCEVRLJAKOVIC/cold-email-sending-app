@@ -3,7 +3,6 @@ package dev.marko.EmailSender.redis;
 import dev.marko.EmailSender.email.schedulesrs.EmailSendService;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
-import dev.marko.EmailSender.redis.RedisKeys;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
