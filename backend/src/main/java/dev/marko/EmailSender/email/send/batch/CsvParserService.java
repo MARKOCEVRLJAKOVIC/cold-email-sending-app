@@ -39,9 +39,9 @@ public class CsvParserService {
 
                 String[] tokens = line.split(",");
 
-
                 String email = tokens[0].trim();
                 String name = tokens.length > 1 ? tokens[1].trim() : "";
+                name = name.split(" ")[0];
 
                 if (email.isEmpty()) continue;
 //                if(!emailValidator.isValid(email)) throw new InvalidEmailFormatException("Invalid email format: " + email);
