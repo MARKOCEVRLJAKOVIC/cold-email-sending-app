@@ -39,12 +39,17 @@ public class CsvParserService {
 
                 String[] tokens = line.split(",");
 
-                String email = tokens[0].trim();
-                String name = tokens.length > 1 ? tokens[1].trim() : "";
-                name = name.split(" ")[0];
+                if (tokens.length != 2) {
+                    throw new InvalidCsvException("CSV row must contain both name and email: " + line);
+                }
 
-                if (email.isEmpty()) continue;
-//                if(!emailValidator.isValid(email)) throw new InvalidEmailFormatException("Invalid email format: " + email);
+
+                String name = tokens[0].trim();
+                name = name.split("\\s+")[0];
+
+                String email = tokens[1].trim();
+
+                validateCsv(email, line);
 
                 var dto = new EmailRecipientDto(name, email);
                 recipients.add(dto);
@@ -57,5 +62,13 @@ public class CsvParserService {
 
         return recipients;
 
+    }
+
+    private static void validateCsv(String email, String line) {
+        if (email.isEmpty()) {
+            throw new InvalidCsvException("CSV row must contain email: " + line);
+        }
+
+        if(!emailValidator.isValid(email)) throw new InvalidEmailFormatException("Invalid email format: " + email);
     }
 }

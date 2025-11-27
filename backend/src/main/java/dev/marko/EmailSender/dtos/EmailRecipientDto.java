@@ -8,8 +8,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class EmailRecipientDto {
 
+    String name;
     @Email(message = "Invalid email format")
     String email;
-    String name;
 
 }

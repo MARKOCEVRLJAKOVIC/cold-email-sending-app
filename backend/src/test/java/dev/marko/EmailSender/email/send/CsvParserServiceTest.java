@@ -25,9 +25,9 @@ public class CsvParserServiceTest {
                 "file",
                 "test.csv",
                 "text/csv",
-                        ("email,name\n" +
-                        "john@example.com,John Johnson\n" +
-                        "sara@example.com,Sara")
+                ("name,email\n" +
+                        "John Johnson,john@example.com\n" +
+                        ",sara@example.com")
                         .getBytes(StandardCharsets.UTF_8)
         );
 
@@ -35,8 +35,9 @@ public class CsvParserServiceTest {
         var result = csvParserService.parseCsv(file);
 
         assertEquals(2, result.size());
-        assertEquals("John",result.getFirst().getEmail());
-        assertEquals("john@example.com", result.getFirst().getName());
+        assertEquals("John",result.getFirst().getName());
+        assertEquals("john@example.com", result.getFirst().getEmail());
+        assertEquals("", result.get(1).getName());
 
     }
 

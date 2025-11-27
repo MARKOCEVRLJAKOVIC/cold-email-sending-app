@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SpringBootTest
 public class EmailPreparationTest {
@@ -21,6 +22,7 @@ public class EmailPreparationTest {
 
         String template = "Hi {{name}}, hope you are having a {great|wonderful|fantastic} day!";
         String result = service.generateMessageText(template, "Ana");
+        String emptyName = service.generateMessageText(template, "");
 
 
         assertThat(result)
@@ -36,6 +38,9 @@ public class EmailPreparationTest {
                 .as("Result should contain one of the spintax options")
                 .isTrue();
 
+        assertThat(emptyName)
+                .startsWith("Hi , hope you are having a ")
+                .contains(" day!");
     }
 
 

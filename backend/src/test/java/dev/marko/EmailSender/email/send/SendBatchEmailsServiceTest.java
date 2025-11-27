@@ -86,9 +86,9 @@ public class SendBatchEmailsServiceTest {
     public void testSendBatchEmails() {
 
         MultipartFile file = getFile("""
-                email,name
-                email1@test.com,Marko
-                email2@test.com,Marko
+                name,email
+                Marko,email1@test.com
+                Marko,email2@test.com
                 """);
 
         when(templateRepository.findByIdAndUserId(template.getId(), user.getId())).thenReturn(Optional.of(template));
@@ -96,8 +96,8 @@ public class SendBatchEmailsServiceTest {
         when(smtpRepository.findAllById(List.of(VALID_ID))).thenReturn(List.of(smtpCredentials));
 
         when(csvParserService.parseCsv(any())).thenReturn(List.of(
-                new EmailRecipientDto("email1@test.com", "Marko"),
-                new EmailRecipientDto("email2@test.com", "Marko")
+                new EmailRecipientDto("Marko", "email1@test.como"),
+                new EmailRecipientDto("Marko", "email2@test.com")
         ));
 
         when(emailMessageCreationService.prepareAndSaveEmails(
