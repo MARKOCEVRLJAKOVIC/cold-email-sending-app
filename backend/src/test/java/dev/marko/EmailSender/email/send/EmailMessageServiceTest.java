@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.email.send;
 
 import dev.marko.EmailSender.dtos.EmailMessageDto;
+import dev.marko.EmailSender.email.send.batch.SendBatchEmailsService;
 import dev.marko.EmailSender.entities.Campaign;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.Status;

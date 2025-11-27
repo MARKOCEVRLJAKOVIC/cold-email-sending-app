@@ -21,6 +21,7 @@ public interface EmailMessageRepository extends JpaRepository<EmailMessage, Long
 
     Optional<EmailMessage> findByMessageIdAndStatus(String messageId, Status status);
     boolean existsByInReplyToAndFollowUpTemplate(String inReplyTo, FollowUpTemplate followUpTemplate);
+    boolean existsByInReplyToAndFollowUpTemplateId(String inReplyTo, Long followUpTemplateId);
 
 
     @Query("""

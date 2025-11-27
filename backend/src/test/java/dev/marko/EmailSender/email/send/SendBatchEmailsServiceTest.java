@@ -5,6 +5,7 @@ import dev.marko.EmailSender.dtos.EmailRecipientDto;
 import dev.marko.EmailSender.email.send.batch.BatchSchedulingService;
 import dev.marko.EmailSender.email.send.batch.CsvParserService;
 import dev.marko.EmailSender.email.send.batch.EmailMessageCreationService;
+import dev.marko.EmailSender.email.send.batch.SendBatchEmailsService;
 import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.exception.TemplateNotFoundException;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;

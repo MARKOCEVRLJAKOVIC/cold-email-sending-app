@@ -1,11 +1,8 @@
-package dev.marko.EmailSender.email.send;
+package dev.marko.EmailSender.email.send.batch;
 
 import dev.marko.EmailSender.dtos.EmailMessageDto;
 import dev.marko.EmailSender.dtos.EmailRecipientDto;
 import dev.marko.EmailSender.email.connection.gmailOAuth.SmtpListIsEmptyException;
-import dev.marko.EmailSender.email.send.batch.BatchSchedulingService;
-import dev.marko.EmailSender.email.send.batch.CsvParserService;
-import dev.marko.EmailSender.email.send.batch.EmailMessageCreationService;
 import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.exception.CampaignNotFoundException;
 import dev.marko.EmailSender.exception.TemplateNotFoundException;
