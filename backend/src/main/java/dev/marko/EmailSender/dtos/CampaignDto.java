@@ -12,5 +12,7 @@ public class CampaignDto {
     private String description;
     private LocalDateTime createdAt;
     private Long userId;
+    private String timezone;
+
 
 }

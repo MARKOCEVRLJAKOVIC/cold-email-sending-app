@@ -9,5 +9,6 @@ public class CreateCampaignRequest {
     @NotBlank
     private String name;
     private String description;
+    private String timezone;
 
 }

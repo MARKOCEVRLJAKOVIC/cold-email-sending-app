@@ -23,7 +23,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class FollowUpSchedulerService {
 
-
     private final FollowUpQueryService queryService;
     private final FollowUpEligibilityService eligibilityService;
     private final FollowUpCreationService creationService;
