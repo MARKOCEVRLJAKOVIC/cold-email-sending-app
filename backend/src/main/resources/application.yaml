@@ -20,7 +20,7 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: ${CONFIRMATION_EMAIL_USERNAME}
+    username: ${CONFIRMATION_EMAIL}
     password: ${EMAIL_SECRET_APP_PASSWORD}
     properties:
       mail:
@@ -29,9 +29,10 @@ spring:
           starttls:
             enable: true
   datasource:
-    url: jdbc:mysql://localhost:3306/email_sender?createDatabaseIfNotExist=true
-    username: root
+    url: jdbc:mysql://mysql:3306/email_sender?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
     password: ${DB_PASSWORD}
+  flyway:
+    connect-retries: 60
   jpa:
     show-sql: true
   jwt:
@@ -42,8 +43,9 @@ spring:
     encrypt: ${TOKEN_ENCRYPTION_KEY}
   data:
     redis:
-      host: localhost
+      host: redis
       port: 6379
+
 email:
   follow-up:
     quantity: 2 # maximum 2 follow up
@@ -61,7 +63,6 @@ google:
     host: smtp.gmail.com
     port: 587
     type: GMAIL
-
 
 app:
   url: http://localhost:8080

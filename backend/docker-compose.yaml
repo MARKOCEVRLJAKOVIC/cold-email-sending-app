@@ -1,50 +1,63 @@
-
-
 services:
   mysql:
     image: mysql:8.0.42
+    container_name: local_mysql
+    env_file:
+      - .env
     environment:
+      MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: email_sender
     ports:
       - "3306:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-
+    networks:
+      - email-app-net
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p$MYSQL_ROOT_PASSWORD"] # ISPRAVLJENO
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   redis:
     image: redis:7.0.15-alpine
+    container_name: redis
     ports:
       - "6379:6379"
     volumes:
       - redis_data:/data
+    networks:
+      - email-app-net
 
-
-  email-sender-app:
-    build: .
+  email-sender-backend:
     image: email-sender-app
+    container_name: backend
+    env_file:
+      - .env
     environment:
-      JWT_SECRET: ${JWT_SECRET_KEY}
-      EMAIL_SECRET_APP_PASSWORD: ${EMAIL_SECRET_APP_PASSWORD}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      GMAIL_CLIENT_ID: ${GMAIL_CLIENT_ID}
-      GMAIL_CLIENT_SECRET: ${GMAIL_CLIENT_SECRET}
-      TOKEN_ENCRYPTION_KEY: ${TOKEN_ENCRYPTION_KEY}
-      CONFIRMATION_EMAIL: ${CONFIRMATION_EMAIL}
-      DB_PASSWORD: ${DB_PASSWORD}
-      DB_HOST: mysql
-      DB_PORT: 3306
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      SPRING_PROFILES_ACTIVE: docker
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy # ISPRAVLJENO
+      redis:
+        condition: service_started
     ports:
       - "8080:8080"
+    networks:
+      - email-app-net
 
+  email-sender-frontend:
+    image: frontend_sender
+    container_name: frontend
+    ports:
+      - "80:80"
+    networks:
+      - email-app-net
 
 volumes:
   mysql_data:
   redis_data:
 
+networks:
+  email-app-net:
