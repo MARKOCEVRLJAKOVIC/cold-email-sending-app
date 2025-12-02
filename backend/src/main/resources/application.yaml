@@ -29,10 +29,13 @@ spring:
           starttls:
             enable: true
   datasource:
-    url: jdbc:mysql://mysql:3306/email_sender?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false
+    url: jdbc:mysql://mysql:3306/email_sender?createDatabaseIfNotExist=true # for local use set localhost instead of //mysql for docker use //mysql
+    username: root
     password: ${DB_PASSWORD}
-  flyway:
-    connect-retries: 60
+  data:
+    redis:
+      host: redis # host redis for docker, local for local development
+      port: 6379
   jpa:
     show-sql: true
   jwt:
@@ -41,10 +44,7 @@ spring:
     refreshTokenExpiration: 604800 # 7 days
   token:
     encrypt: ${TOKEN_ENCRYPTION_KEY}
-  data:
-    redis:
-      host: redis
-      port: 6379
+
 
 email:
   follow-up:
@@ -57,7 +57,7 @@ google:
   oauth2:
     client-id: ${GMAIL_CLIENT_ID}
     client-secret: ${GMAIL_CLIENT_SECRET}
-    redirect-uri: http://localhost:5173/oauth2callback
+    redirect-uri: http://localhost/oauth2callback
     scope: https://mail.google.com/
   smtp:
     host: smtp.gmail.com
@@ -66,4 +66,5 @@ google:
 
 app:
   url: http://localhost:8080
-  frontend-url: http://localhost:5173
+  frontend-url: http://localhost
+  frontend-login: http://localhost
