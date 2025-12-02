@@ -1,1 +1,0 @@
-ALTER TABLE campaigns ADD COLUMN timezone VARCHAR(64) DEFAULT 'UTC';
