@@ -26,6 +26,7 @@ public class BatchSchedulingService {
             return;
         }
 
+
         long baseDelay = Duration.between(LocalDateTime.now(), scheduledAt).getSeconds();
         for (int i = 0; i < allMessages.size(); i++) {
             long delay = baseDelay + i * defaultDelay;

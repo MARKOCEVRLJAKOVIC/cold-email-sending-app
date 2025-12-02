@@ -8,6 +8,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+
 @AllArgsConstructor
 @RestController
 @RequestMapping("/auth")
@@ -30,7 +32,6 @@ public class AuthController {
         var confirmationResponse = authService.confirmEmail(token);
         return ResponseEntity.ok(confirmationResponse);
 
-
     }
 
 
@@ -38,7 +39,7 @@ public class AuthController {
     public ResponseEntity<JwtResponse> login(
             @Valid @RequestBody LoginRequest request,
             HttpServletResponse response
-    ){
+    ) throws IOException {
         return ResponseEntity.ok(authService.login(request, response));
     }
 

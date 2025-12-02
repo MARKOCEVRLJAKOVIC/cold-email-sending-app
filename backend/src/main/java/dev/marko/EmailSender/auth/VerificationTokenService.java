@@ -15,12 +15,13 @@ import java.util.UUID;
 @Service
 public class VerificationTokenService {
 
-    @Value("${app.url}")
+    @Value("${app.frontend-url}")
     private String appUrl;
 
     private final VerificationTokenRepository verificationTokenRepository;
     private final NotificationEmailService notificationEmailService;
     private final UserRepository userRepository;
+
 
     public void sendVerificationEmail(User user){
 
@@ -35,7 +36,7 @@ public class VerificationTokenService {
         verificationTokenRepository.save(verificationToken);
 
 
-        String confirmationUrl = appUrl + "/auth/confirm?token=" + token;
+        String confirmationUrl = appUrl + "/confirm-email?token=" + token;
 
         notificationEmailService.sendEmail(
                 user.getEmail(),
