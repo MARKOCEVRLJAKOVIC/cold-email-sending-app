@@ -7,9 +7,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Slf4j
 @Service
@@ -24,11 +25,13 @@ public class EmailSchedulingService {
     @Value("${email.scheduling.default-delay-seconds}")
     private int defaultDelay;
 
-    public void scheduleSingle(EmailMessage message, long delayInSeconds) {
+    public void scheduleSingle(EmailMessage message, long delayInSeconds, LocalDateTime scheduledAt) {
 //        scheduler.schedule(() -> sendService.sendAndPersist(message),
 //                delayInSeconds, TimeUnit.SECONDS);
 
-        redisEmailScheduler.schedule(message.getId(), delayInSeconds);
+        String zone = message.getCampaign().getTimezone();
+
+        redisEmailScheduler.scheduleAt(message.getId(), scheduledAt, delayInSeconds, zone);
 
     }
 

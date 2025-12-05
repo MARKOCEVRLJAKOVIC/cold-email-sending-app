@@ -1,12 +1,15 @@
 package dev.marko.EmailSender.email.schedulesrs;
 
+import dev.marko.EmailSender.entities.Campaign;
+import dev.marko.EmailSender.exception.CampaignNotFoundException;
 import dev.marko.EmailSender.redis.RedisKeys;
+import dev.marko.EmailSender.repositories.CampaignRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
+import java.time.*;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -14,18 +17,43 @@ import java.time.Instant;
 public class RedisEmailScheduler {
 
     private final StringRedisTemplate redis;
+    private final CampaignRepository campaignRepository;
 
     /**
      * Schedules email by adding to ZSET with timestamp score
      */
     public void schedule(Long emailId, long delaySeconds) {
+
+
         long deliveryTime = Instant.now().getEpochSecond() + delaySeconds;
+
+        //long deliveryTime = Instant.now().getEpochSecond() + delaySeconds;
 
         redis.opsForZSet().add(RedisKeys.SCHEDULED_EMAILS,
                 emailId.toString(),
                 deliveryTime);
 
         log.info("Scheduled email {} at {}", emailId, deliveryTime);
+    }
+
+    public void scheduleAt(Long emailId, LocalDateTime userTime, long delaySeconds, String zone) {
+
+        ZoneId zoneId = ZoneId.of(zone);
+        ZoneOffset offset = userTime.atZone(zoneId).getOffset();
+        long baseEpoch = userTime.toEpochSecond(offset);
+
+        long deliveryTime = baseEpoch + delaySeconds;
+
+
+        redis.opsForZSet().add(
+                RedisKeys.SCHEDULED_EMAILS,
+                emailId.toString(),
+                deliveryTime
+        );
+
+        log.info("Scheduled email {} for specific time {} -> Delivery Epoch: {}",
+                emailId, zone, deliveryTime);
+
     }
 }
 

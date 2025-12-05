@@ -1,12 +1,12 @@
 package dev.marko.EmailSender.email.send.batch;
 
 import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
+import dev.marko.EmailSender.entities.Campaign;
 import dev.marko.EmailSender.entities.EmailMessage;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.List;
 
 @AllArgsConstructor
@@ -15,7 +15,7 @@ public class BatchSchedulingService {
 
     private final EmailSchedulingService emailSchedulingService;
 
-    public void scheduleEmails(LocalDateTime scheduledAt, List<EmailMessage> allMessages) {
+    public void scheduleEmails(LocalDateTime scheduledAt, List<EmailMessage> allMessages, Campaign campaign) {
         if (allMessages.isEmpty()) return;
 
 
@@ -26,11 +26,19 @@ public class BatchSchedulingService {
             return;
         }
 
+        ZoneId zone = ZoneId.of(campaign.getTimezone());
 
-        long baseDelay = Duration.between(LocalDateTime.now(), scheduledAt).getSeconds();
+        long baseDelay = Duration.between(
+                ZonedDateTime.now(zone),
+                scheduledAt.atZone(zone)
+        ).getSeconds();
+
+
         for (int i = 0; i < allMessages.size(); i++) {
+
             long delay = baseDelay + i * defaultDelay;
-            emailSchedulingService.scheduleSingle(allMessages.get(i), delay);
+            emailSchedulingService.scheduleSingle(allMessages.get(i), delay, scheduledAt);
+
         }
     }
 }

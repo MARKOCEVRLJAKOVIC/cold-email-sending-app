@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -51,7 +52,7 @@ public class SendBatchEmailsService {
         );
 
 
-        batchSchedulingService.scheduleEmails(scheduledAt, allMessages);
+        batchSchedulingService.scheduleEmails(scheduledAt, allMessages, campaign);
 
         return allMessages.stream().map(emailMessageMapper::toDto)
                         .toList();
