@@ -3,9 +3,8 @@ package dev.marko.EmailSender.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.TimeZoneColumn;
-import org.springframework.format.annotation.DateTimeFormat;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +31,13 @@ public class EmailMessage {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
+
+    @Column(name = "scheduled_at")
+    private LocalDateTime scheduledAt;
 
     @PrePersist
     @PreUpdate
@@ -53,9 +55,6 @@ public class EmailMessage {
     @Column(name = "status")
     private Status status = Status.PENDING;
 
-    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
-    @Column(name = "scheduled_at")
-    LocalDateTime scheduledAt;
 
     @Column(name = "message_id", unique = true)
     private String messageId;

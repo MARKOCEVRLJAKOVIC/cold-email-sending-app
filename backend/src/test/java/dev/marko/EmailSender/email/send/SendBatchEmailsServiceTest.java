@@ -71,6 +71,7 @@ public class SendBatchEmailsServiceTest {
         campaign = new Campaign();
         campaign.setId(VALID_ID);
         campaign.setUser(user);
+        campaign.setTimezone("Europe/Belgrade");
 
         smtpCredentials = new SmtpCredentials();
         smtpCredentials.setId(VALID_ID);
@@ -120,7 +121,7 @@ public class SendBatchEmailsServiceTest {
         verify(emailMessageCreationService).prepareAndSaveEmails(any(), any(), any(), any(), any(), any());
         verify(batchSchedulingService).scheduleEmails(
                 any(),
-                eq(List.of(emailMessage1, emailMessage2))
+                eq(List.of(emailMessage1, emailMessage2)), any()
         );
         verify(emailMessageMapper, times(2)).toDto(any());
     }

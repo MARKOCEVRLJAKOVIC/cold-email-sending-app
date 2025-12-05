@@ -30,6 +30,8 @@ public class ReplyResponseService {
                                                User user){
 
 
+
+
         var emailMessage = EmailMessage.builder()
                 .recipientEmail(originalReply.getSenderEmail())
                 .recipientName(originalMessage.getRecipientName())
@@ -45,7 +47,7 @@ public class ReplyResponseService {
 
         try {
             emailMessageRepository.save(emailMessage);
-            emailSchedulingService.scheduleSingle(emailMessage, 0);
+            emailSchedulingService.scheduleSingle(emailMessage, 0, LocalDateTime.now());
         }
         catch (Exception e) {
 

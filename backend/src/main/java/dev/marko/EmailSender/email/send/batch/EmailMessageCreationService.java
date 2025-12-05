@@ -40,6 +40,7 @@ public class EmailMessageCreationService {
             );
 
             try {
+
                 var emailMessage = EmailMessageFactory.createMessageBasedOnSchedule(
                         recipient.getEmail(),
                         recipient.getName(),

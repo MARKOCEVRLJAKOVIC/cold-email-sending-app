@@ -2,6 +2,7 @@ package dev.marko.EmailSender.entities;
 
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -33,8 +34,9 @@ public class Campaign {
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
+    @NotNull
     @Column(name = "timezone")
-    private String timezone;
+    private String timezone = "Europe/Belgrade";
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
