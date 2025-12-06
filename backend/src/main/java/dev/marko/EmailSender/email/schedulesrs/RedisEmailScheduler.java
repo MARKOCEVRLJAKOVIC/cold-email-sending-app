@@ -36,11 +36,11 @@ public class RedisEmailScheduler {
         log.info("Scheduled email {} at {}", emailId, deliveryTime);
     }
 
-    public void scheduleAt(Long emailId, LocalDateTime userTime, long delaySeconds, String zone) {
+    public void scheduleAt(Long emailId, LocalDateTime scheduledAt, long delaySeconds, String zone) {
 
         ZoneId zoneId = ZoneId.of(zone);
-        ZoneOffset offset = userTime.atZone(zoneId).getOffset();
-        long baseEpoch = userTime.toEpochSecond(offset);
+        ZoneOffset offset = scheduledAt.atZone(zoneId).getOffset();
+        long baseEpoch = scheduledAt.toEpochSecond(offset);
 
         long deliveryTime = baseEpoch + delaySeconds;
 

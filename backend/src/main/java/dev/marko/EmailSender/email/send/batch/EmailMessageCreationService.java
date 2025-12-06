@@ -9,7 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -40,12 +43,20 @@ public class EmailMessageCreationService {
             );
 
             try {
+                ZoneId campaignZone = ZoneId.of(campaign.getTimezone());
+
+                ZonedDateTime campaignTime = scheduledAt.atZone(campaignZone);
+
+                Instant utcInstant = campaignTime.toInstant();
+
+                LocalDateTime utcDateTime = LocalDateTime.ofInstant(utcInstant, ZoneId.of("UTC"));
+
 
                 var emailMessage = EmailMessageFactory.createMessageBasedOnSchedule(
                         recipient.getEmail(),
                         recipient.getName(),
                         messageText,
-                        user, template, smtp, campaign, scheduledAt
+                        user, template, smtp, campaign, utcDateTime
                 );
                 emailMessageRepository.save(emailMessage);
                 messages.add(emailMessage);

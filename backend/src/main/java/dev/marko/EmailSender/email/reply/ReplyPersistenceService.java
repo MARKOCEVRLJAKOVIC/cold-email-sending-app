@@ -10,6 +10,8 @@ import dev.marko.EmailSender.repositories.EmailReplyRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.ZoneId;
+
 @AllArgsConstructor
 @Service
 public class ReplyPersistenceService {
@@ -28,7 +30,7 @@ public class ReplyPersistenceService {
                 .senderEmail(GmailUtils.getHeader(msg, "From"))
                 .subject(GmailUtils.getHeader(msg, "Subject"))
                 .content(msg.getSnippet())
-                .receivedAt(java.time.LocalDateTime.now())
+                .receivedAt(java.time.LocalDateTime.now(ZoneId.of("UTC")))
                 .emailMessage(original)
                 .user(creds.getUser())
                 .build();

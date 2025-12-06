@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 
 @Service
 @RequiredArgsConstructor
@@ -18,7 +19,7 @@ public class EmailStatusService {
 
     public void markSent(EmailMessage email) {
         email.setStatus(Status.SENT);
-        email.setSentAt(LocalDateTime.now());
+        email.setSentAt(LocalDateTime.now(ZoneId.of("UTC")));
         repository.save(email);
     }
 

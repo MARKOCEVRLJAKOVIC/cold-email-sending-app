@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +44,7 @@ public class EmailMessage {
     @PreUpdate
     private void prePersistOrUpdate() {
         if (this.status == Status.SENT && this.sentAt == null) {
-            this.sentAt = LocalDateTime.now();
+            this.sentAt = LocalDateTime.now(ZoneId.of("UTC"));
         }
     }
 

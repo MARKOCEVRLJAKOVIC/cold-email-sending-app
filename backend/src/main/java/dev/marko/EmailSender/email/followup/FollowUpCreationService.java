@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 @Service
 @RequiredArgsConstructor
 public class FollowUpCreationService {
@@ -42,6 +44,6 @@ public class FollowUpCreationService {
     }
 
     public long calculateDelayInSeconds(LocalDateTime scheduledTime) {
-        return Math.max(0, Duration.between(LocalDateTime.now(), scheduledTime).getSeconds());
+        return Math.max(0, Duration.between(LocalDateTime.now(ZoneId.of("UTC")), scheduledTime).getSeconds());
     }
 }

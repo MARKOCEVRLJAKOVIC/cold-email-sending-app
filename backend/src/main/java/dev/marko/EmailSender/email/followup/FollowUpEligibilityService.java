@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Comparator;
 
 @Service
@@ -38,7 +39,7 @@ public class FollowUpEligibilityService {
 
     private boolean isReadyToSend(EmailMessage original, FollowUpTemplate template) {
         LocalDateTime eligibleFromTime = original.getSentAt().plusDays(template.getDelayDays());
-        return LocalDateTime.now().isAfter(eligibleFromTime)
+        return LocalDateTime.now(ZoneId.of("UTC")).isAfter(eligibleFromTime)
                 && !followUpAlreadySent(original, template);
     }
 

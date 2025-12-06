@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Map;
 import java.util.UUID;
 
@@ -40,8 +41,8 @@ public class PasswordResetService {
         PasswordResetToken resetToken = PasswordResetToken.builder()
                 .token(token)
                 .user(user)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusMinutes(30))
+                .createdAt(LocalDateTime.now(ZoneId.of("UTC")))
+                .expiresAt(LocalDateTime.now(ZoneId.of("UTC")).plusMinutes(30))
                 .build();
 
         passwordResetTokenRepository.save(resetToken);
@@ -66,7 +67,7 @@ public class PasswordResetService {
         var token = passwordResetTokenRepository.findByToken(request.getToken())
                 .orElseThrow(() -> new IllegalArgumentException("Invalid Token"));
 
-        if(token.getExpiresAt().isBefore(LocalDateTime.now())){
+        if(token.getExpiresAt().isBefore(LocalDateTime.now(ZoneId.of("UTC")))){
             throw new TokenExpiredException();
         }
 

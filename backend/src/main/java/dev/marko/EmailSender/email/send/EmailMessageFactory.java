@@ -5,6 +5,8 @@ import dev.marko.EmailSender.entities.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 public class EmailMessageFactory {
 
@@ -61,7 +63,7 @@ public class EmailMessageFactory {
             Campaign campaign
     ) {
         return buildMessage(recipientEmail, recipientName, messageText, user, template, smtp, campaign,
-                Status.SENT, LocalDateTime.now(),null, null);
+                Status.SENT, LocalDateTime.now(ZoneId.of("UTC")),null, null);
     }
 
     public static EmailMessage createFailedMessage(

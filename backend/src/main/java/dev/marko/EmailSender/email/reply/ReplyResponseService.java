@@ -11,7 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 
 @Slf4j
 @AllArgsConstructor
@@ -29,13 +32,12 @@ public class ReplyResponseService {
                                                SmtpCredentials smtpCredentials,
                                                User user){
 
-
-
+        LocalDateTime utcDateTime = LocalDateTime.now((ZoneId.of("UTC")));
 
         var emailMessage = EmailMessage.builder()
                 .recipientEmail(originalReply.getSenderEmail())
                 .recipientName(originalMessage.getRecipientName())
-                .scheduledAt(LocalDateTime.now())
+                .scheduledAt(utcDateTime)
                 .emailTemplate(originalMessage.getEmailTemplate())
                 .campaign(originalMessage.getCampaign())
                 .smtpCredentials(smtpCredentials)
@@ -47,7 +49,7 @@ public class ReplyResponseService {
 
         try {
             emailMessageRepository.save(emailMessage);
-            emailSchedulingService.scheduleSingle(emailMessage, 0, LocalDateTime.now());
+            emailSchedulingService.scheduleSingle(emailMessage, 0, utcDateTime);
         }
         catch (Exception e) {
 

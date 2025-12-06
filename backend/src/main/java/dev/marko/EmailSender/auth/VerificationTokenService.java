@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -30,7 +31,7 @@ public class VerificationTokenService {
         VerificationToken verificationToken = VerificationToken.builder()
                 .token(token)
                 .user(user)
-                .expirationDate(LocalDateTime.now().plusHours(24))
+                .expirationDate(LocalDateTime.now(ZoneId.of("UTC")).plusHours(24))
                 .build();
 
         verificationTokenRepository.save(verificationToken);
@@ -49,7 +50,7 @@ public class VerificationTokenService {
 
         var verificationToken = verificationTokenRepository.findByToken(token).orElseThrow(TokenNotFoundException::new);
 
-        if(verificationToken.getExpirationDate().isBefore(LocalDateTime.now())) {
+        if(verificationToken.getExpirationDate().isBefore(LocalDateTime.now(ZoneId.of("UTC")))) {
             throw new TokenExpiredException();
         }
 
