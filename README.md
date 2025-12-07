@@ -29,12 +29,12 @@ Cold email outreach platform designed to send thousands of emails daily without 
 
 ## How to run
 
-`
+Clone the repo: https://github.com/markocevrljakovic/cold-email-sending-app.git
+
+```bash
 cd backend
-`
-`
-docker compose up --build
-`
+docker compose up
+```
 
 ## How to use the app
 
