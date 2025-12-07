@@ -35,7 +35,7 @@ CREATE TABLE campaigns (
     description TEXT,
     user_id BIGINT NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    timezone VARCHAR(64) DEFAULT 'Europe/Belgrade',
+    timezone VARCHAR(64) NOT NULL DEFAULT 'Europe/Belgrade',
     CONSTRAINT campaigns_users_fk FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
     INDEX idx_campaign_user (user_id)
 );

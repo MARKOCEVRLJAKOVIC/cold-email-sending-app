@@ -33,7 +33,7 @@ services:
       - email-app-net
 
   email-sender-backend:
-    image: email-backend
+    image: cevrljakovic/email-backend
     container_name: backend
     env_file:
       - .env
@@ -50,7 +50,7 @@ services:
       - email-app-net
 
   email-sender-frontend:
-    image: email-frontend
+    image: cevrljakovic/email-frontend
     container_name: frontend
     ports:
       - "80:80"
