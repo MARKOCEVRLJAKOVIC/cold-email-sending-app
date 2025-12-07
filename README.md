@@ -27,6 +27,19 @@ Cold email outreach platform designed to send thousands of emails daily without 
 
 ---
 
+## How to run
+
+Clone the repo: https://github.com/markocevrljakovic/cold-email-sending-app.git
+
+```bash
+cd backend
+docker compose up
+```
+
+## How to use the app
+
+[Demo Video](https://www.loom.com/share/eededfb7860d461fbe931f13155564a0)
+
 ## SOLID Implementation
 
 ### Single Responsibility & Open/Closed Principle
