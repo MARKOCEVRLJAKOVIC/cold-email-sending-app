@@ -22,28 +22,6 @@ public interface CampaignMapper {
     CampaignDto toDto(Campaign campaign);
     Campaign toEntity(CreateCampaignRequest request);
 
-    @AfterMapping
-    default void convertUtcToLocal(@MappingTarget CampaignDto dto, Campaign entity) {
-
-        if (entity.getCreatedAt() != null) {
-            LocalDateTime utc = entity.getCreatedAt();
-
-            ZonedDateTime local = utc
-                    .atOffset(ZoneOffset.UTC)
-                    .atZoneSameInstant(ZoneId.systemDefault());
-
-            dto.setCreatedAt(local.toLocalDateTime());
-        }
-    }
-
-    @AfterMapping
-    default void setDefaultTimezone(@MappingTarget Campaign campaign) {
-        if (campaign.getTimezone() == null || campaign.getTimezone().isEmpty()) {
-            campaign.setTimezone("Europe/Belgrade");
-        }
-    }
-
-
     List<CampaignDto> toListDto(List<Campaign> campaigns);
 
     void update(UpdateCampaignRequest request, @MappingTarget Campaign campaign);

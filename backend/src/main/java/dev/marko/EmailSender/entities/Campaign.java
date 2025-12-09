@@ -36,7 +36,7 @@ public class Campaign {
 
     @NotNull
     @Column(name = "timezone")
-    private String timezone = "Europe/Belgrade";
+    private String timezone;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

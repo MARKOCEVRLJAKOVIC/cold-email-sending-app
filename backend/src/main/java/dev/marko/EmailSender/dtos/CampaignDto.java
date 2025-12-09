@@ -2,6 +2,7 @@ package dev.marko.EmailSender.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDateTime;
 
