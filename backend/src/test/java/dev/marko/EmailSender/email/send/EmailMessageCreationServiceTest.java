@@ -38,6 +38,8 @@ public class EmailMessageCreationServiceTest {
 
     EmailTemplate template;
 
+    Campaign campaign;
+
 
     @BeforeEach
     public void setup(){
@@ -52,6 +54,8 @@ public class EmailMessageCreationServiceTest {
         smtpList = List.of(smtp1, smtp2);
         template = new EmailTemplate();
 
+        campaign = new Campaign();
+        campaign.setTimezone("Europe/Belgrade");
 
     }
 
@@ -63,7 +67,7 @@ public class EmailMessageCreationServiceTest {
 
         when(preparationService.generateMessageText(template.getMessage(), emailRecipientDto1.getName())).thenReturn(expectedMessageText);
 
-        var result = emailMessageCreationService.prepareAndSaveEmails(recipients, smtpList, new User(), template, new Campaign(), LocalDateTime.now());
+        var result = emailMessageCreationService.prepareAndSaveEmails(recipients, smtpList, new User(), template, campaign, LocalDateTime.now());
 
         assertEquals(2, result.size());
         assertEquals(smtp1, result.getFirst().getSmtpCredentials());
