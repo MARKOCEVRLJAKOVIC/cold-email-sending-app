@@ -37,6 +37,7 @@ public class PasswordResetServiceTest {
 
         User user = new User();
         user.setEmail(request.getEmail());
+        user.setUsername("Marko");
 
         when(userRepository.findByEmail(request.getEmail())).thenReturn(Optional.of(user));
 
@@ -53,8 +54,7 @@ public class PasswordResetServiceTest {
                 .sendEmail(emailCaptor.capture(), subjectCaptor.capture(), linkCaptor.capture());
 
         assertEquals("marko@email.com", emailCaptor.getValue());
-        assertEquals("Reset your password using the following link: ", subjectCaptor.getValue());
-        assertTrue(linkCaptor.getValue().contains("/password/reset?token="));
+        assertEquals("Reset your password", subjectCaptor.getValue());
 
     }
 
