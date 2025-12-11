@@ -6,11 +6,12 @@ jobs:
     steps:
       - name: Get code
         uses: actions/checkout@v6
-      - name: Set up JDK 17
+      - name: Set up JDK
         uses: actions/setup-java@v4
         with:
           java-version: '24'
           distribution: 'temurin'
           cache: 'maven'
       - name: Run the Maven verify phase
+        working-directory: ./backend
         run: mvn --batch-mode --update-snapshots verify
