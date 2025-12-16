@@ -25,7 +25,7 @@ public class EmailTemplate {
     private String subject;
 
     @Lob
-    @Column(name = "message")
+    @Column(name = "message", columnDefinition = "TEXT")
     private String message;
 
     @ManyToOne(fetch = FetchType.LAZY)

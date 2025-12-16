@@ -24,7 +24,7 @@ public class FollowUpTemplate {
     private Integer delayDays;
 
     @Lob
-    @Column(name = "message")
+    @Column(name = "message", columnDefinition = "TEXT")
     private String message;
 
     @Column(name = "template_order")

@@ -32,7 +32,7 @@ public class EmailMessage {
 
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
@@ -49,7 +49,7 @@ public class EmailMessage {
     }
 
     @Lob
-    @Column(name = "sent_message")
+    @Column(name = "sent_message", columnDefinition = "TEXT")
     private String sentMessage;
 
     @Enumerated(EnumType.STRING)
@@ -64,8 +64,10 @@ public class EmailMessage {
     private String inReplyTo;
 
     @Lob
-    @Column(name = "error_message")
-    private String errorMessage;
+    @Column(
+            name = "error_message",
+            columnDefinition = "LONGTEXT"
+    )    private String errorMessage;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: EmailSenderWeb
+
+  datasource:
+    url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:email_sender}?createDatabaseIfNotExist=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:root}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  jpa:
+    hibernate:
+      ddl-auto: validate   # ili update ako ti treba
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: false
+
+  mail:
+    host: localhost
+    port: 2525
+    username: test
+    password: test
+    properties:
+      mail.smtp.auth: false
+      mail.smtp.starttls.enable: false
+
+  security:
+    oauth2:
+      client:
+        registration:
+          google:
+            client-id: test-client-id
+            client-secret: test-client-secret
+            redirect-uri: http://localhost/login/oauth2/code/google
+            scope:
+              - email
+              - profile
+        provider:
+          google:
+            authorization-uri: http://localhost/oauth2/auth
+            token-uri: http://localhost/oauth2/token
+            user-info-uri: http://localhost/oauth2/userinfo
+
+jwt:
+  secret: test-jwt-secret-test-jwt-secret-test
+  accessTokenExpiration: 600
+  refreshTokenExpiration: 3600
+
+token:
+  encrypt: test-encryption-key-1234567890
+
+email:
+  follow-up:
+    quantity: 1
+    expiration: 1h
+  scheduling:
+    default-delay-seconds: 1
+
+google:
+  oauth2:
+    client-id: test
+    client-secret: test
+    redirect-uri: http://localhost/oauth2callback
+    scope: https://mail.google.com/
+  smtp:
+    host: localhost
+    port: 587
+    type: GMAIL
+
+app:
+  url: http://localhost
+  frontend-url: http://localhost
+  frontend-login: http://localhost
