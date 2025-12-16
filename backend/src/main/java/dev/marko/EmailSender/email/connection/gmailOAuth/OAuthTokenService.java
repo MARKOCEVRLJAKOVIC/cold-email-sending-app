@@ -19,6 +19,7 @@ import java.io.IOException;
 public class OAuthTokenService implements TokenService {
 
     private final GoogleOAuth2Properties properties;
+    private final RestTemplate restTemplate;
 
     public OAuthTokens exchangeCodeForTokens(String code) {
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
@@ -47,7 +48,6 @@ public class OAuthTokenService implements TokenService {
 
         HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(params, headers);
 
-        RestTemplate restTemplate = new RestTemplate();
         ResponseEntity<OAuthTokens> response = restTemplate.postForEntity(
                 "https://oauth2.googleapis.com/token", request, OAuthTokens.class
         );
