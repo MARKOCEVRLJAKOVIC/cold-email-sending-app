@@ -47,6 +47,8 @@ public class BatchSchedulingServiceTest {
 
         LocalDateTime scheduledAt = fixedNow.plusSeconds(30);
 
+
+
         batchSchedulingService.scheduleEmails(scheduledAt, allMessages, campaign);
         verify(emailSchedulingService).scheduleSingle(allMessages.getFirst(), emailSchedulingService.getDefaultDelay(), LocalDateTime.now());
 

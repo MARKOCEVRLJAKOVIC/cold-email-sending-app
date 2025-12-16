@@ -3,13 +3,15 @@ package dev.marko.EmailSender.email.send;
 import dev.marko.EmailSender.email.spintax.EmailPreparationService;
 import dev.marko.EmailSender.email.spintax.SpintaxProcessor;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@SpringBootTest
+@ExtendWith(MockitoExtension.class)
 public class EmailPreparationTest {
 
     @Mock private SpintaxProcessor spinTextProcessor;
