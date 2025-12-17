@@ -29,7 +29,8 @@ spring:
     properties:
       mail.smtp.auth: false
       mail.smtp.starttls.enable: false
-
+  flyway:
+    enabled: false
   security:
     oauth2:
       client:
