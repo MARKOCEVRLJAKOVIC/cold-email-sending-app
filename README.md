@@ -2,6 +2,19 @@
 
 Cold email outreach platform designed to send thousands of emails daily without triggering spam filters. Easily upload bulk lead lists from a CSV file, and the platform will handle personalized email delivery by mapping '{{name}}' tags from your templates to each lead. Use dynamic content with spintax, allowing the system to randomly select variations of words (e.g., '{good|great|amazing}') to make each email unique and avoid spam triggers. Leverage inbox rotation by selecting different Google Workspace/Gmail accounts for each campaign, so every email is sent from a distinct inbox for maximum deliverability and efficiency."
 
+## How to run
+
+Clone the repo: https://github.com/markocevrljakovic/cold-email-sending-app.git
+
+```bash
+cd backend
+docker compose up
+```
+
+## How to use the app
+
+[Demo Video](https://www.loom.com/share/eededfb7860d461fbe931f13155564a0)
+
 ---
 
 ## Tech Stack
@@ -16,29 +29,44 @@ Cold email outreach platform designed to send thousands of emails daily without 
 
 ## Core Features
 
-- User registration, login, email verification and password reset
-- Management of multiple SMTP accounts (regular + Gmail OAuth2)
+- Management of multiple SMTP accounts (standard SMTP and Gmail OAuth2)
 - Campaign and email template creation
-- Batch email sending with CSV import
+- Batch email sending via CSV import
+- Email body spintax and inbox rotation to improve deliverability
 - Message status tracking: **PENDING, SENT, FAILED, REPLIED**
-- Campaign analytics with statistics per campaign
-- Automatic follow-ups based on defined delays
-- Gmail inbox replies synced back into the system and linked to original campaigns
+- Campaign analytics with per-campaign statistics
+- Automatic follow-ups based on defined delays and non-response time windows
+- Gmail inbox replies synchronized with the system and linked to the original campaigns
+- OAuth2-based inbox connection
+- User registration, authentication, email verification, and password reset
 
 ---
 
-## How to run
+## Architecture Overview
 
-Clone the repo: https://github.com/markocevrljakovic/cold-email-sending-app.git
+The application follows a layered architecture:
 
-```bash
-cd backend
-docker compose up
-```
+- Controller layer – REST APIs
+- Service layer – business logic & scheduling
+- Infrastructure layer – email providers (Gmail, future SendGrid/Mailgun)
+- Persistence layer – JPA repositories with user scoping
+- Security layer – JWT authentication & authorization
+- CI/CD layer - basic testing automation (Github Actions)
 
-## How to use the app
+---
 
-[Demo Video](https://www.loom.com/share/eededfb7860d461fbe931f13155564a0)
+## Why this project?
+
+This project was built to go beyond simple CRUD applications and to simulate real-world backend challenges such as:
+
+- Email deliverability and inbox rotation
+- Large-scale automated email sending
+- OAuth2 token lifecycle management
+- Scheduling and fault tolerance
+- Secure multi-tenant data access
+- Clean architecture and extensibility
+
+---
 
 ## SOLID Implementation
 
