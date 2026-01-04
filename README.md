@@ -1,6 +1,6 @@
 # Cold Email Automation Platform
 
-Cold email outreach platform designed to send thousands of emails daily without triggering spam filters. Easily upload bulk lead lists from a CSV file, and the platform will handle personalized email delivery by mapping '{{name}}' tags from your templates to each lead. Use dynamic content with spintax, allowing the system to randomly select variations of words (e.g., '{good|great|amazing}') to make each email unique and avoid spam triggers. Leverage inbox rotation by selecting different Google Workspace/Gmail accounts for each campaign, so every email is sent from a distinct inbox for maximum deliverability and efficiency."
+Cold email outreach platform designed to send thousands of emails daily without triggering spam filters. Easily upload bulk lead lists from a CSV file, and the platform will handle personalized email delivery by mapping '{{name}}' tags from your templates to each lead. Use dynamic content with spintax, allowing the system to randomly select variations of words (e.g., '{good|great|amazing}') to make each email unique and avoid spam triggers. Leverage inbox rotation by selecting different Google Workspace/Gmail accounts for each campaign, so every email is sent from a distinct inbox for maximum deliverability and efficiency.
 
 ## How to run
 
