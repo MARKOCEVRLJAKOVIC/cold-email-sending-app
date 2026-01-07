@@ -38,6 +38,11 @@ spring:
       port: 6379
   jpa:
     show-sql: true
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 50
+        order_inserts: true
   jwt:
     secret: ${JWT_SECRET_KEY}
     accessTokenExpiration: 7200 # 2 hours

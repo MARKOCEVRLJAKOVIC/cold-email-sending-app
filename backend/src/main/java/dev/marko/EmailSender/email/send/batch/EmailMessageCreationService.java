@@ -64,7 +64,7 @@ public class EmailMessageCreationService {
                         recipient.getEmail(), recipient.getName(), messageText,
                         user, template, smtp, campaign, e.getMessage()
                 );
-                emailMessageRepository.save(failedEmail);
+                messages.add(failedEmail);
             }
         }
 
