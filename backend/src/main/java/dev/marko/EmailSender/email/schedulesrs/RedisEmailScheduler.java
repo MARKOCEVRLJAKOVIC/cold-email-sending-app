@@ -17,7 +17,6 @@ import java.time.*;
 public class RedisEmailScheduler {
 
     private final StringRedisTemplate redis;
-    private final CampaignRepository campaignRepository;
 
     /**
      * Schedules email by adding to ZSET with timestamp score

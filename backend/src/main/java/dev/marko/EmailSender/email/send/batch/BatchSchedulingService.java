@@ -18,7 +18,6 @@ public class BatchSchedulingService {
     public void scheduleEmails(LocalDateTime scheduledAt, List<EmailMessage> allMessages, Campaign campaign) {
         if (allMessages.isEmpty()) return;
 
-
         long defaultDelay = emailSchedulingService.getDefaultDelay();
 
         if (scheduledAt == null) {

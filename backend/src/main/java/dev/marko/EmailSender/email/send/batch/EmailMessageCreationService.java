@@ -34,6 +34,9 @@ public class EmailMessageCreationService {
             LocalDateTime scheduledAt
     ) {
         List<EmailMessage> messages = new ArrayList<>();
+        ZoneId campaignZone = ZoneId.of(campaign.getTimezone());
+        ZonedDateTime campaignTime = scheduledAt.atZone(campaignZone);
+        LocalDateTime utcDateTime = LocalDateTime.ofInstant(campaignTime.toInstant(), ZoneId.of("UTC"));
 
         for (int i = 0; i < recipients.size(); i++) {
             var recipient = recipients.get(i);
@@ -43,13 +46,6 @@ public class EmailMessageCreationService {
             );
 
             try {
-                ZoneId campaignZone = ZoneId.of(campaign.getTimezone());
-
-                ZonedDateTime campaignTime = scheduledAt.atZone(campaignZone);
-
-                Instant utcInstant = campaignTime.toInstant();
-
-                LocalDateTime utcDateTime = LocalDateTime.ofInstant(utcInstant, ZoneId.of("UTC"));
 
 
                 var emailMessage = EmailMessageFactory.createMessageBasedOnSchedule(
@@ -58,7 +54,6 @@ public class EmailMessageCreationService {
                         messageText,
                         user, template, smtp, campaign, utcDateTime
                 );
-                emailMessageRepository.save(emailMessage);
                 messages.add(emailMessage);
 
             } catch (Exception e) {
@@ -73,7 +68,9 @@ public class EmailMessageCreationService {
             }
         }
 
+        emailMessageRepository.saveAll(messages);
         return messages;
+
     }
 
 }
