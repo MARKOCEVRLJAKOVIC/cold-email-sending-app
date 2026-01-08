@@ -32,6 +32,9 @@ spring:
     url: jdbc:mysql://mysql:3306/email_sender?createDatabaseIfNotExist=true # for local use set localhost instead of //mysql for docker use //mysql
     username: root
     password: ${DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 25
+      minimum-idle: 5
   data:
     redis:
       host: redis # host redis for docker, local for local development

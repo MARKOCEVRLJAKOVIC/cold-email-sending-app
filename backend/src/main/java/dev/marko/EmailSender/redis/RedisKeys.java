@@ -4,4 +4,7 @@ public class RedisKeys {
     public static final String SCHEDULED_EMAILS = "scheduled_emails"; // ZSET
     public static final String SEND_STREAM = "email_send_queue"; // STREAM
     public static final String SEND_GROUP = "email_send_group"; // CONSUMER GROUP
+
+    public static final String DEAD_LETTER_STREAM = "email_dead_letter_queue";
+
 }

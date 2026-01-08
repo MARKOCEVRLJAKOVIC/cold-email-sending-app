@@ -63,6 +63,10 @@ public class EmailMessage {
     @Column(name = "in_reply_to")
     private String inReplyTo;
 
+    @Version
+    @Column(name = "version")
+    private Long version;
+
     @Lob
     @Column(
             name = "error_message",
