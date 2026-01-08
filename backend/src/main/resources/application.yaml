@@ -76,3 +76,8 @@ app:
   url: http://localhost:8080
   frontend-url: http://localhost
   frontend-login: http://localhost
+  async:
+    core-pool-size: 10
+    max-pool-size: 20
+    queue-capacity: 500
+    thread-name-prefix: "EmailSender-"
