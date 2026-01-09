@@ -1,0 +1,2 @@
+ALTER TABLE email_messages
+    MODIFY status ENUM('PENDING', 'SENT', 'PROCESSING', 'FAILED', 'REPLIED');

@@ -36,7 +36,7 @@ public class Campaign {
 
     @NotNull
     @Column(name = "timezone")
-    private String timezone;
+    private String timezone = "Europe/Belgrade"; // use hardcoded campaign in dev phase change to users selection in prod
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -50,5 +50,12 @@ public class Campaign {
 
     @OneToMany(mappedBy = "campaign", cascade = CascadeType.ALL)
     private List<FollowUpTemplate> followUpTemplates = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        if (this.timezone == null) {
+            this.timezone = "Europe/Belgrade";
+        }
+    }
 
 }

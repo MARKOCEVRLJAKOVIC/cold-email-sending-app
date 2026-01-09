@@ -29,7 +29,7 @@ spring:
           starttls:
             enable: true
   datasource:
-    url: jdbc:mysql://mysql:3306/email_sender?createDatabaseIfNotExist=true # for local use set localhost instead of //mysql for docker use //mysql
+    url: jdbc:mysql://localhost:3306/email_sender?createDatabaseIfNotExist=true # for local use set localhost instead of //mysql for docker use //mysql
     username: root
     password: ${DB_PASSWORD}
     hikari:
@@ -37,7 +37,7 @@ spring:
       minimum-idle: 5
   data:
     redis:
-      host: redis # host redis for docker, local for local development
+      host: localhost # host redis for docker, local for local development
       port: 6379
   jpa:
     show-sql: true

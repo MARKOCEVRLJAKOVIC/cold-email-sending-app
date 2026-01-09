@@ -19,9 +19,10 @@ public class EmailSendService {
     public boolean sendAndPersist(EmailMessage email) {
         try {
 
-            lockService.lockForProcessing(email.getId());
-            emailSenderDelegator.send(email);
-            statusService.markSent(email);
+            EmailMessage lockedEmail = lockService.lockForProcessing(email.getId());
+
+            emailSenderDelegator.send(lockedEmail);
+            statusService.markSent(lockedEmail.getId());
 
             return true;
 
@@ -30,7 +31,6 @@ public class EmailSendService {
             throw e;
         } catch (Exception e) {
             statusService.markFailed(email, e);
-
             return false;
         }
     }

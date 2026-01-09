@@ -16,15 +16,18 @@ public class EmailLockService {
     private final EmailMessageRepository repository;
 
     @Transactional(propagation = REQUIRES_NEW)
-    public void lockForProcessing(Long emailId) {
+    public EmailMessage lockForProcessing(Long emailId) {
+
         EmailMessage email = repository.findById(emailId)
                 .orElseThrow(() -> new ObjectOptimisticLockingFailureException(EmailMessage.class, emailId));
+
         if(email.getStatus() != Status.PENDING){
             throw new ObjectOptimisticLockingFailureException(
                     EmailMessage.class, email.getId());
         }
 
         email.setStatus(Status.PROCESSING);
-        repository.saveAndFlush(email);
+        return repository.saveAndFlush(email);
+
     }
 }

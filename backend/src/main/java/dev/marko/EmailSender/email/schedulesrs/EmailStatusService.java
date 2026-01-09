@@ -19,7 +19,8 @@ public class EmailStatusService {
     private final EmailMessageRepository repository;
 
     @Transactional
-    public void markSent(EmailMessage email) {
+    public void markSent(Long emailId) {
+        EmailMessage email = repository.findById(emailId).orElseThrow();
         email.setStatus(Status.SENT);
         email.setSentAt(LocalDateTime.now(ZoneId.of("UTC")));
         repository.save(email);
