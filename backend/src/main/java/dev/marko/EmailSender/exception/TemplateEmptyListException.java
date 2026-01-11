@@ -1,6 +1,6 @@
 package dev.marko.EmailSender.exception;
 
-public class TemplateEmptyListException extends RuntimeException{
+public class TemplateEmptyListException extends BadRequestException{
     public TemplateEmptyListException() {
         super("List is empty");
     }

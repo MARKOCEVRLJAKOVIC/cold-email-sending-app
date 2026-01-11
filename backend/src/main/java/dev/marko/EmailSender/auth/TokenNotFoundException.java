@@ -1,6 +1,8 @@
 package dev.marko.EmailSender.auth;
 
-public class TokenNotFoundException extends RuntimeException{
+import dev.marko.EmailSender.exception.ResourceNotFoundException;
+
+public class TokenNotFoundException extends ResourceNotFoundException {
 
     public TokenNotFoundException(){
         super("Token not found");

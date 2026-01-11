@@ -2,7 +2,7 @@ package dev.marko.EmailSender.exception;
 
 import java.io.IOException;
 
-public class InvalidCsvException extends RuntimeException{
+public class InvalidCsvException extends BadRequestException{
     public InvalidCsvException(){
         super("Invalid Csv file");
     }

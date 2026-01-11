@@ -1,6 +1,6 @@
 package dev.marko.EmailSender.exception;
 
-public class CampaignNotFoundException extends RuntimeException{
+public class CampaignNotFoundException extends ResourceNotFoundException{
 
     public CampaignNotFoundException() {
         super("Campaign not found");

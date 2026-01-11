@@ -1,6 +1,6 @@
 package dev.marko.EmailSender.exception;
 
-public class EmailNotFoundException extends RuntimeException{
+public class EmailNotFoundException extends ResourceNotFoundException{
     public EmailNotFoundException() {
         super("Email account not found");
     }

@@ -1,6 +1,6 @@
 package dev.marko.EmailSender.exception;
 
-public class MissingRefreshTokenException extends IllegalArgumentException {
+public class MissingRefreshTokenException extends BadRequestException {
 
     public MissingRefreshTokenException(){
         super("Missing refresh token");

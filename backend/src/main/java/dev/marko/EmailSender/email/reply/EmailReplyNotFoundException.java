@@ -1,6 +1,8 @@
 package dev.marko.EmailSender.email.reply;
 
-public class EmailReplyNotFoundException extends RuntimeException {
+import dev.marko.EmailSender.exception.ResourceNotFoundException;
+
+public class EmailReplyNotFoundException extends ResourceNotFoundException {
     public EmailReplyNotFoundException() {
         super("Email Reply not found");
     }

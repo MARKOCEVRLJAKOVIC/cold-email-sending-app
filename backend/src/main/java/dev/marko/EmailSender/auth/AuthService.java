@@ -67,11 +67,11 @@ public class AuthService {
 
         }
         catch (BadCredentialsException e) {
-            throw new UnauthorizedException("Email or password are wrong."); // -> 401
+            throw new UnauthorizedGenericException("Email or password are wrong."); // -> 401
         }
 
 
-        var user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UnauthorizedException("Email or password are wrong."));
+        var user = userRepository.findByEmail(request.getEmail()).orElseThrow(() -> new UnauthorizedGenericException("Email or password are wrong."));
 
         if(!user.getEnabled()){
             throw new UserNotConfirmedException();

@@ -1,6 +1,8 @@
 package dev.marko.EmailSender.auth;
 
-public class TokenExpiredException extends RuntimeException {
+import dev.marko.EmailSender.exception.UnauthorizedException;
+
+public class TokenExpiredException extends UnauthorizedException {
 
     public TokenExpiredException() {
         super("Token has expired");

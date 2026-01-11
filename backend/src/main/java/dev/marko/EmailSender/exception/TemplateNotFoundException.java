@@ -1,6 +1,6 @@
 package dev.marko.EmailSender.exception;
 
-public class TemplateNotFoundException extends RuntimeException{
+public class TemplateNotFoundException extends ResourceNotFoundException{
     public TemplateNotFoundException() {
         super("Template not found");
     }
