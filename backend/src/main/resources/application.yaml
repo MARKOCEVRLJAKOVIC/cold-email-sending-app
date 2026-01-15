@@ -60,6 +60,8 @@ email:
     expiration: 48h
   scheduling:
     default-delay-seconds: 15 # 15 seconds
+    retry:
+      max-attempts: 3
 
 google:
   oauth2:

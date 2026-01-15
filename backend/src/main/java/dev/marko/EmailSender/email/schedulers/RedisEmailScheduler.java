@@ -8,6 +8,7 @@ import org.springframework.scheduling.SchedulingException;
 import org.springframework.stereotype.Service;
 
 import java.time.*;
+import java.util.Objects;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -66,6 +67,47 @@ public class RedisEmailScheduler {
         log.info("Scheduled email {} for specific time {} -> Delivery Epoch: {}",
                 emailId, zone, deliveryTime);
 
+    }
+
+    public void cancel(Long emailId) {
+        Objects.requireNonNull(emailId, "Email ID cannot be null");
+
+        try {
+            Long removed = redis.opsForZSet().remove(RedisKeys.SCHEDULED_EMAILS, emailId. toString());
+
+            if (removed != null && removed > 0) {
+                log.info("Cancelled scheduled email [id={}]", emailId);
+            } else {
+                log.warn("Email [id={}] was not found in scheduled queue", emailId);
+            }
+        } catch (Exception e) {
+            log.error("Failed to cancel scheduled email [id={}]: {}", emailId, e.getMessage(), e);
+            throw new SchedulingException(
+                    String.format("Failed to cancel scheduled email [id=%d]", emailId),
+                    e
+            );
+        }
+    }
+
+    /**
+     * Checks if an email is currently scheduled.
+     *
+     * @param emailId The email message ID to check
+     * @return true if email is in the scheduling queue, false otherwise
+     */
+    public boolean isScheduled(Long emailId) {
+        Objects.requireNonNull(emailId, "Email ID cannot be null");
+
+        try {
+            Double score = redis.opsForZSet().score(RedisKeys.SCHEDULED_EMAILS, emailId.toString());
+            return score != null;
+        } catch (Exception e) {
+            log.error("Failed to check scheduling status for email [id={}]:  {}", emailId, e.getMessage(), e);
+            throw new SchedulingException(
+                    String.format("Failed to check scheduling status for email [id=%d]", emailId),
+                    e
+            );
+        }
     }
 }
 
