@@ -1,4 +1,4 @@
-package dev.marko.EmailSender.email.schedulesrs;
+package dev.marko.EmailSender.email.schedulers;
 
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.Status;

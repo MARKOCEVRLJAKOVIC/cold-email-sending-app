@@ -1,7 +1,7 @@
 package dev.marko.EmailSender.email.reply;
 
 import dev.marko.EmailSender.dtos.EmailMessageDto;
-import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
+import dev.marko.EmailSender.email.schedulers.EmailSchedulingService;
 import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.exception.ReplyMessageSchedulingException;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;
@@ -11,10 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
 
 @Slf4j
 @AllArgsConstructor

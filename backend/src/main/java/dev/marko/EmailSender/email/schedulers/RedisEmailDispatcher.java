@@ -1,18 +1,15 @@
-package dev.marko.EmailSender.email.schedulesrs;
+package dev.marko.EmailSender.email.schedulers;
 
 import dev.marko.EmailSender.redis.RedisKeys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.data.redis.connection.stream.RecordId;
 import org.springframework.data.redis.connection.stream.StreamRecords;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
-import java.sql.Time;
 import java.time.Instant;
-import java.time.LocalTime;
 import java.util.Map;
 import java.util.Set;
 

@@ -1,6 +1,6 @@
 package dev.marko.EmailSender.email.send.batch;
 
-import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
+import dev.marko.EmailSender.email.schedulers.EmailSchedulingService;
 import dev.marko.EmailSender.entities.Campaign;
 import dev.marko.EmailSender.entities.EmailMessage;
 import lombok.AllArgsConstructor;

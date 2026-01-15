@@ -1,22 +1,12 @@
 package dev.marko.EmailSender.email.followup;
 
-import dev.marko.EmailSender.email.schedulesrs.EmailSchedulingService;
-import dev.marko.EmailSender.email.spintax.EmailPreparationService;
+import dev.marko.EmailSender.email.schedulers.EmailSchedulingService;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.FollowUpTemplate;
-import dev.marko.EmailSender.entities.Status;
-import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import java.time.Duration;
-import java.time.LocalDateTime;
-import java.util.Comparator;
-import java.util.List;
 
 @Slf4j
 @Service
