@@ -25,28 +25,33 @@ public class RedisEmailScheduler {
 
         long deliveryTime = Instant.now().getEpochSecond() + delaySeconds;
 
-        //long deliveryTime = Instant.now().getEpochSecond() + delaySeconds;
-        try {
-            Boolean result = redis.opsForZSet().add(
-                    RedisKeys. SCHEDULED_EMAILS,
-                    emailId. toString(),
-                    deliveryTime
-            );
+        redis.opsForZSet().add(RedisKeys.SCHEDULED_EMAILS,
+                emailId.toString(),
+                deliveryTime);
 
-            if (Boolean.TRUE.equals(result)) {
-                log.debug("Email [id={}] scheduled for epoch={} (delay={}s)",
-                        emailId, deliveryTime, delaySeconds);
-            } else {
-                log.warn("Email [id={}] was already scheduled, updating delivery time to epoch={}",
-                        emailId, deliveryTime);
-            }
-        } catch (Exception e) {
-            log.error("Failed to schedule email [id={}] in Redis:  {}", emailId, e.getMessage(), e);
-            throw new SchedulingException(
-                    String.format("Failed to schedule email [id=%d].  Redis service may be unavailable.", emailId),
-                    e
-            );
-        }
+        log.info("Scheduled email {} at {}", emailId, deliveryTime);
+
+//        try {
+//            Boolean result = redis.opsForZSet().add(
+//                    RedisKeys. SCHEDULED_EMAILS,
+//                    emailId. toString(),
+//                    deliveryTime
+//            );
+//
+//            if (Boolean.TRUE.equals(result)) {
+//                log.debug("Email [id={}] scheduled for epoch={} (delay={}s)",
+//                        emailId, deliveryTime, delaySeconds);
+//            } else {
+//                log.warn("Email [id={}] was already scheduled, updating delivery time to epoch={}",
+//                        emailId, deliveryTime);
+//            }
+//        } catch (Exception e) {
+//            log.error("Failed to schedule email [id={}] in Redis:  {}", emailId, e.getMessage(), e);
+//            throw new SchedulingException(
+//                    String.format("Failed to schedule email [id=%d].  Redis service may be unavailable.", emailId),
+//                    e
+//            );
+//        }
     }
 
     public void scheduleAt(Long emailId, LocalDateTime scheduledAt, long delaySeconds, String zone) {
@@ -58,15 +63,20 @@ public class RedisEmailScheduler {
         long deliveryTime = baseEpoch + delaySeconds;
 
 
-        redis.opsForZSet().add(
-                RedisKeys.SCHEDULED_EMAILS,
-                emailId.toString(),
-                deliveryTime
-        );
-
-        log.info("Scheduled email {} for specific time {} -> Delivery Epoch: {}",
-                emailId, zone, deliveryTime);
-
+        try {
+            Boolean result = redis.opsForZSet().add(
+                    RedisKeys.SCHEDULED_EMAILS,
+                    emailId.toString(),
+                    deliveryTime
+            );
+            if (Boolean.TRUE.equals(result)) {
+                log.info("Scheduled email {} for specific time {} -> Delivery Epoch: {}", emailId, zone, deliveryTime);
+            } else {
+                log.warn("Email [id={}] was already scheduled, updating delivery time to epoch={}", emailId, deliveryTime);
+            }
+        } catch (Exception e) {
+            throw new SchedulingException(String.format("Failed to schedule email [id=%d]", emailId), e);
+        }
     }
 
     public void cancel(Long emailId) {
@@ -110,4 +120,3 @@ public class RedisEmailScheduler {
         }
     }
 }
-

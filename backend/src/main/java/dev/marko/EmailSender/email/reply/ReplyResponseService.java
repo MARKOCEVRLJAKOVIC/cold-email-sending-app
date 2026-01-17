@@ -47,7 +47,7 @@ public class ReplyResponseService {
 
         try {
             emailMessageRepository.save(emailMessage);
-            emailSchedulingService.scheduleSingle(emailMessage, 0, utcDateTime);
+            emailSchedulingService.scheduleSingle(emailMessage, utcDateTime, 0);
         }
         catch (Exception e) {
 

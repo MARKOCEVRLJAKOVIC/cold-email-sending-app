@@ -109,11 +109,41 @@ public class EmailStreamWorker {
             }
 
         } catch (ObjectOptimisticLockingFailureException e) {
-            log.warn("Conflict detected for email {}. Someone else updated it. Skipping.", emailId);
-            acknowledge(msg.getId());
+            log.warn("Conflict detected for email {}. Someone else updated it. Checking current status.", emailId);
+            handleConflict(emailId, retryCount, msg.getId());
         } catch (Exception e) {
             log.error("Fatal error processing email {}: {}", emailId, e.getMessage());
             handleFailure(emailId, retryCount, msg.getId());
+        }
+    }
+
+    private void handleConflict(Long emailId, int retryCount, RecordId recordId) {
+        // Re-fetch email to check current status after conflict
+        EmailMessage email = repo.findById(emailId).orElse(null);
+        if (email == null) {
+            log.warn("Email {} not found after conflict, acknowledging.", emailId);
+            acknowledge(recordId);
+            return;
+        }
+
+        Status currentStatus = email.getStatus();
+        if (currentStatus == Status.SENT) {
+            log.info("Email {} was already sent by another worker, acknowledging.", emailId);
+            acknowledge(recordId);
+        } else if (currentStatus == Status.PROCESSING) {
+            // Another worker is processing it, requeue with delay to let it finish
+            log.info("Email {} is being processed by another worker, requeuing with delay.", emailId);
+            requeueWithRetry(emailId, retryCount);
+            acknowledge(recordId);
+        } else if (currentStatus == Status.FAILED) {
+            // Another worker marked it as failed, handle as failure
+            log.info("Email {} was marked as failed by another worker, handling failure.", emailId);
+            handleFailure(emailId, retryCount, recordId);
+        } else {
+            // Still PENDING or other status, requeue
+            log.info("Email {} status is {} after conflict, requeuing.", emailId, currentStatus);
+            requeueWithRetry(emailId, retryCount);
+            acknowledge(recordId);
         }
     }
 

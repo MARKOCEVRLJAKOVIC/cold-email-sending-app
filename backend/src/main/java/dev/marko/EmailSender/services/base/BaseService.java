@@ -5,6 +5,7 @@ import dev.marko.EmailSender.repositories.base.UserScopedRepository;
 import dev.marko.EmailSender.security.CurrentUserProvider;
 import lombok.Getter;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.function.Supplier;
@@ -45,6 +46,7 @@ public abstract class BaseService<
                 .toList();
     }
 
+    @Transactional(readOnly = true)
     public List<D> getAll() {
         var user = currentUserProvider.getCurrentUser();
         return toListDto(repository.findAllByUserId(user.getId()));
@@ -57,6 +59,7 @@ public abstract class BaseService<
         return toDto(entity);
     }
 
+    @Transactional
     public D create(C request) {
         var user = currentUserProvider.getCurrentUser();
         var entity = toEntity(request);
@@ -65,6 +68,7 @@ public abstract class BaseService<
         return toDto(entity);
     }
 
+    @Transactional
     public D update(Long id, U request) {
         var user = currentUserProvider.getCurrentUser();
         var entity = repository.findByIdAndUserId(id, user.getId())
@@ -76,6 +80,7 @@ public abstract class BaseService<
         return toDto(entity);
     }
 
+    @Transactional
     public void delete(Long id) {
         var user = currentUserProvider.getCurrentUser();
         var entity = repository.findByIdAndUserId(id, user.getId())

@@ -40,7 +40,7 @@ public class EmailReply {
     @JoinColumn(name = "email_message_id")
     private EmailMessage emailMessage;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 

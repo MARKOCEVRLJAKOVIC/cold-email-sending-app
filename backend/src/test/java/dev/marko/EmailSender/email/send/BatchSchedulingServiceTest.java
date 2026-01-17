@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.eq;
 
 @ExtendWith(MockitoExtension.class)
 public class BatchSchedulingServiceTest {
@@ -26,12 +28,13 @@ public class BatchSchedulingServiceTest {
 
     List<EmailMessage> allMessages;
     Campaign campaign;
+    private static final int DEFAULT_DELAY = 15;
 
     @BeforeEach
     void setup(){
 
         allMessages = List.of(new EmailMessage(), new EmailMessage());
-        when(emailSchedulingService.getDefaultDelay()).thenReturn(15);
+        when(emailSchedulingService.getDefaultDelay()).thenReturn(DEFAULT_DELAY);
 
         campaign = new Campaign();
         campaign.setId(1L);
@@ -42,16 +45,14 @@ public class BatchSchedulingServiceTest {
     @Test
     void scheduleEmails_ShouldScheduleEmailsOneByOne(){
 
-
-        LocalDateTime fixedNow = LocalDateTime.of(2025, 1, 1, 10, 0);
-
-        LocalDateTime scheduledAt = fixedNow.plusSeconds(30);
-
-
+        LocalDateTime scheduledAt = LocalDateTime.of(2025, 1, 1, 10, 0);
 
         batchSchedulingService.scheduleEmails(scheduledAt, allMessages, campaign);
-        verify(emailSchedulingService).scheduleSingle(allMessages.getFirst(), emailSchedulingService.getDefaultDelay(), LocalDateTime.now());
 
+        // Verify first email is scheduled with 0 additional delay
+        verify(emailSchedulingService).scheduleSingle(eq(allMessages.get(0)), eq(scheduledAt), eq(0L));
+        // Verify second email is scheduled with an interval delay
+        verify(emailSchedulingService).scheduleSingle(eq(allMessages.get(1)), eq(scheduledAt), eq((long)DEFAULT_DELAY));
     }
 
     @Test

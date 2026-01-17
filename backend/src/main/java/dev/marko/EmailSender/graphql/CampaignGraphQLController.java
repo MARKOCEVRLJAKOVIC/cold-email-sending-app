@@ -23,12 +23,12 @@ public class CampaignGraphQLController {
 
     @QueryMapping
     public List<Campaign> campaigns() {
-        return campaignRepository.findAll();
+        return campaignRepository.findAllWithUser();
     }
 
     @QueryMapping
     public Campaign campaign(@Argument Long id) {
-        return campaignRepository.findById(id).orElse(null);
+        return campaignRepository.findByIdWithUser(id).orElse(null);
     }
 
     @SchemaMapping

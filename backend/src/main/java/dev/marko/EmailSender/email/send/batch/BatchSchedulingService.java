@@ -27,17 +27,9 @@ public class BatchSchedulingService {
 
         ZoneId zone = ZoneId.of(campaign.getTimezone());
 
-        long baseDelay = Duration.between(
-                ZonedDateTime.now(zone),
-                scheduledAt.atZone(zone)
-        ).getSeconds();
-
-
         for (int i = 0; i < allMessages.size(); i++) {
-
-            long delay = baseDelay + i * defaultDelay;
-            emailSchedulingService.scheduleSingle(allMessages.get(i), delay, scheduledAt);
-
+            long intervalDelay = i * defaultDelay;
+            emailSchedulingService.scheduleSingle(allMessages.get(i), scheduledAt, intervalDelay);
         }
     }
 }

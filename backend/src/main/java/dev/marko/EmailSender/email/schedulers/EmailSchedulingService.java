@@ -30,10 +30,10 @@ public class EmailSchedulingService {
             maxAttempts = 3,
             backoff = @Backoff(delay = 1000, multiplier = 2.0)
     )
-    public void scheduleSingle(EmailMessage message, long delayInSeconds, LocalDateTime scheduledAt) {
+    public void scheduleSingle(EmailMessage message, LocalDateTime scheduledAt, long intervalDelaySeconds) {
 
         String zone = message.getCampaign().getTimezone();
-        redisEmailScheduler.scheduleAt(message.getId(), scheduledAt, delayInSeconds, zone);
+        redisEmailScheduler.scheduleAt(message.getId(), scheduledAt, intervalDelaySeconds, zone);
 
     }
 
