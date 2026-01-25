@@ -11,6 +11,7 @@ import dev.marko.EmailSender.exception.UserNotFoundException;
 import dev.marko.EmailSender.mappers.UserMapper;
 import dev.marko.EmailSender.repositories.UserRepository;
 import dev.marko.EmailSender.repositories.VerificationTokenRepository;
+import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -31,7 +32,7 @@ public class UserController {
 
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable Long id){
+    public ResponseEntity<UserDto> getUser(@PathVariable @Min(1) Long id){
 
         var user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
@@ -60,7 +61,7 @@ public class UserController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable Long id, @RequestBody RegisterUserRequest request, UriComponentsBuilder builder){
+    public ResponseEntity<UserDto> updateUser(@PathVariable @Min(1) Long id, @RequestBody RegisterUserRequest request, UriComponentsBuilder builder){
 
         var user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 
@@ -77,7 +78,7 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<UserDto> deleteUser(@PathVariable Long id){
+    public ResponseEntity<UserDto> deleteUser(@PathVariable @Min(1) Long id){
 
         var user = userRepository.findById(id).orElseThrow(UserNotFoundException::new);
 

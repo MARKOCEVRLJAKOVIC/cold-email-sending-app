@@ -5,11 +5,11 @@ import dev.marko.EmailSender.email.send.EmailMessageFactory;
 import dev.marko.EmailSender.email.spintax.EmailPreparationService;
 import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
+import dev.marko.EmailSender.security.SensitiveDataMasker;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -23,6 +23,7 @@ public class EmailMessageCreationService {
 
     private final EmailPreparationService preparationService;
     private final EmailMessageRepository emailMessageRepository;
+    private final SensitiveDataMasker sensitiveDataMasker;
 
 
     public List<EmailMessage> prepareAndSaveEmails(
@@ -57,8 +58,9 @@ public class EmailMessageCreationService {
                 messages.add(emailMessage);
 
             } catch (Exception e) {
+                String maskedEmail = sensitiveDataMasker.maskEmail(recipient.getEmail());
                 log.error("Failed to create message for recipient {}: {}",
-                        recipient.getEmail(), e.getMessage());
+                        maskedEmail, e.getMessage());
 
                 var failedEmail = EmailMessageFactory.createFailedMessage(
                         recipient.getEmail(), recipient.getName(), messageText,

@@ -4,6 +4,7 @@ import dev.marko.EmailSender.controllers.base.BaseController;
 import dev.marko.EmailSender.dtos.*;
 import dev.marko.EmailSender.services.CampaignService;
 import dev.marko.EmailSender.services.base.BaseService;
+import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,7 +20,7 @@ public class CampaignController extends BaseController<CampaignDto, CreateCampai
     }
 
     @GetMapping("/{id}/stats")
-    public ResponseEntity<CampaignStatsDto> getCampaignStats(@PathVariable Long id){
+    public ResponseEntity<CampaignStatsDto> getCampaignStats(@PathVariable @Min(1) Long id){
 
         var stats = campaignService.getCampaignStats(id);
         return ResponseEntity.ok(stats);

@@ -3,6 +3,7 @@ package dev.marko.EmailSender.email.followup;
 import dev.marko.EmailSender.email.schedulers.EmailSchedulingService;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.FollowUpTemplate;
+import dev.marko.EmailSender.security.SensitiveDataMasker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -17,6 +18,7 @@ public class FollowUpSchedulerService {
     private final FollowUpEligibilityService eligibilityService;
     private final FollowUpCreationService creationService;
     private final EmailSchedulingService schedulingService;
+    private final SensitiveDataMasker sensitiveDataMasker;
 
     @Scheduled(cron = "0 0 * * * *")
     public void scheduleFollowUps() {

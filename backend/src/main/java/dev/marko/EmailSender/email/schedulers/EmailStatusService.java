@@ -3,6 +3,7 @@ package dev.marko.EmailSender.email.schedulers;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.Status;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
+import dev.marko.EmailSender.security.SensitiveDataMasker;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +18,7 @@ import java.time.ZoneId;
 public class EmailStatusService {
 
     private final EmailMessageRepository repository;
+    private final SensitiveDataMasker sensitiveDataMasker;
 
     @Transactional
     public void markSent(Long emailId) {
@@ -30,21 +32,7 @@ public class EmailStatusService {
     public void markFailed(EmailMessage email, Exception e) {
         email.setStatus(Status.FAILED);
         repository.save(email);
-        String maskedEmail = maskEmail(email.getRecipientEmail());
+        String maskedEmail = sensitiveDataMasker.maskEmail(email.getRecipientEmail());
         log.error("Email failed for {}: {}", maskedEmail, e.getMessage(), e);
-    }
-
-    private String maskEmail(String email) {
-        if (email == null || !email.contains("@")) {
-            return "***@***";
-        }
-        String[] parts = email.split("@");
-        String local = parts[0];
-        String domain = parts[1];
-
-        String maskedLocal = local.length() > 2
-                ? local.substring(0, 2) + "***"
-                : "***";
-        return maskedLocal + "@" + domain;
     }
 }

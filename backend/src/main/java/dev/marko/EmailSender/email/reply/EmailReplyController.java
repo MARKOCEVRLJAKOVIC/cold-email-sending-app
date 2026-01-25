@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.email.reply;
 
 import dev.marko.EmailSender.dtos.EmailMessageDto;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,7 +24,7 @@ public class EmailReplyController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmailReplyDto> getEmailReply(@PathVariable Long id){
+    public ResponseEntity<EmailReplyDto> getEmailReply(@PathVariable @Min(1) Long id){
 
         var emailReplyDto = emailReplyService.getEmailReply(id);
         return ResponseEntity.ok(emailReplyDto);
@@ -43,7 +44,7 @@ public class EmailReplyController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteReply(@PathVariable Long id){
+    public ResponseEntity<Void> deleteReply(@PathVariable @Min(1) Long id){
 
         emailReplyService.deleteReply(id);
         return ResponseEntity.noContent().build();

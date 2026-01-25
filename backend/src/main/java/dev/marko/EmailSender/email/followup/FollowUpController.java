@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.email.followup;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,7 +26,7 @@ public class FollowUpController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<FollowUpDto> getFollowUp(@PathVariable Long id){
+    public ResponseEntity<FollowUpDto> getFollowUp(@PathVariable @Min(1) Long id){
 
         var followUpDto = followUpService.getFollowUp(id);
         return ResponseEntity.ok(followUpDto);
@@ -47,7 +48,7 @@ public class FollowUpController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<FollowUpDto> updateFollowUp(@PathVariable Long id,
+    public ResponseEntity<FollowUpDto> updateFollowUp(@PathVariable @Min(1) Long id,
                                                       @RequestBody @Valid CreateFollowUpRequest request){
 
         var followUpDto = followUpService.updateFollowUp(id, request);
@@ -56,7 +57,7 @@ public class FollowUpController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFollowUp(@PathVariable Long id){
+    public ResponseEntity<Void> deleteFollowUp(@PathVariable @Min(1) Long id){
 
         followUpService.deleteFollowUp(id);
         return ResponseEntity.noContent().build();

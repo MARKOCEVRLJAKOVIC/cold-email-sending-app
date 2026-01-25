@@ -2,6 +2,7 @@ package dev.marko.EmailSender.controllers.base;
 
 import dev.marko.EmailSender.services.base.BaseService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,7 +21,7 @@ public abstract class BaseController<D, C, U> {
     }
 
     @GetMapping("/{id}")
-    public D getById(@PathVariable Long id) {
+    public D getById(@PathVariable @Min(1) Long id) {
         return service.getById(id);
     }
 

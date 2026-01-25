@@ -6,6 +6,7 @@ import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.SmtpType;
 import dev.marko.EmailSender.security.EncryptionService;
+import dev.marko.EmailSender.security.SensitiveDataMasker;
 import jakarta.mail.Authenticator;
 import jakarta.mail.MessagingException;
 import jakarta.mail.Session;
@@ -25,6 +26,7 @@ public class GmailSmtpSender implements EmailSender {
     private final OAuthRefreshable refreshable;
     private final EncryptionService encryptionService;
     private final GmailSmtpMessageBuilder gmailSmtpMessageBuilder;
+    private final SensitiveDataMasker sensitiveDataMasker;
 
     @Override
     public SmtpType supports() {
@@ -66,7 +68,8 @@ public class GmailSmtpSender implements EmailSender {
         }
 
         catch (MessagingException e) {
-            log.error("Failed to send email to {}", email.getRecipientEmail(), e);
+            String maskedEmail = sensitiveDataMasker.maskEmail(email.getRecipientEmail());
+            log.error("Failed to send email to {}", maskedEmail, e);
             throw e;
         }
 
