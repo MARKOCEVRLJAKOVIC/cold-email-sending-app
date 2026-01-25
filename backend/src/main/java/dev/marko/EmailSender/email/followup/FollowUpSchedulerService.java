@@ -36,8 +36,10 @@ public class FollowUpSchedulerService {
         long delay = creationService.calculateDelayInSeconds(followUp.getScheduledAt());
         schedulingService.scheduleFollowUp(followUp, delay);
 
+        String maskedEmail = sensitiveDataMasker.maskEmail(followUp.getRecipientEmail());
+
         log.info("Scheduled follow-up for {} at {} (delay {}s)",
-                followUp.getRecipientEmail(),
+                maskedEmail,
                 followUp.getScheduledAt(),
                 delay
         );
