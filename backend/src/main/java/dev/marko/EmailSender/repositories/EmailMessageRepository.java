@@ -9,7 +9,8 @@ import java.util.List;
 import java.util.Optional;
 
 public interface EmailMessageRepository extends JpaRepository<EmailMessage, Long> {
-    
+
+
     @Query("SELECT e FROM EmailMessage e LEFT JOIN FETCH e.user LEFT JOIN FETCH e.campaign LEFT JOIN FETCH e.emailTemplate LEFT JOIN FETCH e.smtpCredentials WHERE e.campaign = :campaign")
     List<EmailMessage> findAllByCampaign(@Param("campaign") Campaign campaign);
     
@@ -22,6 +23,12 @@ public interface EmailMessageRepository extends JpaRepository<EmailMessage, Long
     @Query("SELECT e FROM EmailMessage e LEFT JOIN FETCH e.user LEFT JOIN FETCH e.campaign LEFT JOIN FETCH e.emailTemplate LEFT JOIN FETCH e.smtpCredentials WHERE e.campaign.id = :campaignId AND e.user.id = :userId AND e.status IN :statuses")
     List<EmailMessage> findAllByCampaignIdAndUserIdAndStatusIn(@Param("campaignId") Long campaignId, @Param("userId") Long userId, @Param("statuses") List<Status> status);
 
+    @Query("SELECT e FROM EmailMessage e " +
+            "JOIN FETCH e.smtpCredentials " +
+            "JOIN FETCH e.emailTemplate " +
+            "JOIN FETCH e.user " +
+            "WHERE e.id = :id")
+    Optional<EmailMessage> findByIdWithDetails(@Param("id") Long id);
 
     @Query("SELECT m FROM EmailMessage m LEFT JOIN FETCH m.user LEFT JOIN FETCH m.campaign LEFT JOIN FETCH m.emailTemplate LEFT JOIN FETCH m.smtpCredentials WHERE m.messageId = :messageId AND m.status = 'SENT'")
     Optional<EmailMessage> findByMessageId(@Param("messageId") String messageId);

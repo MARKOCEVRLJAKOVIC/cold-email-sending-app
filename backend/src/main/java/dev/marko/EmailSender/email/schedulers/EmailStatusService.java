@@ -30,6 +30,21 @@ public class EmailStatusService {
     public void markFailed(EmailMessage email, Exception e) {
         email.setStatus(Status.FAILED);
         repository.save(email);
-        log.error("Email failed for {}: {}", email.getRecipientEmail(), e.getMessage(), e);
+        String maskedEmail = maskEmail(email.getRecipientEmail());
+        log.error("Email failed for {}: {}", maskedEmail, e.getMessage(), e);
+    }
+
+    private String maskEmail(String email) {
+        if (email == null || !email.contains("@")) {
+            return "***@***";
+        }
+        String[] parts = email.split("@");
+        String local = parts[0];
+        String domain = parts[1];
+
+        String maskedLocal = local.length() > 2
+                ? local.substring(0, 2) + "***"
+                : "***";
+        return maskedLocal + "@" + domain;
     }
 }

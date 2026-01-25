@@ -37,9 +37,6 @@ public class User {
     private Boolean enabled;
 
     @OneToMany(mappedBy = "user")
-    private List<EmailMessage> emailMessages = new ArrayList<>();
-
-    @OneToMany(mappedBy = "user")
     private List<SmtpCredentials> credentials = new ArrayList<>();
 
     @OneToMany(mappedBy = "user")

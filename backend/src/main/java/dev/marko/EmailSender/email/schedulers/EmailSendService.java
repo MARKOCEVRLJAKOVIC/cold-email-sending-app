@@ -17,10 +17,9 @@ public class EmailSendService {
     private final EmailStatusService statusService;
 
     public boolean sendAndPersist(EmailMessage email) {
-        EmailMessage lockedEmail = null;
         try {
 
-            lockedEmail = lockService.lockForProcessing(email.getId());
+            EmailMessage lockedEmail = lockService.lockForProcessing(email.getId());
 
             emailSenderDelegator.send(lockedEmail);
             statusService.markSent(lockedEmail.getId());
@@ -31,13 +30,8 @@ public class EmailSendService {
             log.warn("Email {} already processing, skipping.", email.getId());
             throw e;
         } catch (Exception e) {
-            log.error("Error sending email {}: {}", email.getId(), e.getMessage(), e);
-            // Use lockedEmail if available (has latest version), otherwise use original email
-            if (lockedEmail != null) {
-                statusService.markFailed(lockedEmail, e);
-            } else {
-                statusService.markFailed(email, e);
-            }
+            log.error("Failed to send email {}: ", email.getId(), e);
+            statusService.markFailed(email, e);
             return false;
         }
     }

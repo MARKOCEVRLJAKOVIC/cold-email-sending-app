@@ -13,6 +13,7 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
@@ -75,6 +76,7 @@ public class EmailStreamWorker {
         }
     }
 
+    @Transactional
     private void processSingleMessage(MapRecord<String, Object, Object> msg) {
         String emailIdStr = (String) msg.getValue().get("emailId");
         if (emailIdStr == null) {
@@ -86,7 +88,7 @@ public class EmailStreamWorker {
         int retryCount = Integer.parseInt(msg.getValue().getOrDefault("retry", "0").toString());
 
         try {
-            EmailMessage email = repo.findById(emailId).orElse(null);
+            EmailMessage email = repo.findByIdWithDetails(emailId).orElse(null);
 
             if (email == null) {
                 log.warn("Email {} not found, skipping.", emailId);

@@ -18,7 +18,7 @@ public class EmailLockService {
     @Transactional(propagation = REQUIRES_NEW)
     public EmailMessage lockForProcessing(Long emailId) {
 
-        EmailMessage email = repository.findById(emailId)
+        EmailMessage email = repository.findByIdWithDetails(emailId)
                 .orElseThrow(() -> new ObjectOptimisticLockingFailureException(EmailMessage.class, emailId));
 
         if(email.getStatus() != Status.PENDING){
