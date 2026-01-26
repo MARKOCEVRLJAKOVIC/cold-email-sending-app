@@ -5,8 +5,10 @@ import dev.marko.EmailSender.dtos.EmailRecipientDto;
 import dev.marko.EmailSender.email.connection.gmailOAuth.SmtpListIsEmptyException;
 import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.exception.CampaignNotFoundException;
+import dev.marko.EmailSender.exception.RateLimitExceededException;
 import dev.marko.EmailSender.exception.TemplateNotFoundException;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;
+import dev.marko.EmailSender.ratelimit.UserRateLimiter;
 import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
@@ -33,6 +35,7 @@ public class SendBatchEmailsService {
     private final CsvParserService csvParserService;
     private final EmailMessageCreationService emailMessageCreationService;
     private final BatchSchedulingService batchSchedulingService;
+    private final UserRateLimiter userRateLimiter;
 
     public List<EmailMessageDto> sendBatchEmails(MultipartFile file,
                                                  LocalDateTime scheduledAt,
@@ -41,16 +44,21 @@ public class SendBatchEmailsService {
                                                  Long campaignId) {
 
         var user = currentUserProvider.getCurrentUser();
+
+        userRateLimiter.consumeBatchOrThrow(user);
+
         var template = getTemplateFromUser(templateId, user);
         var campaign = findCampaignFromUser(campaignId, user.getId());
 
         List<SmtpCredentials> smtpList = validateAndGetSmptList(smtpIds, user.getId());
         List<EmailRecipientDto> recipients = csvParserService.parseCsv(file);
+
+        userRateLimiter.consumeEmailsOrThrow(user, recipients.size());
+
         List<EmailMessage> allMessages = emailMessageCreationService.prepareAndSaveEmails(
                 recipients, smtpList, user,
                 template, campaign, scheduledAt
         );
-
 
         batchSchedulingService.scheduleEmails(scheduledAt, allMessages, campaign);
 

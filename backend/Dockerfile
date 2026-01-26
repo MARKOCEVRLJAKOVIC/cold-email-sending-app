@@ -6,7 +6,7 @@ COPY pom.xml .
 COPY src ./src
 RUN mvn -q -e -B clean package -DskipTests
 
-FROM openjdk:24-ea-jdk-slim
+FROM openjdk:17-jdk-slim
 
 WORKDIR /app
 

@@ -35,4 +35,13 @@ public class EmailStatusService {
         String maskedEmail = sensitiveDataMasker.maskEmail(email.getRecipientEmail());
         log.error("Email failed for {}: {}", maskedEmail, e.getMessage(), e);
     }
+
+    @Transactional
+    public void requeueWithDelay(EmailMessage email, long delaySeconds) {
+        email.setStatus(Status.PENDING);
+        email.setScheduledAt(LocalDateTime.now(ZoneId.of("UTC")).plusSeconds(delaySeconds));
+        repository.save(email);
+
+        log.info("Email {} re-queued with delay of {}s", email.getId(), delaySeconds);
+    }
 }

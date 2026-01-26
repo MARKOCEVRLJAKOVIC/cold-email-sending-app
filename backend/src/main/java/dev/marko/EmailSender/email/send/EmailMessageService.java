@@ -54,6 +54,8 @@ public class EmailMessageService {
                                                  List<Long> smtpIds,
                                                  Long campaignId){
 
+
+
         return sendBatchEmailsService.sendBatchEmails(file, scheduledAt, templateId, smtpIds, campaignId);
 
     }

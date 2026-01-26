@@ -74,7 +74,7 @@ public class EmailMessageServiceTest {
         var result = emailMessageService.findAllMessagesFromUser();
 
         assertEquals(1, result.size());
-        assertEquals(VALID_ID, result.getFirst().getId());
+        assertEquals(VALID_ID, result.get(0).getId());
         verify(emailMessageRepository).findAllByUserIdAndStatusIn(user.getId(), List.of(Status.SENT, Status.REPLIED));
 
     }
@@ -91,7 +91,7 @@ public class EmailMessageServiceTest {
         var result = emailMessageService.findAllMessagesFromCampaign(campaign.getId());
 
         assertEquals(1, result.size());
-        assertEquals(VALID_ID, result.getFirst().getId());
+        assertEquals(VALID_ID, result.get(0).getId());
         verify(emailMessageRepository).findAllByCampaignIdAndUserIdAndStatusIn
                 (campaign.getId(), user.getId(), List.of(Status.SENT, Status.REPLIED));
 

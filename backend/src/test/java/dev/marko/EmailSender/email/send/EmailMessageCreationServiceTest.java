@@ -70,9 +70,9 @@ public class EmailMessageCreationServiceTest {
         var result = emailMessageCreationService.prepareAndSaveEmails(recipients, smtpList, new User(), template, campaign, LocalDateTime.now());
 
         assertEquals(2, result.size());
-        assertEquals(smtp1, result.getFirst().getSmtpCredentials());
+        assertEquals(smtp1, result.get(0).getSmtpCredentials());
         assertEquals(smtp2, result.get(1).getSmtpCredentials());
-        assertEquals(expectedMessageText, result.getFirst().getSentMessage());
+        assertEquals(expectedMessageText, result.get(0).getSentMessage());
 
         verify(emailMessageRepository, times(2)).save(any());
 

@@ -75,7 +75,7 @@ public class CampaignServiceTest {
         var result = campaignService.getAll();
 
         assertEquals(1, result.size());
-        assertEquals(VALID_ID, result.getFirst().getId());
+        assertEquals(VALID_ID, result.get(0).getId());
         verify(campaignRepository).findAllByUserId(user.getId());
 
     }

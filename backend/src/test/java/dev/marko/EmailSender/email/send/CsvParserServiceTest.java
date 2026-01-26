@@ -35,8 +35,8 @@ public class CsvParserServiceTest {
         var result = csvParserService.parseCsv(file);
 
         assertEquals(2, result.size());
-        assertEquals("John",result.getFirst().getName());
-        assertEquals("john@example.com", result.getFirst().getEmail());
+        assertEquals("John",result.get(0).getName());
+        assertEquals("john@example.com", result.get(0).getEmail());
         assertEquals("", result.get(1).getName());
 
     }

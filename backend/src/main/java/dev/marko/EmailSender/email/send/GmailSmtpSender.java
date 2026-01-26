@@ -69,6 +69,7 @@ public class GmailSmtpSender implements EmailSender {
 
         catch (MessagingException e) {
             String maskedEmail = sensitiveDataMasker.maskEmail(email.getRecipientEmail());
+
             log.error("Failed to send email to {}", maskedEmail, e);
             throw e;
         }

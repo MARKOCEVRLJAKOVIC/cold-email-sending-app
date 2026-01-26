@@ -60,7 +60,7 @@ public class SmtpServiceTest {
         var result = smtpService.getAll();
 
         assertEquals(1, result.size());
-        assertEquals(VALID_ID, result.getFirst().getId());
+        assertEquals(VALID_ID, result.get(0).getId());
         verify(smtpRepository).findAllByUserId(user.getId());
     }
 
