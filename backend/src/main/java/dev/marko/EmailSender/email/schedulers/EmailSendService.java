@@ -9,6 +9,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 
+/**
+ * Service for sending email messages with rate limiting and status management.
+ * Handles locking, rate limit checks, and status updates during the sending process.
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -19,6 +23,15 @@ public class EmailSendService {
     private final EmailStatusService statusService;
     private final SmtpRateLimiter smtpRateLimiter;
 
+    /**
+     * Sends an email message and updates its status.
+     * Checks rate limits and requeues the email if limits are exceeded.
+     * Handles optimistic locking failures and other exceptions.
+     *
+     * @param email the email message to send
+     * @return true if the email was sent successfully, false if rate limited or failed
+     * @throws ObjectOptimisticLockingFailureException if the email is already being processed
+     */
     public boolean sendAndPersist(EmailMessage email) {
         try {
 

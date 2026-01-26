@@ -16,6 +16,10 @@ import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Service for creating and persisting email messages from recipient data.
+ * Handles message preparation, SMTP rotation, timezone conversion, and error handling.
+ */
 @Slf4j
 @AllArgsConstructor
 @Service
@@ -25,7 +29,19 @@ public class EmailMessageCreationService {
     private final EmailMessageRepository emailMessageRepository;
     private final SensitiveDataMasker sensitiveDataMasker;
 
-
+    /**
+     * Prepares and saves email messages for a list of recipients.
+     * Rotates SMTP credentials across recipients and converts scheduled time to UTC.
+     * Creates failed message entries for recipients that cannot be processed.
+     *
+     * @param recipients the list of email recipients
+     * @param smtpList the list of SMTP credentials to rotate
+     * @param user the user creating the emails
+     * @param template the email template to use
+     * @param campaign the campaign to associate with the emails
+     * @param scheduledAt the scheduled time in the campaign's timezone
+     * @return the list of created and persisted email messages
+     */
     public List<EmailMessage> prepareAndSaveEmails(
             List<EmailRecipientDto> recipients,
             List<SmtpCredentials> smtpList,

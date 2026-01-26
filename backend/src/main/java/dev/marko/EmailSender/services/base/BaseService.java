@@ -10,6 +10,16 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.function.Supplier;
 
+/**
+ * Base service class providing common CRUD operations for user-scoped entities.
+ * All operations are automatically scoped to the current user.
+ *
+ * @param <E> the entity type
+ * @param <D> the DTO type
+ * @param <C> the create request type
+ * @param <R> the repository type
+ * @param <U> the update request type
+ */
 @Getter
 public abstract class BaseService<
         E,
@@ -46,12 +56,24 @@ public abstract class BaseService<
                 .toList();
     }
 
+    /**
+     * Retrieves all entities belonging to the current user.
+     *
+     * @return list of DTOs for all user's entities
+     */
     @Transactional(readOnly = true)
     public List<D> getAll() {
         var user = currentUserProvider.getCurrentUser();
         return toListDto(repository.findAllByUserId(user.getId()));
     }
 
+    /**
+     * Retrieves an entity by ID, ensuring it belongs to the current user.
+     *
+     * @param id the entity ID
+     * @return the DTO for the entity
+     * @throws RuntimeException if the entity is not found or doesn't belong to the user
+     */
     public D getById(Long id) {
         var user = currentUserProvider.getCurrentUser();
         var entity = repository.findByIdAndUserId(id, user.getId())
@@ -59,6 +81,12 @@ public abstract class BaseService<
         return toDto(entity);
     }
 
+    /**
+     * Creates a new entity from the request and associates it with the current user.
+     *
+     * @param request the create request
+     * @return the DTO for the created entity
+     */
     @Transactional
     public D create(C request) {
         var user = currentUserProvider.getCurrentUser();
@@ -68,6 +96,14 @@ public abstract class BaseService<
         return toDto(entity);
     }
 
+    /**
+     * Updates an existing entity, ensuring it belongs to the current user.
+     *
+     * @param id the entity ID
+     * @param request the update request
+     * @return the DTO for the updated entity
+     * @throws RuntimeException if the entity is not found or doesn't belong to the user
+     */
     @Transactional
     public D update(Long id, U request) {
         var user = currentUserProvider.getCurrentUser();
@@ -80,6 +116,12 @@ public abstract class BaseService<
         return toDto(entity);
     }
 
+    /**
+     * Deletes an entity by ID, ensuring it belongs to the current user.
+     *
+     * @param id the entity ID
+     * @throws RuntimeException if the entity is not found or doesn't belong to the user
+     */
     @Transactional
     public void delete(Long id) {
         var user = currentUserProvider.getCurrentUser();

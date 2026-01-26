@@ -10,6 +10,10 @@ import org.springframework.stereotype.Service;
 import java.time.*;
 import java.util.Objects;
 
+/**
+ * Service for scheduling email messages using Redis sorted sets.
+ * Uses Redis ZSET to store email IDs with delivery timestamps as scores.
+ */
 @Slf4j
 @RequiredArgsConstructor
 @Service
@@ -18,7 +22,11 @@ public class RedisEmailScheduler {
     private final StringRedisTemplate redis;
 
     /**
-     * Schedules email by adding to ZSET with timestamp score
+     * Schedules an email message for delivery after a specified delay.
+     * Adds the email ID to a Redis sorted set with the delivery timestamp as the score.
+     *
+     * @param emailId the ID of the email message to schedule
+     * @param delaySeconds the delay in seconds before delivery
      */
     public void schedule(Long emailId, long delaySeconds) {
 
@@ -54,6 +62,16 @@ public class RedisEmailScheduler {
 //        }
     }
 
+    /**
+     * Schedules an email message for delivery at a specific time with timezone support.
+     * Converts the scheduled time from the specified timezone to UTC epoch seconds.
+     *
+     * @param emailId the ID of the email message to schedule
+     * @param scheduledAt the target scheduled time
+     * @param delaySeconds additional delay in seconds to add to the scheduled time
+     * @param zone the timezone of the scheduled time
+     * @throws SchedulingException if scheduling fails
+     */
     public void scheduleAt(Long emailId, LocalDateTime scheduledAt, long delaySeconds, String zone) {
 
         ZoneId zoneId = ZoneId.of(zone);
@@ -79,6 +97,12 @@ public class RedisEmailScheduler {
         }
     }
 
+    /**
+     * Cancels a scheduled email message by removing it from the Redis sorted set.
+     *
+     * @param emailId the ID of the email message to cancel
+     * @throws SchedulingException if cancellation fails
+     */
     public void cancel(Long emailId) {
         Objects.requireNonNull(emailId, "Email ID cannot be null");
 

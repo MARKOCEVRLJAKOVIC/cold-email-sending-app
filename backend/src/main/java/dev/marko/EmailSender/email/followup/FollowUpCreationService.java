@@ -12,6 +12,9 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+/**
+ * Service for creating follow-up email messages based on original emails and templates.
+ */
 @Service
 @RequiredArgsConstructor
 public class FollowUpCreationService {
@@ -19,6 +22,14 @@ public class FollowUpCreationService {
     private final EmailMessageRepository emailMessageRepository;
     private final EmailPreparationService emailPreparationService;
 
+    /**
+     * Creates a follow-up email message based on the original email and template.
+     * The follow-up is scheduled based on the template's delay days from the original email's sent time.
+     *
+     * @param original the original email message
+     * @param template the follow-up template to use
+     * @return the created and persisted follow-up email message
+     */
     public EmailMessage createFollowUp(EmailMessage original, FollowUpTemplate template) {
 
         LocalDateTime scheduledTime = original.getSentAt().plusDays(template.getDelayDays());
@@ -43,6 +54,13 @@ public class FollowUpCreationService {
         return emailMessageRepository.save(followUp);
     }
 
+    /**
+     * Calculates the delay in seconds from the current time to the scheduled time.
+     * Returns 0 if the scheduled time is in the past.
+     *
+     * @param scheduledTime the target scheduled time
+     * @return the delay in seconds, or 0 if the scheduled time has passed
+     */
     public long calculateDelayInSeconds(LocalDateTime scheduledTime) {
         return Math.max(0, Duration.between(LocalDateTime.now(ZoneId.of("UTC")), scheduledTime).getSeconds());
     }

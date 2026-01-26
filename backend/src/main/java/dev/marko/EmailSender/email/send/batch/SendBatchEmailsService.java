@@ -22,6 +22,10 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Service for processing and scheduling batch email sends from CSV files.
+ * Handles rate limiting, validation, email creation, and scheduling.
+ */
 @Slf4j
 @Service
 @AllArgsConstructor
@@ -37,6 +41,21 @@ public class SendBatchEmailsService {
     private final BatchSchedulingService batchSchedulingService;
     private final UserRateLimiter userRateLimiter;
 
+    /**
+     * Processes a CSV file of recipients and schedules batch email sending.
+     * Validates rate limits, parses recipients, creates email messages, and schedules them.
+     *
+     * @param file the CSV file containing recipient information
+     * @param scheduledAt the scheduled time for sending, or null for immediate scheduling
+     * @param templateId the ID of the email template to use
+     * @param smtpIds the list of SMTP credential IDs to use for sending
+     * @param campaignId the ID of the campaign to associate with the emails
+     * @return list of created email message DTOs
+     * @throws RateLimitExceededException if user rate limits are exceeded
+     * @throws TemplateNotFoundException if the template is not found
+     * @throws CampaignNotFoundException if the campaign is not found
+     * @throws SmtpListIsEmptyException if no valid SMTP credentials are provided
+     */
     public List<EmailMessageDto> sendBatchEmails(MultipartFile file,
                                                  LocalDateTime scheduledAt,
                                                  Long templateId,

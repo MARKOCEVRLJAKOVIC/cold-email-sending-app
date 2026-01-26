@@ -14,6 +14,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 
+/**
+ * Service for creating and scheduling reply messages in response to email replies.
+ * Handles reply message creation, persistence, and scheduling with error handling.
+ */
 @Slf4j
 @AllArgsConstructor
 @Service
@@ -23,6 +27,18 @@ public class ReplyResponseService {
     private final EmailMessageMapper emailMessageMapper;
     private final EmailSchedulingService emailSchedulingService;
 
+    /**
+     * Creates a reply message based on an original reply and schedules it for immediate sending.
+     * If scheduling fails, marks the message as failed and throws an exception.
+     *
+     * @param originalReply the original email reply that triggered this response
+     * @param originalMessage the original email message that was replied to
+     * @param response the reply response data containing the message content
+     * @param smtpCredentials the SMTP credentials to use for sending
+     * @param user the user creating the reply
+     * @return the created reply message DTO
+     * @throws ReplyMessageSchedulingException if scheduling fails
+     */
     @Transactional
     public EmailMessageDto createReplyMessage(EmailReply originalReply,
                                                EmailMessage originalMessage,
