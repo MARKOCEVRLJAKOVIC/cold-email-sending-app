@@ -74,7 +74,7 @@ public class EmailMessageCreationServiceTest {
         assertEquals(smtp2, result.get(1).getSmtpCredentials());
         assertEquals(expectedMessageText, result.get(0).getSentMessage());
 
-        verify(emailMessageRepository, times(2)).save(any());
+        verify(emailMessageRepository, times(1)).saveAll(anyList());
 
     }
 

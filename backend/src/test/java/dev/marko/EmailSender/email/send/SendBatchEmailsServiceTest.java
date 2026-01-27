@@ -9,6 +9,7 @@ import dev.marko.EmailSender.email.send.batch.SendBatchEmailsService;
 import dev.marko.EmailSender.entities.*;
 import dev.marko.EmailSender.exception.TemplateNotFoundException;
 import dev.marko.EmailSender.mappers.EmailMessageMapper;
+import dev.marko.EmailSender.ratelimit.UserRateLimiter;
 import dev.marko.EmailSender.repositories.CampaignRepository;
 import dev.marko.EmailSender.repositories.SmtpRepository;
 import dev.marko.EmailSender.repositories.TemplateRepository;
@@ -31,7 +32,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class SendBatchEmailsServiceTest {
+class SendBatchEmailsServiceTest {
 
     @Mock private CurrentUserProvider currentUserProvider;
     @Mock private TemplateRepository templateRepository;
@@ -42,6 +43,7 @@ public class SendBatchEmailsServiceTest {
     @Mock private CsvParserService csvParserService;
     @Mock private EmailMessageCreationService emailMessageCreationService;
     @Mock private BatchSchedulingService batchSchedulingService;
+    @Mock private UserRateLimiter userRateLimiter;
 
     @InjectMocks
     private SendBatchEmailsService sendBatchEmailsService;
@@ -53,13 +55,11 @@ public class SendBatchEmailsServiceTest {
     private EmailMessage emailMessage1;
     private EmailMessage emailMessage2;
 
-
-    Long VALID_ID = 1L;
-    Long INVALID_ID = 99L;
+    private final Long VALID_ID = 1L;
+    private final Long INVALID_ID = 99L;
 
     @BeforeEach
-    public void setup() {
-
+    void setup() {
         user = new User();
         user.setId(VALID_ID);
 
@@ -81,10 +81,15 @@ public class SendBatchEmailsServiceTest {
         emailMessage2 = new EmailMessage();
 
         when(currentUserProvider.getCurrentUser()).thenReturn(user);
+
+        doNothing().when(userRateLimiter).consumeBatchOrThrow(any(User.class));
     }
 
     @Test
-    public void testSendBatchEmails() {
+    void testSendBatchEmails() {
+
+        doNothing().when(userRateLimiter)
+                .consumeEmailsOrThrow(any(User.class), anyInt());
 
         MultipartFile file = getFile("""
                 name,email
@@ -92,20 +97,25 @@ public class SendBatchEmailsServiceTest {
                 Marko,email2@test.com
                 """);
 
-        when(templateRepository.findByIdAndUserId(template.getId(), user.getId())).thenReturn(Optional.of(template));
-        when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId())).thenReturn(Optional.of(campaign));
-        when(smtpRepository.findAllById(List.of(VALID_ID))).thenReturn(List.of(smtpCredentials));
+        when(templateRepository.findByIdAndUserId(template.getId(), user.getId()))
+                .thenReturn(Optional.of(template));
+        when(campaignRepository.findByIdAndUserId(campaign.getId(), user.getId()))
+                .thenReturn(Optional.of(campaign));
+        when(smtpRepository.findAllById(List.of(VALID_ID)))
+                .thenReturn(List.of(smtpCredentials));
 
-        when(csvParserService.parseCsv(any())).thenReturn(List.of(
-                new EmailRecipientDto("Marko", "email1@test.como"),
-                new EmailRecipientDto("Marko", "email2@test.com")
-        ));
+        when(csvParserService.parseCsv(any()))
+                .thenReturn(List.of(
+                        new EmailRecipientDto("Marko", "email1@test.com"),
+                        new EmailRecipientDto("Marko", "email2@test.com")
+                ));
 
         when(emailMessageCreationService.prepareAndSaveEmails(
                 any(), any(), any(), any(), any(), any()
         )).thenReturn(List.of(emailMessage1, emailMessage2));
 
-        when(emailMessageMapper.toDto(any())).thenReturn(new EmailMessageDto());
+        when(emailMessageMapper.toDto(any()))
+                .thenReturn(new EmailMessageDto());
 
         var result = sendBatchEmailsService.sendBatchEmails(
                 file,
@@ -117,19 +127,19 @@ public class SendBatchEmailsServiceTest {
 
         assertEquals(2, result.size());
 
-        verify(csvParserService, times(1)).parseCsv(file);
-        verify(emailMessageCreationService).prepareAndSaveEmails(any(), any(), any(), any(), any(), any());
-        verify(batchSchedulingService).scheduleEmails(
-                any(),
-                eq(List.of(emailMessage1, emailMessage2)), any()
-        );
+        verify(csvParserService).parseCsv(file);
+        verify(emailMessageCreationService)
+                .prepareAndSaveEmails(any(), any(), any(), any(), any(), any());
+        verify(batchSchedulingService)
+                .scheduleEmails(any(), eq(List.of(emailMessage1, emailMessage2)), any());
         verify(emailMessageMapper, times(2)).toDto(any());
     }
 
     @Test
-    public void testSendBatchEmails_ThrowsWhenTemplateNotFound() {
+    void testSendBatchEmails_ThrowsWhenTemplateNotFound() {
 
-        when(templateRepository.findByIdAndUserId(INVALID_ID, user.getId())).thenReturn(Optional.empty());
+        when(templateRepository.findByIdAndUserId(INVALID_ID, user.getId()))
+                .thenReturn(Optional.empty());
 
         MultipartFile file = getFile("email,name\nemail@email.com");
 
@@ -145,18 +155,26 @@ public class SendBatchEmailsServiceTest {
     }
 
     @Test
-    public void testSmtpRotation() {
+    void testSmtpRotation() {
 
-        when(templateRepository.findByIdAndUserId(template.getId(), user.getId())).thenReturn(Optional.of(template));
-        when(campaignRepository.findByIdAndUserId(VALID_ID, user.getId())).thenReturn(Optional.of(campaign));
+        doNothing().when(userRateLimiter)
+                .consumeEmailsOrThrow(any(User.class), anyInt());
 
-        when(smtpRepository.findAllById(any())).thenReturn(List.of(
+        when(templateRepository.findByIdAndUserId(template.getId(), user.getId()))
+                .thenReturn(Optional.of(template));
+        when(campaignRepository.findByIdAndUserId(VALID_ID, user.getId()))
+                .thenReturn(Optional.of(campaign));
+
+        List<SmtpCredentials> smtpList = List.of(
                 createSmtp(1L, "smtp1@email.com"),
                 createSmtp(2L, "smtp2@email.com"),
                 createSmtp(3L, "smtp3@email.com"),
                 createSmtp(4L, "smtp4@email.com"),
                 createSmtp(5L, "smtp5@email.com")
-        ));
+        );
+
+        when(smtpRepository.findAllById(any()))
+                .thenReturn(smtpList);
 
         MultipartFile file = getFile("""
                 email,name
@@ -174,13 +192,10 @@ public class SendBatchEmailsServiceTest {
         when(emailMessageCreationService.prepareAndSaveEmails(
                 any(), any(), any(), any(), any(), any()
         )).thenAnswer(invocation -> {
-            // simulate saving 7 messages
             List<EmailMessage> emails = new ArrayList<>();
             for (int i = 0; i < 7; i++) {
                 EmailMessage msg = new EmailMessage();
-                msg.setSmtpCredentials(
-                        smtpRepository.findAllById(any()).get(i % 5)
-                );
+                msg.setSmtpCredentials(smtpList.get(i % smtpList.size()));
                 savedMessages.add(msg);
                 emails.add(msg);
             }
@@ -217,6 +232,8 @@ public class SendBatchEmailsServiceTest {
     }
 
     private MultipartFile getFile(String content) {
-        return new MockMultipartFile("file", "test.csv", "text/csv", content.getBytes());
+        return new MockMultipartFile(
+                "file", "test.csv", "text/csv", content.getBytes()
+        );
     }
 }
