@@ -6,7 +6,10 @@ import dev.marko.EmailSender.entities.FollowUpTemplate;
 import dev.marko.EmailSender.entities.Status;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -15,6 +18,7 @@ import java.time.ZoneId;
 /**
  * Service for creating follow-up email messages based on original emails and templates.
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FollowUpCreationService {
@@ -30,6 +34,7 @@ public class FollowUpCreationService {
      * @param template the follow-up template to use
      * @return the created and persisted follow-up email message
      */
+    @Transactional
     public EmailMessage createFollowUp(EmailMessage original, FollowUpTemplate template) {
 
         LocalDateTime scheduledTime = original.getSentAt().plusDays(template.getDelayDays());
@@ -51,7 +56,14 @@ public class FollowUpCreationService {
                 .scheduledAt(scheduledTime)
                 .build();
 
-        return emailMessageRepository.save(followUp);
+        try {
+            return emailMessageRepository.save(followUp);
+        }
+        catch (DataIntegrityViolationException e) {
+            log.debug("Follow-up already sent for message {} with template {}",
+                    original.getMessageId(), template.getId());
+            return null;
+        }
     }
 
     /**

@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.email.followup;
 
 import dev.marko.EmailSender.entities.EmailMessage;
+import dev.marko.EmailSender.entities.Status;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,9 @@ public class FollowUpQueryService {
     public List<EmailMessage> getEligibleOriginalEmails() {
         return emailMessageRepository.findSentWithoutReplyOrFollowUp()
                 .stream()
-                .filter(email -> email.getSentAt() != null && email.getCampaign() != null)
+                .filter(email -> Status.SENT.equals(email.getStatus())
+                        && email.getSentAt() != null
+                        && email.getCampaign() != null)
                 .toList();
     }
 }

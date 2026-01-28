@@ -1,11 +1,11 @@
 package dev.marko.EmailSender.email.followup;
 
-import com.google.api.client.util.Value;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.FollowUpTemplate;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.EmailReplyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;

@@ -60,6 +60,7 @@ email:
   follow-up:
     quantity: 2 # maximum 2 follow up
     expiration: 48h
+    cron: "0 0 * * * *" # Every hour (default)
   scheduling:
     default-delay-seconds: 15 # 15 seconds
     retry:

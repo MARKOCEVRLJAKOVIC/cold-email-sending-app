@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * Service responsible for scheduling follow-up emails based on scheduled cron job.
@@ -28,7 +29,8 @@ public class FollowUpSchedulerService {
      * Scheduled task that runs every hour to process and schedule follow-up emails.
      * Retrieves eligible original emails and processes each one to create and schedule follow-ups.
      */
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "${email.follow-up.cron}")
+    @Transactional(readOnly = true)
     public void scheduleFollowUps() {
         queryService.getEligibleOriginalEmails()
                 .forEach(this::processOriginalEmail);
@@ -40,21 +42,31 @@ public class FollowUpSchedulerService {
      * @param original the original email message to process
      */
     private void processOriginalEmail(EmailMessage original) {
-        FollowUpTemplate template = eligibilityService.findEligibleTemplate(original);
+        try {
+            FollowUpTemplate template = eligibilityService.findEligibleTemplate(original);
 
-        if (template == null) return;
+            if (template == null) {
+                log.debug("No eligible follow-up template for message {} [reasons: " +
+                                "already replied, all templates sent, or delay not passed]",
+                        original.getId());
+                return;
+            }
 
-        EmailMessage followUp = creationService.createFollowUp(original, template);
+            EmailMessage followUp = creationService.createFollowUp(original, template);
 
-        long delay = creationService.calculateDelayInSeconds(followUp.getScheduledAt());
-        schedulingService.scheduleFollowUp(followUp, delay);
+            long delay = creationService.calculateDelayInSeconds(followUp.getScheduledAt());
+            schedulingService.scheduleFollowUp(followUp, delay);
 
-        String maskedEmail = sensitiveDataMasker.maskEmail(followUp.getRecipientEmail());
+            String maskedEmail = sensitiveDataMasker.maskEmail(followUp.getRecipientEmail());
 
-        log.info("Scheduled follow-up for {} at {} (delay {}s)",
-                maskedEmail,
-                followUp.getScheduledAt(),
-                delay
-        );
+            log.info("Scheduled follow-up for {} at {} (delay {}s)",
+                    maskedEmail, followUp.getScheduledAt(), delay
+            );
+        }
+        catch (Exception e) {
+            log.error("Failed to process follow-up for message {}: {}",
+                    original.getId(), e.getMessage(), e);
+        }
+
     }
 }
