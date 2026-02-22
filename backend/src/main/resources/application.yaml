@@ -52,8 +52,8 @@ spring:
     refreshTokenExpiration: 604800 # 7 days
   token:
     encrypt: ${TOKEN_ENCRYPTION_KEY}
-  profiles:
-    active: dev
+#  profiles:
+#    active: dev
 
 
 email:

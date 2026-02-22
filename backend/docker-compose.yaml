@@ -5,7 +5,6 @@ services:
     env_file:
       - .env
     environment:
-      MYSQL_USER: root
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: email_sender
       MYSQL_PASSWORD: ${DB_PASSWORD}
