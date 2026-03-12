@@ -1,16 +1,15 @@
 services:
+
   mysql:
     image: mysql:8.0.42
     container_name: mysql
     restart: always
-
     env_file:
       - .env
     environment:
       MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
       MYSQL_DATABASE: email_sender
       MYSQL_PASSWORD: ${DB_PASSWORD}
-      MYSQL_ROOT_HOST: "%"
     command: >
       --innodb-buffer-pool-size=128M
       --max-connections=50
@@ -19,10 +18,12 @@ services:
       - mysql_data:/var/lib/mysql
     networks:
       - email-app-net
-    deploy:
-      resources:
-        limits:
-          memory: 300m
+    mem_limit: 300m
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
   redis:
     image: redis:7-alpine
@@ -33,10 +34,7 @@ services:
       - redis_data:/data
     networks:
       - email-app-net
-    deploy:
-      resources:
-        limits:
-          memory: 150m
+    mem_limit: 150m
 
   backend:
     image: cevrljakovic/email-backend
@@ -45,17 +43,21 @@ services:
     env_file:
       - .env
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-      JAVA_OPTS: "-Xms256m -Xmx350m"
+      SPRING_PROFILES_ACTIVE: prod
+      JAVA_TOOL_OPTIONS: "-Xms256m -Xmx350m"
     depends_on:
-      - mysql
-      - redis
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_started
     networks:
       - email-app-net
-    deploy:
-      resources:
-        limits:
-          memory: 400m
+    mem_limit: 400m
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   frontend:
     image: cevrljakovic/email-frontend
@@ -63,6 +65,7 @@ services:
     restart: always
     networks:
       - email-app-net
+    mem_limit: 150m
 
   nginx:
     image: nginx:stable-alpine
@@ -73,14 +76,13 @@ services:
     volumes:
       - ./nginx.conf:/etc/nginx/nginx.conf
     depends_on:
-      - backend
-      - frontend
+      backend:
+        condition: service_healthy
+      frontend:
+        condition: service_started
     networks:
       - email-app-net
-    deploy:
-      resources:
-        limits:
-          memory: 100m
+    mem_limit: 100m
 
 volumes:
   mysql_data:

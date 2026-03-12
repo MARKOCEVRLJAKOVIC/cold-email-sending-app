@@ -67,6 +67,7 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/password/**").permitAll()
                         .requestMatchers("/api/pubsub/gmail").permitAll()
                         .requestMatchers("/", "/login**", "/oauth2/**").permitAll()
+                        .requestMatchers("/actuator/health").permitAll()
                         .anyRequest().authenticated()
 
                 ) .oauth2Login(oauth -> oauth
