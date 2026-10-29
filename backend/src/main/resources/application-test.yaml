@@ -45,13 +45,13 @@ spring:
             token-uri: http://localhost/oauth2/token
             user-info-uri: http://localhost/oauth2/userinfo
 
-jwt:
-  secret: test-jwt-secret-test-jwt-secret-test
-  accessTokenExpiration: 600
-  refreshTokenExpiration: 3600
+  jwt:
+    secret: test-jwt-secret-test-jwt-secret-test
+    accessTokenExpiration: 600
+    refreshTokenExpiration: 3600
 
-token:
-  encrypt: test-encryption-key-1234567890
+  token:
+    encrypt: dGVzdC1lbmNyeXB0aW9uLWtleS0zMi1ieXRlcy0xMjM= # Base64 of a 32-byte key (AES-256)
 
 email:
   follow-up:
