@@ -2,6 +2,7 @@ package dev.marko.EmailSender.ratelimit;
 
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.SmtpType;
+import dev.marko.EmailSender.metrics.EmailPipelineMetrics;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ public class SmtpRateLimiter {
 
     private final StringRedisTemplate redis;
     private final RateLimitConfig config;
+    private final EmailPipelineMetrics metrics;
 
     private DefaultRedisScript<Long> smtpLuaScript;
 
@@ -66,6 +68,7 @@ public class SmtpRateLimiter {
 
         } catch (Exception e) {
             log.error("SMTP rate limiter failed-open for {}", smtp.getEmail(), e);
+            metrics.recordRateLimiterFailOpen("smtp");
             return true; // fail-open
         }
     }

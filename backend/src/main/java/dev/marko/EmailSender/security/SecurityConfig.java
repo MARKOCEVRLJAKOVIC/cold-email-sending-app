@@ -67,7 +67,8 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST,"/password/**").permitAll()
                         .requestMatchers("/api/pubsub/gmail").permitAll()
                         .requestMatchers("/", "/login**", "/oauth2/**").permitAll()
-                        .requestMatchers("/actuator/health").permitAll()
+                        // in prod, actuator listens on an internal port that nginx never proxies to
+                        .requestMatchers("/actuator/health", "/actuator/prometheus").permitAll()
                         .anyRequest().authenticated()
 
                 ) .oauth2Login(oauth -> oauth

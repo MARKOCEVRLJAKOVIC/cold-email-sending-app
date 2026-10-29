@@ -1,0 +1,73 @@
+groups:
+  - name: email-pipeline
+    rules:
+
+      - alert: BackendDown
+        expr: up{job="email-backend"} == 0
+        for: 2m
+        labels: { severity: critical }
+        annotations:
+          summary: Backend metrics endpoint is unreachable
+
+      - alert: RedisUnavailable
+        expr: email_metrics_redis_up == 0
+        for: 5m
+        labels: { severity: critical }
+        annotations:
+          summary: Backend cannot read pipeline state from Redis (scheduling and rate limiting affected)
+
+      - alert: DeadLetterQueueGrowing
+        expr: delta(email_dead_letter_size[30m]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $value }} emails moved to email_dead_letter_queue in the last 30m"
+
+      - alert: ScheduledBacklogNotDraining
+        expr: email_scheduled_overdue > 0
+        for: 10m
+        labels: { severity: critical }
+        annotations:
+          summary: "{{ $value }} emails are past their send time but still in scheduled_emails (dispatcher stalled?)"
+
+      - alert: StreamEntriesUnacknowledged
+        expr: email_stream_pending > 0
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $value }} stream entries read but never acknowledged (worker crashed mid-send?)"
+
+      - alert: EmailsStuckInProcessing
+        expr: min_over_time(email_processing[15m]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: "At least {{ $value }} emails stayed in PROCESSING for 15m"
+
+      - alert: HighSendFailureRate
+        expr: |
+          sum(rate(email_failed_total[15m]))
+            / (sum(rate(email_sent_total[15m])) + sum(rate(email_failed_total[15m]))) > 0.2
+        for: 15m
+        labels: { severity: warning }
+        annotations:
+          summary: More than 20% of send attempts are failing
+
+      - alert: OAuthAccountRevoked
+        expr: increase(oauth_refresh_revoked_total[1h]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: A Gmail account's refresh token was revoked and the account was disabled
+
+      - alert: RateLimiterFailingOpen
+        expr: increase(rate_limiter_fail_open_total[10m]) > 0
+        labels: { severity: warning }
+        annotations:
+          summary: "{{ $labels.limiter }} rate limiter is failing open (sends are not being limited)"
+
+      - alert: NoRepliesMatched
+        expr: |
+          sum(increase(email_sent_total[7d])) > 100
+            and on() (sum(increase(email_reply_matched_total[7d])) or vector(0)) == 0
+        for: 1h
+        labels: { severity: warning }
+        annotations:
+          summary: Emails are going out but no replies have been matched in 7 days (reply sync or Message-ID broken?)

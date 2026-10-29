@@ -1,6 +1,7 @@
 
 package dev.marko.EmailSender.ratelimit;
 
+import dev.marko.EmailSender.metrics.EmailPipelineMetrics;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +20,7 @@ import java.util.List;
 public class RateLimiterService {
 
     private final StringRedisTemplate redis;
+    private final EmailPipelineMetrics metrics;
 
     private DefaultRedisScript<Long> userEmailScript;
 
@@ -63,6 +65,7 @@ public class RateLimiterService {
 
         } catch (Exception e) {
             log.error("User rate limit failed-open for user {}", userId, e);
+            metrics.recordRateLimiterFailOpen("user");
             return true; // fail-open (mail system - strict safety)
         }
     }

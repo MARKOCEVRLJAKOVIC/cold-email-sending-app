@@ -1,9 +1,16 @@
+x-logging: &default-logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
 services:
 
   mysql:
     image: mysql:8.0.42
     container_name: mysql
     restart: always
+    logging: *default-logging
     env_file:
       - .env
     environment:
@@ -29,6 +36,7 @@ services:
     image: redis:7-alpine
     container_name: redis
     restart: always
+    logging: *default-logging
     command: redis-server --maxmemory 100mb --maxmemory-policy allkeys-lru
     volumes:
       - redis_data:/data
@@ -40,6 +48,7 @@ services:
     image: cevrljakovic/email-backend
     container_name: backend
     restart: always
+    logging: *default-logging
     env_file:
       - .env
     environment:
@@ -54,7 +63,7 @@ services:
       - email-app-net
     mem_limit: 400m
     healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:8080/actuator/health"]
+      test: ["CMD", "wget", "-qO-", "http://localhost:8081/actuator/health"]
       interval: 10s
       timeout: 5s
       retries: 5
@@ -63,6 +72,7 @@ services:
     image: cevrljakovic/email-frontend
     container_name: frontend
     restart: always
+    logging: *default-logging
     networks:
       - email-app-net
     mem_limit: 150m
@@ -71,6 +81,7 @@ services:
     image: nginx:stable-alpine
     container_name: nginx
     restart: always
+    logging: *default-logging
     ports:
       - "80:80"
     volumes:

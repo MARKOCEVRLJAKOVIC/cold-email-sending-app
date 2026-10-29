@@ -3,6 +3,7 @@ package dev.marko.EmailSender.email.schedulers;
 import dev.marko.EmailSender.email.send.EmailSenderDelegator;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.Status;
+import dev.marko.EmailSender.metrics.EmailPipelineMetrics;
 import dev.marko.EmailSender.ratelimit.SmtpRateLimiter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +23,7 @@ public class EmailSendService {
     private final EmailSenderDelegator emailSenderDelegator;
     private final EmailStatusService statusService;
     private final SmtpRateLimiter smtpRateLimiter;
+    private final EmailPipelineMetrics metrics;
 
     /**
      * Sends an email message and updates its status.
@@ -41,6 +43,7 @@ public class EmailSendService {
                 log.warn("Rate limit exceeded for SMTP {}, re-queueing email {}",
                         lockedEmail.getSmtpCredentials().getEmail(),
                         lockedEmail.getId());
+                metrics.recordRateLimited(lockedEmail.getSmtpCredentials());
 
                 // Mark as pending again and requeue with delay
                 lockedEmail.setStatus(Status.PENDING);
@@ -52,6 +55,7 @@ public class EmailSendService {
 
             emailSenderDelegator.send(lockedEmail);
             statusService.markSent(lockedEmail.getId());
+            metrics.recordSent(lockedEmail.getSmtpCredentials());
 
             return true;
 
@@ -61,6 +65,7 @@ public class EmailSendService {
         } catch (Exception e) {
             log.error("Failed to send email {}: ", email.getId(), e);
             statusService.markFailed(email, e);
+            metrics.recordFailed(email.getSmtpCredentials());
             return false;
         }
     }

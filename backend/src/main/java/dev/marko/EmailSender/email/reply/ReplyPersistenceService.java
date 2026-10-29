@@ -5,6 +5,7 @@ import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.EmailReply;
 import dev.marko.EmailSender.entities.SmtpCredentials;
 import dev.marko.EmailSender.entities.Status;
+import dev.marko.EmailSender.metrics.EmailPipelineMetrics;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import dev.marko.EmailSender.repositories.EmailReplyRepository;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,7 @@ public class ReplyPersistenceService {
 
     private final EmailReplyRepository replyRepository;
     private final EmailMessageRepository emailMessageRepository;
+    private final EmailPipelineMetrics metrics;
 
     public void saveReply(EmailMessage original, Message msg, SmtpCredentials creds) {
 
@@ -36,6 +38,7 @@ public class ReplyPersistenceService {
                 .build();
 
         replyRepository.save(reply);
+        metrics.recordReplyMatched();
     }
 
 }

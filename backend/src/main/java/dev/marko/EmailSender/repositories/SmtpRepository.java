@@ -26,6 +26,8 @@ public interface SmtpRepository extends JpaRepository<SmtpCredentials,Long>, Use
 
     List<SmtpCredentials> findAllBySmtpTypeAndEnabled(SmtpType smtpType, Boolean enabled);
 
+    long countBySmtpTypeAndEnabled(SmtpType smtpType, boolean enabled);
+
 
 
 

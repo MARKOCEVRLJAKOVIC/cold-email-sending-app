@@ -86,3 +86,12 @@ app:
     max-pool-size: 20
     queue-capacity: 500
     thread-name-prefix: "EmailSender-"
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,prometheus
+  metrics:
+    tags:
+      application: ${spring.application.name}

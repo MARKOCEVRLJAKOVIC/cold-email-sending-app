@@ -1,0 +1,9 @@
+apiVersion: 1
+
+providers:
+  - name: email-outreach
+    folder: Email Outreach
+    type: file
+    disableDeletion: true
+    options:
+      path: /var/lib/grafana/dashboards

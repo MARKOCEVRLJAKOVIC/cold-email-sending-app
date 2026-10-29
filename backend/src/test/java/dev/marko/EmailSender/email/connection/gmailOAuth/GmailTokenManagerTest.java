@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.email.connection.gmailOAuth;
 
 import dev.marko.EmailSender.entities.SmtpCredentials;
+import dev.marko.EmailSender.metrics.EmailPipelineMetrics;
 import dev.marko.EmailSender.security.EncryptionService;
 import dev.marko.EmailSender.services.SmtpCredentialService;
 import org.junit.jupiter.api.DisplayName;
@@ -32,6 +33,9 @@ class GmailTokenManagerTest {
 
     @Mock
     private EncryptionService encryptionService;
+
+    @Mock
+    private EmailPipelineMetrics metrics;
 
     @InjectMocks
     private GmailTokenManager gmailTokenManager;

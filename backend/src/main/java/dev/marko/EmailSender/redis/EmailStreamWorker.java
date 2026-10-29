@@ -3,6 +3,7 @@ package dev.marko.EmailSender.redis;
 import dev.marko.EmailSender.email.schedulers.EmailSendService;
 import dev.marko.EmailSender.entities.EmailMessage;
 import dev.marko.EmailSender.entities.Status;
+import dev.marko.EmailSender.metrics.EmailPipelineMetrics;
 import dev.marko.EmailSender.repositories.EmailMessageRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
@@ -29,15 +30,18 @@ public class EmailStreamWorker {
     private final EmailMessageRepository repo;
     private final EmailSendService emailSendService;
     private final Executor emailExecutor;
+    private final EmailPipelineMetrics metrics;
 
     public EmailStreamWorker(StringRedisTemplate redis,
                              EmailMessageRepository repo,
                              EmailSendService emailSendService,
-                             @Qualifier("emailTaskExecutor") Executor emailExecutor) {
+                             @Qualifier("emailTaskExecutor") Executor emailExecutor,
+                             EmailPipelineMetrics metrics) {
         this.redis = redis;
         this.repo = repo;
         this.emailSendService = emailSendService;
         this.emailExecutor = emailExecutor;
+        this.metrics = metrics;
     }
 
     private static final String CONSUMER_GROUP = "email_send_group";
@@ -153,6 +157,7 @@ public class EmailStreamWorker {
         if (retryCount >= MAX_RETRIES) {
             log.error("Email {} failed after {} retries. Moving to DLQ.", emailId, MAX_RETRIES);
             moveToDeadLetterQueue(emailId, retryCount);
+            metrics.recordDeadLettered();
         } else {
             requeueWithRetry(emailId, retryCount + 1);
         }

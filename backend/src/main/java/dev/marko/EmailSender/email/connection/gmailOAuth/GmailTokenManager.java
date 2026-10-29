@@ -1,6 +1,7 @@
 package dev.marko.EmailSender.email.connection.gmailOAuth;
 
 import dev.marko.EmailSender.entities.SmtpCredentials;
+import dev.marko.EmailSender.metrics.EmailPipelineMetrics;
 import dev.marko.EmailSender.security.EncryptionService;
 import dev.marko.EmailSender.services.SmtpCredentialService;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ public class GmailTokenManager {
     private final OAuthTokenService tokenService;
     private final SmtpCredentialService smtpService;
     private final EncryptionService encryptionService;
+    private final EmailPipelineMetrics metrics;
 
     public SmtpCredentials refreshIfNeeded(SmtpCredentials smtpCredentials) {
 
@@ -56,6 +58,7 @@ public class GmailTokenManager {
                 smtpCredentials.setEnabled(false);
 
                 smtpService.save(smtpCredentials);
+                metrics.recordOAuthRevoked();
 
                 throw new IllegalStateException(
                         "Refresh token is invalid or revoked for " + smtpCredentials.getEmail()

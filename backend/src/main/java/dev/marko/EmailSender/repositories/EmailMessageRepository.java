@@ -41,6 +41,8 @@ public interface EmailMessageRepository extends JpaRepository<EmailMessage, Long
     boolean existsByInReplyToAndFollowUpTemplate(String inReplyTo, FollowUpTemplate followUpTemplate);
     boolean existsByInReplyToAndFollowUpTemplateId(String inReplyTo, Long followUpTemplateId);
 
+    long countByStatus(Status status);
+
 
     @Query("""
     SELECT DISTINCT e FROM EmailMessage e
